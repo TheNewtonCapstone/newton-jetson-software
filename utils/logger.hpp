@@ -1,7 +1,5 @@
-// include/utils/Logger.h
-#ifndef LOGGER_H
-#define LOGGER_H
-
+#pragma
+#include <cstring>
 #include <string>
 #include <iostream>
 #include <mutex>
@@ -9,149 +7,141 @@
 #include <sstream>
 #include <fstream>
 #include <time.h>
-#include <Config.h>
-
-
-
-// Convenience macros - now with enabled checks
-#define LOG_DEBUG(tag, msg)   \
-  if(Logger::getInstance().isEnabled(Logger::Level::DEBUG)) \
-    Logger::getInstance().log(Logger::Level::DEBUG, tag, msg)
-#define LOG_INFO(tag, msg) \
-    if(Logger::getInstance().isEnabled(Logger::Level::INFO)) \
-        Logger::getInstance().log(Logger::Level::INFO, tag, msg)
-#define LOG_WARNING(tag, msg) \
-    if(Logger::getInstance().isEnabled(Logger::Level::WARNING)) \
-        Logger::getInstance().log(Logger::Level::WARNING, tag, msg)
-#define LOG_ERROR(tag, msg) \
-    if(Logger::getInstance().isEnabled(Logger::Level::ERROR)) \
-        Logger::getInstance().log(Logger::Level::ERROR, tag, msg)
-
-#define LOG_TO_FILE(tag, msg) \
-  Logger::getInstance().logToFile(tag, msg)\
 
 class Logger {
 public:
     enum class Level {
-        DEBUG,    // Detailed debugging
-        INFO,     // Normal events
-        WARNING,  // Issues that need attention
-        ERROR,    // Critical issues
-        COUNT     // Used to size the bitset
+        DEBUG,    
+        INFO,     
+        WARN,     
+        ERROR,    
+        COUNT    
     };
 
-    static Logger& getInstance() {
+    template<typename... Args>
+    static void DEBUG(const std::string& tag, const char* format, Args... args) {
+        if(get_instance().is_enabled(Level::DEBUG)) {
+            auto& logger = get_instance();
+            logger.log_formatted(Level::DEBUG, tag, format, std::forward<Args>(args)...);
+        }
+    }
+
+    template<typename... Args>
+    static void INFO(const std::string& tag, const char* format, Args... args) {
+        if(get_instance().is_enabled(Level::INFO)) {
+            auto& logger = get_instance();
+            logger.log_formatted(Level::INFO, tag, format, std::forward<Args>(args)...);
+        }
+    }
+
+    template<typename... Args>
+    static void WARN(const std::string& tag, const char* format, Args... args) {
+        if(get_instance().is_enabled(Level::WARN)) {
+            auto& logger = get_instance();
+            logger.log_formatted(Level::WARN, tag, format, std::forward<Args>(args)...);
+        }
+    }
+
+    template<typename... Args>
+    static void ERROR(const std::string& tag, const char* format, Args... args) {
+        if(get_instance().is_enabled(Level::ERROR)) {
+            auto& logger = get_instance();
+            logger.log_formatted(Level::ERROR, tag, format, std::forward<Args>(args)...);
+        }
+    }
+
+    // Configuration methods
+    void set_logfile(const std::string& filename) {
+        std::lock_guard<std::mutex> lock(mutex);
+        logFile_ = filename;
+    }
+
+    void enable(Level level) {
+        enabled_levels.set(static_cast<size_t>(level), true);
+    }
+
+    void disable(Level level) {
+        enabled_levels.set(static_cast<size_t>(level), false);
+    }
+
+    bool is_enabled(Level level) const {
+        return enabled_levels[static_cast<size_t>(level)];
+    }
+
+    void enable_all() {
+        enabled_levels.set();
+    }
+
+    void disable_all() {
+        enabled_levels.reset();
+    }
+
+    static Logger& get_instance() {
         static Logger instance;
         return instance;
     }
 
-    // Enable specific log levels
-    void enable(Level level) {
-        enabledLevels.set(static_cast<size_t>(level), true);
-    }
-
-    // Disable specific log levels
-    void disable(Level level) {
-        enabledLevels.set(static_cast<size_t>(level), false);
-    }
-
-    // Check if a level is enabled
-    bool isEnabled(Level level) const {
-        return enabledLevels[static_cast<size_t>(level)];
-    }
-
-    // Enable all levels
-    void enableAll() {
-        enabledLevels.set();
-    }
-
-    // Disable all levels
-    void disableAll() {
-        enabledLevels.reset();
-    }
-
-    void log(Level level, const std::string tag, const std::string& message) {
-        if (isEnabled(level)) {
-            std::lock_guard<std::mutex> lock(mutex);
-            std::string str = (level == Logger::Level::ERROR) ? "[ " + levelToString(level) + " ]": "";
-            std::cout << getTimestamp() << str << "[ " << tag << "] " << message << std::endl;
-        }
-    }
-
-    std::string getTimestamp() {
-        time_t now = time(nullptr);
-        struct tm* timeinfo = localtime(&now);
-
-        char buffer[9];  // HH:MM:SS\0
-        strftime(buffer, sizeof(buffer), "%H:%M:%S", timeinfo);
-
-        std::stringstream ss;
-        ss << buffer;
-
-        // Get milliseconds using a simpler approach
-        struct timespec ts;
-        clock_gettime(CLOCK_REALTIME, &ts);
-        int ms = ts.tv_nsec / 1000000;  // Convert nanoseconds to milliseconds
-
-        // Format milliseconds with leading zeros
-        char ms_buffer[5];
-        snprintf(ms_buffer, sizeof(ms_buffer), ".%03d", ms);
-        ss << ms_buffer;
-
-        return ss.str();
-    }
-    Status logToFile(const std::string tag, const std::string& message) {
-      std::lock_guard<std::mutex> lock(mutex);
-      std::ofstream file("log.txt", std::ios::app);
-      LOG_INFO("Logger", "Writing to log file");
-      if (!file.is_open()) {
-        LOG_ERROR("Logger", "Failed to open log file");
-        return Status::ERROR;
-      }
-
-      file << getTimestamp() << "[" << tag << "] " << message << std::endl;
-      file.flush();
-      file.close();
-      return Status::OK;
-    }
-
 private:
     Logger() {
-        // By default, enable all except DEBUG
-        enableAll();
-        disable(Level::DEBUG);
+        enable_all();
+        disable(Level::DEBUG);  
     }
 
     Logger(const Logger&) = delete;
     Logger& operator=(const Logger&) = delete;
 
-    std::bitset<static_cast<size_t>(Level::COUNT)> enabledLevels;
-    std::mutex mutex;
+    template<typename... Args>
+    void log_formatted(Level level, const std::string& tag, const char* format, Args... args) {
+        std::lock_guard<std::mutex> lock(mutex);
+        
+        // Format the message
+        char buffer[1024];
+        snprintf(buffer, sizeof(buffer), format, std::forward<Args>(args)...);
+        
+        std::stringstream ss;
+        ss << get_timestamp();
+        ss << " [ " << to_string(level) << " ]";
+        ss << " [ " << tag << " ] ";
+        ss << buffer;
 
+        // Output to console
+        std::cout << ss.str() << std::endl;
 
-//    const char* levelToString(Level level) {
-//        switch (level) {
-//            case Level::DEBUG:   return "DEBUG";
-//            case Level::INFO:    return "INFO";
-//            case Level::WARNING: return "WARNING";
-//            case Level::ERROR:   return "ERROR";
-//            default:            return "UNKNOWN";
-//        }
-//    }
+        // Output to file if configured
+        if (!logFile_.empty()) {
+            std::ofstream file(logFile_, std::ios::app);
+            if (file.is_open()) {
+                file << ss.str() << std::endl;
+                file.flush();
+            }
+        }
+    }
 
-    std::string levelToString(Level level) {
+    std::string get_timestamp() {
+            auto now = std::chrono::system_clock::now();
+            auto now_c = std::chrono::system_clock::to_time_t(now);
+            auto now_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+                now.time_since_epoch()) % 1000;
+
+            struct tm* timeinfo = localtime(&now_c);
+            char buffer[24];  // Enough for "YYYY-MM-DD HH:MM:SS.mmm"
+            strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S", timeinfo);
+            
+            sprintf(buffer + strlen(buffer), ".%03ld", now_ms.count());
+            
+            return std::string(buffer);
+        }
+    std::string to_string(Level level) {
         switch (level) {
             case Level::DEBUG:   return "DEBUG";
-            case Level::INFO:    return "INFO";
-            case Level::WARNING: return "WARNING";
+            case Level::INFO:    return "INFO "; 
+            case Level::WARN:    return "WARN ";  
             case Level::ERROR:   return "ERROR";
             default:            return "UNKNOWN";
         }
     }
 
+    std::bitset<static_cast<size_t>(Level::COUNT)> enabled_levels;
+    std::mutex mutex;
+    std::string logFile_;
 };
-
-
-
-
-#endif // LOGGER_H
