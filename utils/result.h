@@ -3,11 +3,11 @@
 #include <string>
 #include "utils/logger.hpp"
 
-// Forward declaration of the template
-template<typename T>
-class result;
+/**
+ * A utility class for handling operation results and errors in a type-safe manner.
+ * Without using exceptions.
+ * */
 
-// Main template declaration
 template<typename T>
 class result {
 public:
@@ -21,10 +21,6 @@ public:
 
   bool has_error() const {
     return !error_msg.empty();
-  }
-
-  bool is_success() const {
-    return error_msg.empty();
   }
 
   T get_value() const {
@@ -62,9 +58,7 @@ public:
   bool has_error() const {
     return !error_msg.empty();
   };
-  bool is_success() const {
-    return error_msg.empty();
-  }
+
   std::string get_error_msg() const {
     return error_msg;
   }
