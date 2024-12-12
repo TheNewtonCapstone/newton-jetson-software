@@ -15,8 +15,7 @@ public:
     return result<T>(value, "");
   }
 
-  static result<T> error(std::string tag, std::string error_msg) {
-    Logger::ERROR(tag.c_str(), "%s", error_msg.c_str());
+  static result<T> error(std::string error_msg) {
     return result<T>(T(), error_msg);
   }
 
@@ -53,19 +52,20 @@ private:
 template<>
 class result<void> {
 public:
-  static result<void> success();
-  static result<void> error(std::string tag, std::string error_msg) {
-    Logger::ERROR(tag.c_str(), "%s", error_msg.c_str());
+  static result<void> success() {
+    return result<void>("");
+  }
+  static result<void> error(std::string error_msg) {
     return result<void>(error_msg);
   }
 
-  bool has_error() {
+  bool has_error() const {
     return !error_msg.empty();
   };
-  bool is_success() {
+  bool is_success() const {
     return error_msg.empty();
   }
-  std::string get_error_msg() {
+  std::string get_error_msg() const {
     return error_msg;
   }
 
