@@ -1,7 +1,10 @@
 {
   "files.associations": {
     ".js": "javascriptreact",
+<<<<<<< HEAD
     "iomanip": "cpp",
+=======
+>>>>>>> 98b64fdc0025eee987dce952b4f600f499e296a1
     "array": "cpp",
     "atomic": "cpp",
     "bit": "cpp",
@@ -46,6 +49,10 @@
     "utility": "cpp",
     "fstream": "cpp",
     "initializer_list": "cpp",
+<<<<<<< HEAD
+=======
+    "iomanip": "cpp",
+>>>>>>> 98b64fdc0025eee987dce952b4f600f499e296a1
     "iosfwd": "cpp",
     "iostream": "cpp",
     "istream": "cpp",
