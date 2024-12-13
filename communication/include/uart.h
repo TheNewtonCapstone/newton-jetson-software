@@ -1,13 +1,12 @@
 #pragma once
-#include "communication/message.h"
-#include "utils/logger.hpp"
-#include "communication/transport.h"
+#include "logger.h"
+#include "message.h"
+#include "transport.h"
 #include <sstream>
 #include <fcntl.h>   // Contains file controls like O_RDWR
 #include <errno.h>   // Error integer and strerror() function
 #include <termios.h> // Contains POSIX terminal control definitions
 #include <unistd.h>  // write(), read(), close()
-#include "utils/logger.hpp"
 #include <thread>
 
 namespace com {
@@ -28,13 +27,13 @@ namespace com {
     uint16_t timeout_ms;
   };
 
-  class uart : public Transport {
+  class uart {
   public:
     uart();
-    ~uart() override {
+    ~uart() {
       disconnect();
     }
-    status connect() override {
+    status connect() {
       return connect(settings);
     }
     status connect(const uart_settings& settings);
@@ -42,7 +41,7 @@ namespace com {
     status send(const std::vector<uint8_t>& data) override;
     status receive(std::vector<uint8_t>& data) override;
   private:
-    void read_thread();
+    // TODO : implement  a thread that reads and writes to the uart
   private:
     int file_desc;
     uart_settings settings;

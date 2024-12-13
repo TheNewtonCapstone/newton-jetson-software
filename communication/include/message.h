@@ -3,7 +3,7 @@
 #include <array>
 #include <cstdint>
 #include <sstream>
-#include "utils/logger.hpp"
+#include "logger.h"
 
 
 namespace com {
@@ -18,20 +18,22 @@ namespace com {
       ESP32_1 = 0x02,
       ESP32_2 = 0x03,
     };
-
     struct header {
       uint8_t start_byte{ 0x7E };
       device source;
-      uint8_t message_type;
-      // This is used for multi part 
-      uint8_t squence_number;
-    } header;
+      uint8_t message_type{};
+      // This is used for multi part
+      uint8_t sequence_num{};
+    };
+
     struct footer {
-      uint8_t end_byte;
+      uint8_t end_byte{0x7F};
       uint8_t crc;
     };
 
-    std::array<uint8_t, BODY_SIZE> body;
+    header header{};
+    footer footer{};
+    std::array<uint8_t, BODY_SIZE> body{};
   };
 
 }

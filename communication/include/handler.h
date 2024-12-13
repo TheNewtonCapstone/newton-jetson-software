@@ -1,15 +1,14 @@
 #pragma once
-#include "communication/message.h"
-#include "utils/logger.hpp"
-#include "utils/config.h"
-#include "communication/transport.h"
+#include "message.h"
+#include "logger.h"
+#include "transport.h"
 #include <memory>
 
 
 namespace com {
   class MessageHandler {
   public:
-    MessageHandler(std::unique_ptr<Transport> _transport)
+    explicit MessageHandler(std::unique_ptr<Transport> _transport)
       : transport(std::move(_transport)) {
     }
 
@@ -29,8 +28,9 @@ namespace com {
         std::memcpy(&msg, msg.data(), buffer.size());
         return status::OK;
       }
-      Logger::ERROR("MessageHandler", "Failed to receive message");
-      return status::ERROR;
+      Logger::LOG_ERROR(
+      )
+        return status::ERROR;
     }
   private:
     std::unique_ptr<Transport> transport;
