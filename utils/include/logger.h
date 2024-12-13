@@ -20,7 +20,7 @@ namespace newton {
         };
 
         template<typename... Args>
-        static void DEBUG(const std::string& tag, const char* format, Args... args) {
+        static void LOG_DEBUG(const std::string& tag, const char* format, Args... args) {
             if (get_instance().is_enabled(Level::DEBUG)) {
                 auto& logger = get_instance();
                 logger.log_formatted(Level::DEBUG, tag, format, std::forward<Args>(args)...);
@@ -28,7 +28,7 @@ namespace newton {
         }
 
         template<typename... Args>
-        static void INFO(const std::string& tag, const char* format, Args... args) {
+        static void LOG_INFO(const std::string& tag, const char* format, Args... args) {
             if (get_instance().is_enabled(Level::INFO)) {
                 auto& logger = get_instance();
                 logger.log_formatted(Level::INFO, tag, format, std::forward<Args>(args)...);
@@ -36,7 +36,7 @@ namespace newton {
         }
 
         template<typename... Args>
-        static void WARN(const std::string& tag, const char* format, Args... args) {
+        static void LOG_WARN(const std::string& tag, const char* format, Args... args) {
             if (get_instance().is_enabled(Level::WARN)) {
                 auto& logger = get_instance();
                 logger.log_formatted(Level::WARN, tag, format, std::forward<Args>(args)...);
@@ -44,7 +44,7 @@ namespace newton {
         }
 
         template<typename... Args>
-        static void ERROR(const std::string& tag, const char* format, Args... args) {
+        static void LOG_ERROR(const std::string& tag, const char* format, Args... args) {
             if (get_instance().is_enabled(Level::ERROR)) {
                 auto& logger = get_instance();
                 logger.log_formatted(Level::ERROR, tag, format, std::forward<Args>(args)...);

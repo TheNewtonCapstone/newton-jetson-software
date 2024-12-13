@@ -1,5 +1,5 @@
 #include <catch2/catch_test_macros.hpp>
-#include "logger.hpp"
+#include "logger.h"
 #include <fstream>
 #include <string>
 
@@ -11,7 +11,7 @@ TEST_CASE("Logger basic functionality", "[utils]") {
 
   SECTION("info logging") {
     logger.enable(Logger::Level::INFO);
-    newton::Logger::INFO("Test", "Info message");
+    newton::Logger::LOG_INFO("Test", "Info message");
 
 
     std::ifstream file("test.log");
@@ -23,7 +23,7 @@ TEST_CASE("Logger basic functionality", "[utils]") {
 
   SECTION("debug messages are filtered when info level") {
     logger.enable(Logger::Level::INFO);
-    Logger::DEBUG("Test", "Debug message");
+    Logger::LOG_DEBUG("Test", "Debug message");
 
     std::ifstream file("test.log");
     std::string line;
