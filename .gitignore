@@ -7,6 +7,7 @@
 *.o
 *.obj
 build
+cmake-build-debug/
 
 # Precompiled Headers
 *.gch
@@ -33,3 +34,4 @@ build
 *.app
 
 
+.idea/
