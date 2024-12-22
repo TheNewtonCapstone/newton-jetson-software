@@ -31,3 +31,7 @@
 *.out
 *.app
 .idea
+
+.venv
+__pycache__
+.cache
