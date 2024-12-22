@@ -1,6 +1,3 @@
-from email.policy import default
-from re import search
-
 import typer
 from click import prompt
 from rich import print
@@ -8,6 +5,7 @@ from rich.prompt import Prompt, Confirm
 from pathlib import Path
 from typing import Optional, List
 from packages import search_package_dir
+
 app = typer.Typer()
 
 # TODO - add support for creating new workspaces
@@ -47,7 +45,9 @@ def list(
             help="List available packages")
 ) -> None:
     typer.echo("Listing available packages...")
-    search_package_dir()
+    files : list = search_package_dir()
+    for pkg in files:
+        print(f"Package: {pkg}")
     """List available packages
     # :param packages:
     """
