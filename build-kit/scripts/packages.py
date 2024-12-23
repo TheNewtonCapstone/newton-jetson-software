@@ -6,8 +6,10 @@ _PACKAGES = {}
 
 _PACKAGE_SCAN : bool = False
 _CURRENT_DIR :str = os.getcwd()
+os.chdir(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 print(f"Current directory: {_CURRENT_DIR}")
 ROOT_DIR : str = os.getcwd()
+print(f"Root directory: {ROOT_DIR}")
 PACKAGES_DIR= os.path.join(ROOT_DIR, 'build-kit/packages/')
 # TODO  - create a package Manager class and Package @dataclass
 def is_valid_package(path : Path) -> bool:

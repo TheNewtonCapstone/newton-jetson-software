@@ -6,12 +6,12 @@ from rich import print
 from rich.prompt import Prompt, Confirm
 from rich.console import Console
 from rich.table import Table
-from pathlib import Path
-from typing import Optional, List
 from packages import search_package_dir
+from typing import List
 
 app = typer.Typer()
 console = Console()
+ROOT_DIR = ""
 
 # TODO - add support for creating new workspaces
 @app.command()
@@ -48,6 +48,7 @@ def list():
     """Lists all available packages in a clean table format."""
     typer.echo("Listing available packages...")
     packages = search_package_dir()
+    print(packages)
 
     if not packages:
         print("[yellow]No packages found.[/]")
@@ -63,8 +64,18 @@ def list():
         table.add_row(name, info['path'])
 
     console.print(table)
-@app.command()
+app.command()
+def set_root_dir(
+    root_dir: str = typer.Argument(
+        default=os.getcwd(),
+        help="Root directory for the workspace"
+    )
 
+):
+    """Set the root directory for the workspace"""
+    global ROOT_DIR
+    ROOT_DIR = root_dir
+    print(f"Setting root directory to {ROOT_DIR}")
 @app.command()
 def test(
     test_type: str = typer.Option("unit", help="Test type [unit/integration/all]"),

@@ -1,12 +1,6 @@
 #!/usr/bin/env bash
 ROOT="$(dirname "$(readlink -f "$0")")"
-VENV_PATH="$ROOT"/.venv
-source "$VENV_PATH"/bin/activate
+source "${ROOT}/.venv/bin/activate"
 # Add the build-kit directory to PYTHONPATH
-#$COMMAND=$1
-export PYTHONPATH="${ROOT}/build-kit/scripts/:$PYTHONPATH"
-#
-#if [ "$COMMAND" == "help" ]; then
-#
-#fi
-python3.10 -m build-kit.scripts.cli "$@"
+export PYTHONPATH="${ROOT}:$PYTHONPATH"
+python3.10 "${ROOT}/build-kit/scripts/cli.py" "$@"
