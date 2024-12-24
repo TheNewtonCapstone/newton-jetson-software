@@ -10,9 +10,9 @@ from typing import List
 from platform import platform
 from pathlib import Path
 
-from package import Package
-from build_config import BuildConfig
 from system_info import *
+from package_builder import PackageBuilder, Package
+
 
 
 
@@ -59,8 +59,8 @@ def build(
     get_l4t_version()
     system_info = SystemInfo(
         l4t_version=get_l4t_version(),
-        jetpack_version=get_cuda_version(),
-        cuda_version="11.0",
+        jetpack_version=get_jetpack_version(),
+        cuda_version=get_cuda_version(),
         cuda_architectures=[53, 62, 72],
         system_arch=platform.machine(),
         python_version=Version(platform.python_version()),
@@ -68,6 +68,30 @@ def build(
         lsb_codename=get_lsb_release().codename,
         lsb_id=get_lsb_release().id)
     print(system_info)
+    
+    ROOT_DIR = get_workspace_root()
+    print(f"ROOT_DIR: {ROOT_DIR}")
+    builder = PackageBuilder(workspace_root=ROOT_DIR, system_info=system_info)
+
+    ros_package = Package(
+        name="ros",
+        workspace=ROOT_DIR / "build-kit/packages/ros",
+        dockerfile=ROOT_DIR / "build-kit/packages/ros/Dockerfile",
+        container_name="newton",
+        base="newton",
+        tag="ros",
+        build_args=['--no-cache'],
+        dependencies=[],
+        log_file="ros_build.log",
+        build_requirements={},
+    )
+    builder.build_package(ros_package)
+
+    
+
+
+
+
 
     # workspace_root = get_workspace_root()
     # Initialize builder

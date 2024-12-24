@@ -6,122 +6,109 @@ import logging
 import os
 
 from system_info import SystemInfo
-from version import Version
-from package import Package
-from build_config import BuildConfig
+from shell import Shell
+from system_info import *
+
+from dataclasses import dataclass
+from typing import List
+from pathlib import Path
+
+from dataclasses import dataclass, field
+from pathlib import Path
+from typing import Dict, List, Optional
+
+# TODO - refactor this to use the Shell class, im only cutting corners for now
+_NEWLINE_=" \\\n"  
+
+@dataclass
+class Package:
+    """Build configuration for a package"""
+    name: str
+    workspace: Path
+    dockerfile: Path
+    
+    # Container settings
+    container_name: str
+    base: str 
+    tag: Optional[str] = None
+    
+    # Build configuration
+    build_args: Dict[str, str] = field(default_factory=dict)
+    build_flags: str = ""
+    prefix: str = ""
+    postfix: str = ""
+    
+    # Dependencies and requirements
+    dependencies: List[str] = field(default_factory=list)
+    build_requirements: Dict[str, str] = field(default_factory=dict)
+    
+    install_script: Optional[str] = None
+    
+    # Logging
+    log_file: str = ""
+
+    
+    def __post_init__(self):
+        """Convert string paths to Path objects"""
+        if isinstance(self.workspace, str):
+            self.workspace = Path(self.workspace)
+        if isinstance(self.dockerfile, str):
+            self.dockerfile = Path(self.dockerfile)
+        if isinstance(self.install_script, str):
+            self.install_script = Path(self.install_script) 
+        if not self.install_script:
+            self.install_script = self.workspace / f"{self.name}_install.sh"
 
 class PackageBuilder:
-    """Main builder class for handling package builds"""
+    """
 
-    def __init__(self, workspace_root: Path, system_info: SystemInfo):
-        self.workspace_root = Path(workspace_root)
+    """
+
+    def __init__(self, workspace_root: Path,system_info: SystemInfo):
+        self.package_dir = Path(workspace_root)
         self.system_info = system_info
-        self.build_dir = self.workspace_root / "build"
-        self.install_dir = self.workspace_root / "install"
-
-        # Validate workspace structure
-        assert self.workspace_root.exists(), f"Workspace root does not exist: {self.workspace_root}"
-        self.build_dir.mkdir(exist_ok=True)
-        self.install_dir.mkdir(exist_ok=True)
+        assert self.package_dir.exists(), f"Workspace root does not exist: {self.workspace_root}"
+    
 
     def validate_package(self, package: Package) -> bool:
         """Validate package requirements against system info"""
-        # Check CUDA version requirements if specified
-        if 'cuda' in package.build_requirements:
-            required_cuda = Version(package.build_requirements['cuda'])
-            assert self.system_info.cuda_version >= required_cuda, \
-                f"CUDA version {required_cuda} required, found {self.system_info.cuda_version}"
-
-        # Check JetPack version if specified
-        if 'jetpack' in package.build_requirements:
-            required_jp = Version(package.build_requirements['jetpack'])
-            assert self.system_info.jetpack_version >= required_jp, \
-                f"JetPack version {required_jp} required, found {self.system_info.jetpack_version}"
-
-        # Check L4T version if specified
-        if 'l4t' in package.build_requirements:
-            required_l4t = Version(package.build_requirements['l4t'])
-            assert self.system_info.l4t_version >= required_l4t, \
-                f"L4T version {required_l4t} required, found {self.system_info.l4t_version}"
-
+        # TODO - Check CUDA version requirements if specified
+        # TODO - Check JetPack version if specified
+        # TODO - Check L4T version if specified
         return True
 
-    def build_package(self, package: Package, config: BuildConfig) -> bool:
+    def build_package(self, package: Package) -> subprocess.CompletedProcess:
         """Build a single package with given configuration"""
         assert self.validate_package(package), f"Package validation failed for {package.name}"
-
-        pkg_build_dir = self.build_dir / package.name
-        pkg_build_dir.mkdir(exist_ok=True)
-
-        # Set up build environment
+        if not package.base:
+            package.base = get_l4t_base()
+        
+        # TODO : resolve dependencies
+        # TODO : Find packages and make sure all of them are there before building any of them
+        # TODO : introduce a nice parser for the build cmd
+        
+        cmd = f"{self.add_sudo_prefix()}DOCKER_BUILDKIT=0 docker build --network=host"
+        cmd += f" --tag {package.container_name}" 
+        cmd += f" -f {package.dockerfile}" 
+        cmd += f" {package.workspace}" 
+        # cmd += f"2>&1 | tee {package.log_file + '.txt'}" + "; exit ${PIPESTATUS[0]}"  
         env = os.environ.copy()
-        env.update({
-            'CUDA_ARCH_LIST': ';'.join(map(str, config.cuda_arch or self.system_info.cuda_architectures)),
-            'CMAKE_INSTALL_PREFIX': str(self.install_dir),
-            'BUILD_TESTING': 'ON' if config.build_tests else 'OFF',
-            'CMAKE_BUILD_TYPE': config.build_type,
-        })
+        env['DOCKER_BUILDKIT'] = '0'
 
-        # Configure
-        result = subprocess.run(
-            ['cmake', str(package.path),
-             f'-DCMAKE_INSTALL_PREFIX={self.install_dir}',
-             f'-DCMAKE_BUILD_TYPE={config.build_type}'],
-            cwd=pkg_build_dir,
-            env=env,
-            capture_output=True,
-            text=True
-        )
-        assert result.returncode == 0, f"CMake configure failed for {package.name}: {result.stderr}"
+        with open(package.install_script, 'w') as cmd_file:
+            cmd_file.write('#!/bin/bash\n')
+            cmd_file.write(cmd + '\n')
+        print(f'Running cmd {cmd}') 
+        subprocess.run(['chmod', '+x', package.install_script], check=True)
+        install_script = str(package.install_script)
+        print(f'Running install script {install_script}')
+        subprocess.run(['bash', install_script], check=True, env=env)
+    
+    
+    def resolve_dependencies(self, package: Package) -> List[Package]:
+        """Resolve dependencies for a package"""
+        pass
 
-        result = subprocess.run(
-            ['cmake', '--build', '.', '-j'],
-            cwd=pkg_build_dir,
-            env=env,
-            capture_output=True,
-            text=True
-        )
-        assert result.returncode == 0, f"CMake build failed for {package.name}: {result.stderr}"
-
-        # Install
-        result = subprocess.run(
-            ['cmake', '--install', '.'],
-            cwd=pkg_build_dir,
-            env=env,
-            capture_output=True,
-            text=True
-        )
-        assert result.returncode == 0, f"CMake install failed for {package.name}: {result.stderr}"
-
-        return True
-
-    def build_workspace(self, packages: List[Package], config: BuildConfig) -> Dict[str, bool]:
-        """Build multiple packages in correct dependency order"""
-        results = {}
-        built_packages = set()
-
-        def build_with_deps(pkg: Package) -> bool:
-            if pkg.name in built_packages:
-                return results[pkg.name]
-
-            # Build dependencies first
-            for dep in pkg.dependencies:
-                assert dep in [p.name for p in packages], \
-                    f"Dependency {dep} not found for package {pkg.name}"
-                if dep not in built_packages:
-                    dep_pkg = next(p for p in packages if p.name == dep)
-                    assert build_with_deps(dep_pkg), \
-                        f"Failed to build dependency {dep} for package {pkg.name}"
-
-            # Build package
-            success = self.build_package(pkg, config)
-            results[pkg.name] = success
-            if success:
-                built_packages.add(pkg.name)
-            return success
-
-        # Build all packages
-        for package in packages:
-            build_with_deps(package)
-
-        return results
+    def add_sudo_prefix(self, group:str ='docker') -> str:
+        """Add sudo prefix if required"""
+        return "sudo " if os.geteuid() != 0 else ""
