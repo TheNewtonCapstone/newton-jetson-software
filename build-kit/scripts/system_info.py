@@ -8,7 +8,7 @@ from rich.text import Text
 
 from version import Version
 
-def get_l4t_version(path: str='etc/nv_tegra_release') -> Version:
+def get_l4t_version(path: str='/etc/nv_tegra_release') -> Version:
     """
     Returns the L4T_VERSION in a packaging.version.Version object
     Which can be compared against other version objects:  https://packaging.pypa.io/en/latest/version.html
