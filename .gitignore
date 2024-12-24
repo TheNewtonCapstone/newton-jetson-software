@@ -30,3 +30,9 @@
 *.exe
 *.out
 *.app
+
+.venv
+.idea
+.cache
+.vscode
+__pycache__
