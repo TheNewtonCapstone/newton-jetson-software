@@ -72,6 +72,7 @@ export PYTHONPATH="${SCRIPT_DIR}/build-kit:$PYTHONPATH"
 python3.10 -m build-kit.scripts.cli "$@"
 EOL
 
+source "$VENV_PATH"/bin/activate
 # Make newton executable and create symlink
 chmod +x "$ROOT/newton"
 sudo ln -sf "$ROOT/newton" "$INSTALL_PREFIX/newton"
