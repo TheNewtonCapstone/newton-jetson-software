@@ -100,12 +100,16 @@ def get_cuda_version() -> Version:
         return Version('0.0.0')
 
 
+# TODO : add in documentation that this is only for r32.5.0 and above
 def get_l4t_base(l4t_version=get_l4t_version()) -> Version:
     """
     Return docker base image for L4T version
     """
     if l4t_version.major >= 36:
         return "nvcr.io/nvidia/l4t-base:r36.0.0"
+    else :
+        return "nvcr.io/nvidia/l4t-base:r32.5.0"
+
 def arch_is_l4t_compatible(arch: str) -> bool:
     """ Returns True if the architecture is compatible with L4T (aarch64) """
     return platform.machine() == 'aarch64'
@@ -115,7 +119,10 @@ def get_jetpack_version(l4t_version=get_l4t_version(), default='6.1'):
     Returns the version of JetPack (based on the L4T version)
     https://github.com/rbonghi/jetson_stats/blob/master/jtop/core/jetson_variables.py
     """
-    assert arch_is_l4t_compatible(platform.machine()), f"JetPack version is only available on L4T compatible systems"
+
+    if not arch_is_l4t_compatible(platform.machine()):
+        print(f"JetPack version is only available on L4T compatible systems")
+        return Version('0.0.0')
 
     if not isinstance(l4t_version, Version):
         l4t_version = Version(l4t_version)
