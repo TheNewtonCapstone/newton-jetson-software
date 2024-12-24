@@ -7,12 +7,13 @@ from rich.prompt import Prompt, Confirm
 from rich.console import Console
 from rich.table import Table
 from typing import List
+from platform import platform
+from pathlib import Path
 
 from package import Package
 from build_config import BuildConfig
-from package_builder import PackageBuilder
-from system_info import SystemInfo, print_environment_vars, get_l4t_version
-from pathlib import Path
+from system_info import *
+
 
 
 app = typer.Typer()
@@ -56,55 +57,21 @@ def build(
     # get_l4t_version()
     print_environment_vars()
     get_l4t_version()
-
+    system_info = SystemInfo(
+        l4t_version=get_l4t_version(),
+        jetpack_version=get_cuda_version(),
+        cuda_version="11.0",
+        cuda_architectures=[53, 62, 72],
+        system_arch=platform.machine(),
+        python_version=Version(platform.python_version()),
+        lsb_release=get_lsb_release().release,
+        lsb_codename=get_lsb_release().codename,
+        lsb_id=get_lsb_release().id)
+    print(system_info)
 
     # workspace_root = get_workspace_root()
     # Initialize builder
-    return
-
-    builder = Builder(workspace_root, system_info)
-    # Get available packages
-    available_packages = search_package_dir()
-    assert available_packages, "No packages found in workspace"
-
-    # Determine packages to build
-    if not packages:
-        packages = list(available_packages.keys())
-
-    # Create build config
-    config = BuildConfig(
-        arch=arch,
-        build_type=build_type,
-        build_tests=build_tests,
-        cuda_arch=system_info.cuda_architectures
-    )
-
-    # Convert package names to Package objects
-    pkg_objects = []
-    for pkg_name in packages:
-        assert pkg_name in available_packages, f"Package {pkg_name} not found"
-        pkg_info = available_packages[pkg_name]
-        pkg_objects.append(Package(
-            name=pkg_name,
-            path=pkg_info['path'],
-            description=pkg_info.get('description', ''),
-            dependencies=pkg_info.get('dependencies', []),
-            build_requirements=pkg_info.get('build_requirements', {})
-        ))
-
-    # Build packages
-    results = builder.build_workspace(pkg_objects, config)
-
-    # Display results
-    table = Table(show_header=True, header_style="bold blue")
-    table.add_column("Package")
-    table.add_column("Status")
-
-    for pkg_name, success in results.items():
-        status = "[green]Success[/]" if success else "[red]Failed[/]"
-        table.add_row(pkg_name, status)
-
-    console.print(table)
+    return None
 app.command()
 def set_root_dir(
     root_dir: str = typer.Argument(
