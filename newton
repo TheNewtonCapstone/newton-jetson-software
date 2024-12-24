@@ -2,5 +2,5 @@
 SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
 source "${SCRIPT_DIR}/.venv/bin/activate"
 # Add the build-kit directory to PYTHONPATH
-export PYTHONPATH="${SCRIPT_DIR}/build-kit/scripts/:$PYTHONPATH"
+export PYTHONPATH="${SCRIPT_DIR}/build-kit/scripts:$PYTHONPATH"
 python3.10 -m build-kit.scripts.cli "$@"
