@@ -6,13 +6,10 @@ from rich import print
 from rich.prompt import Prompt, Confirm
 from rich.console import Console
 from rich.table import Table
-from typing import List
+from typing import List, Optional
 from platform import platform
 from pathlib import Path
 from .container import ContainerManager
-
-
-
 
 
 app = typer.Typer()
@@ -51,37 +48,56 @@ def create():
 
 
 @app.command()
-def build(
-        packages: List[str] = typer.Option(
-            default=None,
-            help="Packages to build (default: all)"
-        ),
-        arch: str = typer.Option(
-            default="jetson",
-            help="Target architecture [jetson/x86_64]"
-        ),
-        build_type: str = typer.Option(
-            default="Release",
-            help="Build type [Debug/Release]"
-        ),
-        build_tests: bool = typer.Option(
-            default=False,
-            help="Build tests"
-        )
+def search(
+        term: str = typer.Argument(..., help="Search term for finding packages")
 ):
-    """Build packages in the workspace"""
-    # Get workspace and system info
-    # get_l4t_version()
+    """Search for available packages"""
+    try:
+        results = ctn_manager.find_containers(term)
 
-    
+        table = Table(title=f"Search Results for: {term}")
+        table.add_column("Package Name", style="cyan")
+
+        for result in results:
+            table.add_row(result)
+
+        console.print(table)
+
+    except Exception as e:
+        console.print(f"[red]Error searching packages: {str(e)}[/red]")
 
 
+@app.command()
+def build(
+        package_name: str = typer.Argument(..., help="Name of the package to build"),
+        skip_tests: bool = typer.Option(False, "--skip-tests", help="Skip package tests"),
+        build_args: Optional[List[str]] = typer.Option(None, "--build-arg", help="Build arguments in format KEY=VALUE")
+):
+    """Build a container package"""
+    try:
+        # Convert build args list to dictionary
+        build_args_dict = {}
+        if build_args:
+            for arg in build_args:
+                key, value = arg.split('=', 1)
+                build_args_dict[key] = value
+
+        console.print(f"Building package [cyan]{package_name}[/cyan]...")
+        if build_args_dict:
+            console.print(f"Build arguments: {build_args_dict}")
+
+        container = ctn_manager.build(
+            package_name=package_name,
+            build_args=build_args_dict,
+            skip_tests=skip_tests
+        )
+
+        console.print(f"\n[green]Successfully built container: [blue]{container}[/blue][/green]")
+
+    except Exception as e:
+        console.print(f"[red]Error building package: {str(e)}[/red]")
 
 
-
-    # workspace_root = get_workspace_root()
-    # Initialize builder
-    return None
 app.command()
 def set_root_dir(
     root_dir: str = typer.Argument(
@@ -118,5 +134,28 @@ def get_workspace_root() -> Path:
 
     # Default to current directory
     return Path.cwd()
+
+
+@app.command()
+def info(
+        package_name: str = typer.Argument(..., help="Name of the package to get info about")
+):
+    """Get detailed information about a package"""
+    try:
+        info = ctn_manager.package_info(package_name)
+
+        table = Table(title=f"Package Information: {package_name}")
+        table.add_column("Property", style="cyan")
+        table.add_column("Value", style="green")
+
+        for key, value in info.items():
+            if isinstance(value, (list, dict)):
+                value = str(value)
+            table.add_row(str(key), str(value))
+
+        console.print(table)
+
+    except Exception as e:
+        console.print(f"[red]Error getting package info: {str(e)}[/red]")
 if __name__ == "__main__":
     app()
