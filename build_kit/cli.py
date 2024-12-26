@@ -9,15 +9,15 @@ from rich.table import Table
 from typing import List
 from platform import platform
 from pathlib import Path
+from .container import ContainerManager
 
-from system_info import *
-from package_builder import PackageBuilder, Package
 
 
 
 
 app = typer.Typer()
 console = Console()
+ctn_manager = ContainerManager()
 ROOT_DIR = ""
 
 # TODO - add support for creating new workspaces
@@ -26,6 +26,23 @@ def init():
     """Initialize a new robot workspace"""
     pass
 
+
+@app.command()
+def list_packages():
+    """List all available packages"""
+    try:
+        packages = ctn_manager.list_packages()
+
+        table = Table(title="Available Packages")
+        table.add_column("Package Name", style="cyan")
+
+        for package in packages:
+            table.add_row(package)
+
+        console.print(table)
+
+    except Exception as e:
+        console.print(f"[red]Error listing packages: {str(e)}[/red]")
 
 # TODO - add support for creating new modules
 @app.command()
@@ -55,37 +72,6 @@ def build(
     """Build packages in the workspace"""
     # Get workspace and system info
     # get_l4t_version()
-    print_environment_vars()
-    get_l4t_version()
-    system_info = SystemInfo(
-        l4t_version=get_l4t_version(),
-        jetpack_version=get_jetpack_version(),
-        cuda_version=get_cuda_version(),
-        cuda_architectures=[53, 62, 72],
-        system_arch=platform.machine(),
-        python_version=Version(platform.python_version()),
-        lsb_release=get_lsb_release().release,
-        lsb_codename=get_lsb_release().codename,
-        lsb_id=get_lsb_release().id)
-    print(system_info)
-    
-    ROOT_DIR = get_workspace_root()
-    print(f"ROOT_DIR: {ROOT_DIR}")
-    builder = PackageBuilder(workspace_root=ROOT_DIR, system_info=system_info)
-
-    ros_package = Package(
-        name="ros",
-        workspace=ROOT_DIR / "build-kit/packages/ros",
-        dockerfile=ROOT_DIR / "build-kit/packages/ros/Dockerfile",
-        container_name="newton",
-        base="newton",
-        tag="ros",
-        build_args=['--no-cache'],
-        dependencies=[],
-        log_file="ros_build.log",
-        build_requirements={},
-    )
-    builder.build_package(ros_package)
 
     
 
