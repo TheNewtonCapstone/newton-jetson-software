@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+ROOT="$(dirname "$(readlink -f "$0")")"
+source "${ROOT}/.venv/bin/activate"
+
+# Export environment variables for paths
+export NEWTON_ROOT="${ROOT}"
+export JETSON_CONTAINERS_PATH="${ROOT}/lib/jetson-containers"
+export PYTHONPATH="${ROOT}/:${PYTHONPATH}"
+
+python3.10 -m build_kit.cli "$@"
