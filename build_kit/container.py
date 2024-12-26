@@ -8,7 +8,8 @@ from pathlib import Path
 
 
 class JetsonContainersManager:
-    """Manages integration with the jetson-containers library."""
+    """Manages with the jetson-containers library."""
+
 
     @staticmethod
     def setup_jetson_containers(root_dir: Path) -> Path:
