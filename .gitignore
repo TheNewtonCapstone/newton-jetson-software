@@ -35,3 +35,4 @@
 .venv
 __pycache__
 .cache
+build
