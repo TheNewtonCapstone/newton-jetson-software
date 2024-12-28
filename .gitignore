@@ -6,8 +6,6 @@
 *.lo
 *.o
 *.obj
-build
-cmake-build-debug/
 
 # Precompiled Headers
 *.gch
@@ -33,5 +31,8 @@ cmake-build-debug/
 *.out
 *.app
 
-
-.idea/
+.venv
+.idea
+.cache
+.vscode
+__pycache__
