@@ -28,8 +28,6 @@ namespace com {
         std::memcpy(&msg, msg.data(), buffer.size());
         return status::OK;
       }
-      Logger::LOG_ERROR(
-      )
         return status::ERROR;
     }
   private:
