@@ -4,6 +4,7 @@ add_library(utils)
 target_sources(utils
   PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/include/logger.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/result.h
 )
 
 target_sources(utils
