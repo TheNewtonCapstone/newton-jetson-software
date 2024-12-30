@@ -1,53 +1,47 @@
 #pragma once
 #include "logger.h"
 #include "message.h"
-#include "transport.h"
+#include <vector>
 #include <sstream>
 #include <fcntl.h>   // Contains file controls like O_RDWR
 #include <errno.h>   // Error integer and strerror() function
 #include <termios.h> // Contains POSIX terminal control definitions
 #include <unistd.h>  // write(), read(), close()
 #include <thread>
-
+#include "serial_config.h"
+#include "result.h"
 namespace com {
-  enum class uart_baudrate {
-    B_9600 = B9600,
-    B_57600 = B57600,
-    B_115200 = B115200,
-    B_230400 = B230400,
-    B_460800 = B460800,
-    B_500000 = B500000,
-    B_576000 = B576000,
-  };
-
-  struct uart_settings {
-    // Generic connection address/path
-    std::string address;
-    uart_baudrate baudrate;
-    uint16_t timeout_ms;
-  };
-
-  class uart {
+  static constexpr size_t MAX_MSG_SIZE = 255;
+  class serial {
   public:
-    uart();
-    ~uart() {
-      disconnect();
-    }
-    status connect() {
-      return connect(settings);
-    }
-    status connect(const uart_settings& settings);
-    status disconnect() override;
-    status send(const std::vector<uint8_t>& data) override;
-    status receive(std::vector<uint8_t>& data) override;
+    serial(const std::string& device_path, baudrate baudrate);
+    serial();
+    ~serial();
+
+    result<int> open_port(const std::string& device_path);
+    result<void> set_read_timeout(int32_t timeout_ms);
+
+    result<void> connect();
+    result<void> disconnect();
+    result<void> send(const std::array<uint8_t, MAX_MSG_SIZE>& data);
+    result<std::array<uint8_t, MAX_MSG_SIZE>> receive();
+
+    int32_t get_available_bytes() const;
+    bool is_connected() const;
+
   private:
     // TODO : implement  a thread that reads and writes to the uart
+    result <void> configure_port_settings();
   private:
-    int file_desc;
-    uart_settings settings;
+    std::string device_path;
+    com::baudrate baudrate;
+    com::port_state port_state = port_state::DISCONNECTED;
+    int8_t port_fd;
+
     // struct that holds the configuration
     struct termios tty;
-    std::mutex mutex;
+    serial_config config;
+    const std::string tag = "UART";
 
   };
 };

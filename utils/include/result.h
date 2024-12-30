@@ -25,7 +25,7 @@ public:
 
   T get_value() const {
     if (has_error()) {
-      Logger::ERROR("result", "Error Accessing value in error state %s", error_msg.c_str());
+      Logger::LOG_ERROR("result", "Error Accessing value in error state %s", error_msg.c_str());
     }
     return value;
   }

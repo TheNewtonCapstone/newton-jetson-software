@@ -64,6 +64,10 @@
     "typeinfo": "cpp",
     "variant": "cpp",
     "format": "cpp",
-    "__nullptr": "cpp"
+    "__nullptr": "cpp",
+    "filesystem": "cpp",
+    "locale": "cpp",
+    "cinttypes": "cpp",
+    "__locale": "cpp"
   }
 }

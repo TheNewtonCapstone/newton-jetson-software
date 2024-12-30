@@ -1,39 +1,30 @@
 #include "logger.h"
 #include "message.h"
 #include "uart.h"
-#include "handler.h"
+#include "types.h"
 #include <memory>
-
+#include <result.h>
 
 int main() {
-    Logger::INFO("Main", "Starting application");
-    com::message msg;
-    com::uart_settings settings = {
-        .address = "/dev/ttyUSB0",
-        .baudrate = com::uart_baudrate::B_230400,
-        .timeout_ms = 1000
-    };
-
-    auto serial = std::make_unique<com::uart>();
-    com::status res = serial->connect(settings);
-    if (res != com::status::OK) {
-        Logger::ERROR("Main", "Failed to connect to UART");
-        return -1;
+    Logger::LOG_INFO("main", "Starting the application");
+    // create transport layer
+    auto uart = std::make_shared<com::serial>("/dev/ttyUSB0", com::baudrate::B_115200);
+    if(uart->is_connected()) {
+        Logger::LOG_INFO("main", "Connected to the device");
+    } else {
+        Logger::LOG_ERROR("main", "Failed to connect to the device");
     }
+    // create a message handle
+   auto handler = com::handler<MotorCommand>(uart);
 
-    // create Transport
-    com::MessageHandler handler(std::move(serial));
+    
+    MotorCommand cmd{
+    .velocity = 10.0f,
+    .position = 90.0f,
+    .motor_id = 1
+};
+    com::message<MotorCommand> msg(cmd, com::message_type::MOTOR_COMMAND);
 
-    struct SensorData {
-        float temperature;
-        float humidity;
-        uint32_t timestamp;
-    };
-    SensorData data{ 25.5f, 60.0f, 123456789 };
-    handler.send(data);
-
-
-    Logger::INFO("Main", "Message size: %i", sizeof(msg));
 
     return 0;
-}
+}   
