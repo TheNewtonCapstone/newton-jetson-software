@@ -1,6 +1,7 @@
 #pragma once
 #include "logger.h"
 #include "base_msg.h"
+#include "motor_msg.h"
 #include <vector>
 #include <sstream>
 #include <fcntl.h>   // Contains file controls like O_RDWR
@@ -12,13 +13,11 @@
 #include "result.h"
 namespace com {
   static constexpr size_t MAX_MSG_SIZE = 255;
+  static constexpr size_t MIN_BUFFER_SIZE = 1;
   class serial {
   public:
     serial(const std::string& device_path, baudrate baudrate);
-    serial();
     ~serial();
-
-    result<void> set_read_timeout(int32_t timeout_ms);
 
     result<int> connect(const std::string& device_path);
     result<void> disconnect();
@@ -26,7 +25,11 @@ namespace com {
     result<void> send(const std::array<uint8_t, MAX_MSG_SIZE>& data);
     result<std::array<uint8_t, MAX_MSG_SIZE>> receive();
 
+    result<void> send_motor_msg(const com::msg::motor_msg& msg);
+    result <msg::motor_msg> rcv_motor_msg();
+
     bool is_connected() const;
+    result<void> set_read_timeout(int32_t timeout_ms);
 
   private:
     // TODO : implement  a thread that reads and writes to the uart

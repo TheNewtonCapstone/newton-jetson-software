@@ -27,5 +27,12 @@ namespace com {
       payload = _payload;
       footer.crc = calculate_crc();
     }
+    void base_msg::hex_dump() {
+      std::stringstream ss;
+      for (auto& byte : payload) {
+        ss << std::hex << static_cast<int>(byte) << " ";
+      }
+      Logger::LOG_INFO("Payload", ss.str().c_str());
+    }
   }
 }

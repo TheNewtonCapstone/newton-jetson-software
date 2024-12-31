@@ -25,6 +25,9 @@ namespace com {
       void set_message_type(message_type type);
       void set_payload(const std::vector<uint8_t>& payload);
 
+      // utility functions
+      void hex_dump();
+
     public:
       static constexpr uint8_t START_BYTE = 's';
       static constexpr uint8_t END_BYTE = 'e';
