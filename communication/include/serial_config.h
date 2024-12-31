@@ -1,8 +1,7 @@
-#ifndef SERIAL_CONFIG_H
-#define SERIAL_CONFIG_H
+#pragma once
 
 #include "logger.h"
-#include "message.h"
+#include "base_msg.h"
 #include <sstream>
 #include <fcntl.h>   // Contains file controls like O_RDWR
 #include <errno.h>   // Error integer and strerror() function
@@ -94,7 +93,3 @@ namespace com {
     cc_t c_cc[19]; /* control characters */
   };
 };
-
-
-
-#endif //SERIAL_CONFIG_H

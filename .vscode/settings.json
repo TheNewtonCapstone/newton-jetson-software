@@ -68,6 +68,7 @@
     "filesystem": "cpp",
     "locale": "cpp",
     "cinttypes": "cpp",
-    "__locale": "cpp"
+    "__locale": "cpp",
+    "ios": "cpp"
   }
 }

@@ -2,38 +2,39 @@
 #include "logger.h"
 #include "result.h"
 #include <filesystem>
-#include "types.h"
 
 namespace com {
   serial::serial(const std::string& _device_path, com::baudrate _baudrate)
     : device_path(_device_path), baudrate(_baudrate) {
     // default settings, only change this if you know what you are doing
-    // auto result = open_port(device_path);
-    // if (result.has_error()) {
-    //   Logger::LOG_ERROR(tag, "Failed to open port with error %s for device %s",
-    //     result.get_error_msg().c_str(), device_path.c_str());
 
-    //     // check if file exist
-    //   if (!std::filesystem::exists(device_path)) {
-    //     Logger::LOG_ERROR(tag, "Device path does not exist %s", device_path.c_str());
-    //     return;
-    //   }
-    //   // TODO: add retry logic
-    //   return;
-    // }
+    auto result = connect(device_path);
+    if (result.has_error()) {
+      Logger::LOG_ERROR(tag, "Failed to open port with error %s for device %s",
+        result.get_error_msg().c_str(), device_path.c_str());
 
-    // port_fd = result.get_value();
-    // port_state = com::port_state::CONNECTED;
+        // check if file exist
+      if (!std::filesystem::exists(device_path)) {
+        Logger::LOG_ERROR(tag, "Device path does not exist %s", device_path.c_str());
+        return;
+      }
+      // TODO: add retry logic
+      return;
+    }
 
-    // config.baudrate = baudrate;
-    // // configure port settings
-    // auto config_result = configure_port_settings();
-    // if (config_result.has_error()) {
-    //   Logger::LOG_ERROR("Failed to configure port settings with error %s", config_result.get_error_msg().c_str());
-    //   return;
-    // }
+    port_fd = result.get_value();
+    port_state = com::port_state::CONNECTED;
+
+    config.baudrate = baudrate;
+    // configure port settings
+    auto config_result = configure_port_settings();
+    if (config_result.has_error()) {
+      Logger::LOG_ERROR("Failed to configure port settings with error %s", config_result.get_error_msg().c_str());
+      return;
+    }
 
   }
+
 
   result<void> com::serial::configure_port_settings() {
 
@@ -104,7 +105,7 @@ namespace com {
 
   }
 
-  result<int> com::serial::open_port(const std::string& device_path) {
+  result<int> com::serial::connect(const std::string& device_path) {
 
     int fd = open(device_path.c_str(), O_RDWR | O_NOCTTY | O_SYNC);
     if (fd < 0) {
@@ -181,6 +182,10 @@ namespace com {
     }
 
     return result<std::array<uint8_t, MAX_MSG_SIZE>>::success(buffer);
+  }
+
+  bool serial::is_connected() const {
+    return com::port_state::CONNECTED == port_state;
   }
 
 }

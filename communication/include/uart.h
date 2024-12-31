@@ -1,6 +1,6 @@
 #pragma once
 #include "logger.h"
-#include "message.h"
+#include "base_msg.h"
 #include <vector>
 #include <sstream>
 #include <fcntl.h>   // Contains file controls like O_RDWR
@@ -18,15 +18,14 @@ namespace com {
     serial();
     ~serial();
 
-    result<int> open_port(const std::string& device_path);
     result<void> set_read_timeout(int32_t timeout_ms);
 
-    result<void> connect();
+    result<int> connect(const std::string& device_path);
     result<void> disconnect();
+
     result<void> send(const std::array<uint8_t, MAX_MSG_SIZE>& data);
     result<std::array<uint8_t, MAX_MSG_SIZE>> receive();
 
-    int32_t get_available_bytes() const;
     bool is_connected() const;
 
   private:
