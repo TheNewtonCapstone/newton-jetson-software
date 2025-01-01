@@ -6,7 +6,6 @@
 *.lo
 *.o
 *.obj
-build
 
 # Precompiled Headers
 *.gch
@@ -32,4 +31,8 @@ build
 *.out
 *.app
 
-
+.venv
+.idea
+.cache
+.vscode
+__pycache__
