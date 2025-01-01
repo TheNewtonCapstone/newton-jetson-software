@@ -1,51 +1,35 @@
+#include <vector>
+#include "timer.h"
 #include "motor_msg.h"
 
 namespace com {
   namespace msg {
-    motor_msg::motor_msg() {
-      header.message_type = static_cast<uint8_t>(message_type::MOTOR_COMMAND);
+
+    motor_msg::motor_msg() : Message(timer::apptime_us().get_value()) {
+      set_message_type(MessageType::MOTOR_COMMAND);
     }
 
-    motor_msg::motor_msg(float _velocity, float _position, uint8_t _motor_id)
-      : velocity(_velocity), position(_position), motor_id(_motor_id) {
-      header.message_type = static_cast<uint8_t>(message_type::MOTOR_COMMAND);
-      update_payload();
-    }
-
-    float motor_msg::get_velocity() const {
-      return velocity;
-    }
-
-    float motor_msg::get_position() const {
-      return position;
-    }
-
-    uint8_t motor_msg::get_motor_id() const {
-      return motor_id;
-    }
-
-    void motor_msg::set_velocity(float _velocity) {
-      velocity = _velocity;
-      update_payload();
-    }
-
-    void motor_msg::set_position(float _position) {
-      position = _position;
-      update_payload();
-    }
-
-    void motor_msg::set_motor_id(uint8_t _motor_id) {
-      motor_id = _motor_id;
+    motor_msg::motor_msg(float velocity, float steering, uint8_t flags)
+      : Message(timer::apptime_us().get_value()),
+      velocity(velocity),
+      flags(flags),
+      steering(steering) {
+      set_message_type(MessageType::MOTOR_COMMAND);
       update_payload();
     }
 
     void motor_msg::update_payload() {
-      std::vector<uint8_t> payload(sizeof(float) * 2 + 1);
-      // memory to memory copy
-      memcpy(payload.data(), &velocity, sizeof(float));
-      memcpy(payload.data() + sizeof(float), &position, sizeof(float));
-      payload[sizeof(float) * 2] = motor_id;
-      set_payload(payload);
-    };
+        // Create a buffer for our data
+      std::vector<uint8_t> temp_payload(sizeof(float) * 2 + sizeof(uint8_t));
+
+      // Copy the float values into the buffer
+      memcpy(temp_payload.data(), &velocity, sizeof(float));
+      memcpy(temp_payload.data() + sizeof(float), &steering, sizeof(float));
+      memcpy(temp_payload.data() + 2 * sizeof(float), &flags, sizeof(uint8_t));
+
+      // Update the message payload
+      set_payload(temp_payload.data(), temp_payload.size());
+    }
+
   }
-}
+}// namespace msg

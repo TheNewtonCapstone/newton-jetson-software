@@ -2,7 +2,7 @@
 #include "base_msg.h"
 namespace com {
   namespace msg {
-    class motor_msg : public base_msg {
+    class motor_msg : public Message {
     public:
       motor_msg();
       motor_msg(float velocity, float position, uint8_t motor_id);
@@ -20,6 +20,8 @@ namespace com {
     private:
       float velocity;
       float position;
+      float flags;
+      float steering;
       uint8_t motor_id;
     };
   }
