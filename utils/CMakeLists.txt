@@ -1,18 +1,27 @@
 add_library(utils)
 
-# header files here 
-target_sources(utils
-  PUBLIC
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/logger.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/result.h
+file(GLOB_RECURSE HEADER_FILES
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/*.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/*.hpp
 )
 
-target_sources(utils
-  PRIVATE 
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/logger.cpp
+file(GLOB_RECURSE SOURCE_FILES
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp
 )
+
+# header files here
+target_sources(utils
+  PUBLIC
+    ${HEADER_FILES}
+  PRIVATE 
+    ${SOURCE_FILES}
+)
+
 target_include_directories(utils
     PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
+
+message(STATUS "utils include each directory: ${CMAKE_CURRENT_SOURCE_DIR}/include")
+message(STATUS "utils source dir: ${CMAKE_CURRENT_SOURCE_DIR}/src")
 

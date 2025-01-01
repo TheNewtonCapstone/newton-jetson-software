@@ -31,9 +31,8 @@
 *.out
 *.app
 
-build
 .venv
 .idea
 .cache
 .vscode
-__pycache__
+build
