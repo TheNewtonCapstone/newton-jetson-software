@@ -3,7 +3,6 @@
 #include "logger.h"
 #include <string>
 
-using namespace newton;
 TEST_CASE("Result wrapper basic functionality", "[utils]") {
   SECTION("success with value") {
     auto res = success(42);
