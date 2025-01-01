@@ -117,7 +117,9 @@ private:
         }
     }
 
-    std::string get_timestamp() {
+    std::string get_timestamp();
+    // to be used as a fallback when the timer fails
+    std::string get_chrono_timestamp() {
         auto now = std::chrono::system_clock::now();
         auto now_c = std::chrono::system_clock::to_time_t(now);
         auto now_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
