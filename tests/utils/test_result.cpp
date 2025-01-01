@@ -1,7 +1,9 @@
 #include <catch2/catch_test_macros.hpp>
 #include "result.h"
+#include "logger.h"
 #include <string>
 
+using namespace newton;
 TEST_CASE("Result wrapper basic functionality", "[utils]") {
   SECTION("success with value") {
     auto res = success(42);
@@ -27,7 +29,7 @@ TEST_CASE("Result wrapper basic functionality", "[utils]") {
     }
 
     SECTION("error case") {
-      auto res = error<void>("void error");
+      auto res = error("void error");
       REQUIRE(res.has_error());
       REQUIRE(res.get_error_msg() == "void error");
     }
@@ -64,6 +66,7 @@ TEST_CASE("Result wrapper practical usage", "[utils]") {
   SECTION("division function") {
     auto divide = [](int a, int b) -> result<double> {
       if (b == 0) {
+        Logger::LOG_ERROR("Test result", "Division by zero");
         return error<double>("Division by zero");
       }
       return success(static_cast<double>(a) / b);
