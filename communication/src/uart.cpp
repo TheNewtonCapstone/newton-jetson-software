@@ -39,11 +39,11 @@ namespace com {
   result<void> com::serial::configure_port_settings() {
     // TODO : refactor configure_port_settings to be smaller and more descriptive for clarity
     if (com::port_state::CONNECTED != port_state) {
-      return result<void>::error("Port is not connected");
+      return error("Port is not connected");
     }
 
     if (tcgetattr(port_fd, &tty) != 0) {
-      return result<void>::error("Failed to get port settings : " + std::string(strerror(errno)));
+      return error("Failed to get port settings : " + std::string(strerror(errno)));
     }
 
     tty.c_cflag &= ~PARENB; // clear parity bit, disabling parity (most common)
@@ -97,15 +97,15 @@ namespace com {
       cfsetospeed(&tty, B576000);
       cfsetispeed(&tty, B576000);
     default:
-      return result<void>::error("Invalid baudrate");
+      return error("Invalid baudrate");
       break;
     }
 
     // save tty settings, also check for error
     if (tcsetattr(port_fd, TCSANOW, &tty) != 0) {
-      return result<void>::error("Failed to set port settings : " + std::string(strerror(errno)));
+      return error("Failed to set port settings : " + std::string(strerror(errno)));
     }
-    return result<void>::success();
+    return success();
 
   }
 
@@ -114,9 +114,9 @@ namespace com {
     int fd = open(device_path.c_str(), O_RDWR | O_NOCTTY | O_SYNC);
     if (fd < 0) {
       // check if file exist
-      return result<int>::error("Failed to open port, unknown error %s" + std::string(strerror(errno)));
+      return error<int>("Failed to open port, error %s" + std::string(strerror(errno)));
     }
-    return result<int>::success(fd);
+    return success(fd);
   }
 
   serial::~serial() {
@@ -130,61 +130,60 @@ namespace com {
   }
   result<void> serial::disconnect() {
     if (close(port_fd) < 0) {
-      return result<void>::error("Failed to close port with error %s" + std::string(strerror(errno)));
+      return error("Failed to close port with error %s" + std::string(strerror(errno)));
     }
 
     port_state = com::port_state::DISCONNECTED;
-    return result<void>::success();
+    return success();
   }
 
   result<void> com::serial::set_read_timeout(int32_t timeout_ms) {
     if (!is_connected()) {
-      return result<void>::error("Port is not connected");
+      return error("Port is not connected");
     }
 
     if (timeout_ms < 0) {
-      return result<void>::error("Invalid timeout value");
+      return error("Invalid timeout value");
     }
 
     tty.c_cc[VTIME] = timeout_ms / 100;
     tty.c_cc[VMIN] = 0;
     if (tcsetattr(port_fd, TCSANOW, &tty) != 0) {
-      return result<void>::error("Failed to set read timeout with error %s" + std::string(strerror(errno)));
+      return error("Failed to set read timeout with error %s" + std::string(strerror(errno)));
     }
-    return result<void>::success();
+    return success();
   }
 
   result<void> com::serial::send(const std::array<uint8_t, MAX_MSG_SIZE>& data) {
     if (!is_connected()) {
-      return result<void>::error("Port is not connected");
+      return error("Port is not connected");
     }
 
     ssize_t bytes_written = write(port_fd, data.data(), data.size());
     if (bytes_written < 0) {
-      return result<void>::error("Failed to write to port with error %s" + std::string(strerror(errno)));
+      return error("Failed to write to port with error %s" + std::string(strerror(errno)));
     }
 
-    return result<void>::success();
+    return success();
   }
 
   result<std::array<uint8_t, MAX_MSG_SIZE>> com::serial::receive() {
     if (!is_connected()) {
-      return result<std::array<uint8_t, MAX_MSG_SIZE>>::error("Port is not connected");
+      return error<std::array<uint8_t, MAX_MSG_SIZE>>("Port is not connected");
     }
 
     std::array<uint8_t, MAX_MSG_SIZE> buffer{ 0 };
     ssize_t bytes_read = read(port_fd, buffer.data(), buffer.size());
 
     if (bytes_read < 0) {
-      return result<std::array<uint8_t, MAX_MSG_SIZE>>::error("Failed to read from port with error %s" + std::string(strerror(errno)));
+      return error<std::array<uint8_t, MAX_MSG_SIZE>>("Failed to read from port with error %s" + std::string(strerror(errno)));
     }
 
-
-    return result<std::array<uint8_t, MAX_MSG_SIZE>>::success(buffer);
+    return success(buffer);
   }
   result<void> com::serial::send_motor_msg(const com::msg::motor_msg& msg) {
     if (!is_connected()) {
-      return result<void>::error("Port is not connected");
+      return error("Port is not connected");
     }
 
   }
@@ -193,38 +192,35 @@ namespace com {
   // provides an example on how to extend the base functionality
   result<msg::motor_msg> com::serial::rcv_motor_msg() {
     msg::motor_msg msg;
-    std::array<uint8_t, MAX_MSG_SIZE> buffer{ 0 };
+    std::array<uint8_t, MAX_MSG_SIZE> temp_buffer{ 0 };
 
     if (!is_connected()) {
-      return result<msg::motor_msg>::error("Port is not connected");
+      return error<msg::motor_msg>("Port is not connected");
     }
 
     auto data = receive();
     if (data.has_error()) {
       Logger::LOG_ERROR(tag, "Failed to receive data with error %s", data.get_error_msg().c_str());
-      return result<msg::motor_msg>::error(data.get_error_msg());
+      return error<msg::motor_msg>(data.get_error_msg());
     }
 
     // TODO: Implement the send_motor_msg function
-    auto type = static_cast<com::msg::message_type>(buffer[1]);
+    auto rx_buffer = data.get_value();
+    auto type = static_cast<com::msg::message_type>(rx_buffer[1]);
 
-    if (buffer.size() < MIN_BUFFER_SIZE) {
-      return result<msg::motor_msg>::error("Invalid buffer size");
+    if (rx_buffer.size() < MIN_BUFFER_SIZE) {
+      return error<msg::motor_msg>("Invalid buffer size");
     }
-    if (buffer[0] != com::msg::base_msg::START_BYTE) {
-      return result<msg::motor_msg>::error("Invalid start byte");
+    if (rx_buffer[0] != com::msg::base_msg::START_BYTE) {
+      return error<msg::motor_msg>("Invalid start byte");
     }
 
-    // TODO : the 
-    if (buffer[buffer.size() - 1] != com::msg::base_msg::END_BYTE) {
-      return result<msg::motor_msg>::error("Invalid end byte");
+    if (rx_buffer[rx_buffer.size() - 1] != com::msg::base_msg::END_BYTE) {
+      return error<msg::motor_msg>("Invalid end byte");
     }
-    std::memcpy(buffer.data(), buffer.data() + 2, buffer.size() - 2);
-    // validate crc 
+    std::memcpy(temp_buffer.data(), rx_buffer.data() + 2, rx_buffer.size() - 2);
 
-
-    // do the c
-    return result<msg::motor_msg>::success(msg);
+    return success(msg);
   }
 
   bool serial::is_connected() const {
