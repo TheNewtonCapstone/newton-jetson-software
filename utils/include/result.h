@@ -1,7 +1,6 @@
 // result.h
 #pragma once
 #include <string>
-#include "logger.h"
 
 /**
  * A utility class for handling operation results and errors in a type-safe manner.
