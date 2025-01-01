@@ -4,7 +4,7 @@
 #include "result.h"
 #include "logger.h"
 
-static const timespec __app_start_time;
+extern const timespec __app_start_time;
 
 class timer {
 public:
@@ -23,8 +23,21 @@ public:
   // Check if timer is running
   bool is_running() const { return running; } // not used for now but can be useful for thread safety
 
-  static result<void> sleep_ms(uint32_t milliseconds);
-  static result<void> sleep_us(uint32_t microseconds);
+  static result<void> sleep_ms(uint32_t milliseconds) {
+    timespec ts{
+      .tv_sec = milliseconds / 1000,
+      .tv_nsec = (milliseconds % 1000) * 1000000
+    };
+    return timespec_sleep(ts);
+  }
+
+  static result<void> sleep_us(uint32_t microseconds) {
+    timespec ts{
+      .tv_sec = microseconds / 1000000,
+      .tv_nsec = (microseconds % 1000000) * 1000
+    };
+    return timespec_sleep(ts);
+  }
 
   // Get current time from an inline call 
   static inline result<timespec> timestamp() {
@@ -94,13 +107,6 @@ public:
   }
 
 private:
-  /*This is a little HACK that im using cause im too lazy to refactor the time_diff implementationt below which has result as a pass by refernce in
-  instead of a return if time allows it will be refactored*/
-  static result<timespec> time_diff(const timespec& start, const timespec& end) {
-    timespec result;
-    time_diff(start, end, result);
-    return success(result);
-  }
   static void time_diff(const timespec& start, const timespec& end, timespec& result) {
     if ((end.tv_nsec - start.tv_nsec) < 0) {
       result.tv_sec = end.tv_sec - start.tv_sec - 1;
@@ -110,8 +116,14 @@ private:
       result.tv_sec = end.tv_sec - start.tv_sec;
       result.tv_nsec = end.tv_nsec - start.tv_nsec;
     }
+  }
 
-
+  /*This is a little HACK that im using cause im too lazy to refactor the time_diff implementationt below which has result as a pass by refernce in
+  instead of a return if time allows it will be refactored*/
+  static result<timespec> time_difference(const timespec& start, const timespec& end) {
+    timespec result;
+    time_diff(start, end, result);
+    return success(result);
   }
   static result<void> timespec_sleep(const timespec& duration);
 

@@ -8,15 +8,23 @@ const timespec __app_start_time = []() {
   return ts;
   }();
 
+timer::timer(const std::string& _name)
+  : running(false)
+  , timer_name(_name) {
+  // Initialize all timespec structs to zero
+  start_time = { 0, 0 };
+  end_time = { 0, 0 };
+  elapsed_time = { 0, 0 };
+}
 
 result<void> timer::start() {
   if (running) {
-    return error<void>("Timer already running");
+    return error("Timer already running");
   }
 
   auto ts = timestamp();
   if (ts.has_error()) {
-    return error<void>(ts.get_error_msg());
+    return error(ts.get_error_msg());
   }
 
   start_time = ts.get_value();
@@ -26,12 +34,12 @@ result<void> timer::start() {
 
 result<void> timer::stop() {
   if (!running) {
-    return error<void>("Timer not running");
+    return error("Timer not running");
   }
 
   auto ts = timestamp();
   if (ts.has_error()) {
-    return error<void>(ts.get_error_msg());
+    return error(ts.get_error_msg());
   }
 
   end_time = ts.get_value();
@@ -48,16 +56,6 @@ result<void> timer::reset() {
   return success();
 }
 
-void timer::time_diff(const timespec& start, const timespec& end, timespec& result) {
-  if ((end.tv_nsec - start.tv_nsec) < 0) {
-    result.tv_sec = end.tv_sec - start.tv_sec - 1;
-    result.tv_nsec = 1000000000 + end.tv_nsec - start.tv_nsec;
-  }
-  else {
-    result.tv_sec = end.tv_sec - start.tv_sec;
-    result.tv_nsec = end.tv_nsec - start.tv_nsec;
-  }
-}
 
 result<double> timer::elapsed_ms() const {
   if (running) {
@@ -90,31 +88,7 @@ result<double> timer::elapsed_s() const {
 result<void> timer::timespec_sleep(const timespec& duration) {
   int ret = nanosleep(&duration, nullptr);
   if (ret != 0) {
-    return error<void>("Sleep interrupted: " + std::string(strerror(errno)));
+    return error("Sleep interrupted: " + std::string(strerror(errno)));
   }
   return success();
-}
-
-result<void> timer::sleep_ms(uint32_t milliseconds) {
-  timespec ts{
-      .tv_sec = milliseconds / 1000,
-      .tv_nsec = (milliseconds % 1000) * 1000000
-  };
-  return timespec_sleep(ts);
-}
-
-result<void> timer::sleep_us(uint32_t microseconds) {
-  timespec ts{
-      .tv_sec = microseconds / 1000000,
-      .tv_nsec = (microseconds % 1000000) * 1000
-  };
-  return timespec_sleep(ts);
-}
-
-result<void> timer::sleep_ns(uint32_t nanoseconds) {
-  timespec ts{
-      .tv_sec = nanoseconds / 1000000000,
-      .tv_nsec = nanoseconds % 1000000000
-  };
-  return timespec_sleep(ts);
 }
