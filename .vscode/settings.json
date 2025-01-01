@@ -62,6 +62,13 @@
     "filesystem": "cpp",
     "locale": "cpp",
     "__locale": "cpp",
-    "ios": "cpp"
+    "ios": "cpp",
+    "string": "cpp",
+    "iosfwd": "cpp",
+    "iostream": "cpp",
+    "sstream": "cpp",
+    "stdexcept": "cpp",
+    "streambuf": "cpp",
+    "cinttypes": "cpp"
   }
 }
