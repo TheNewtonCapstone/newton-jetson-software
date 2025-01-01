@@ -2,6 +2,7 @@ find_package(Catch2 3 REQUIRED)
 
 add_executable(tests
   utils/test_logger.cpp
+  utils/test_result.cpp
 )
 
 target_link_libraries(tests
