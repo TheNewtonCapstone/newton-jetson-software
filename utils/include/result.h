@@ -1,7 +1,7 @@
 // result.h
 #pragma once
 #include <string>
-#include "utils/logger.hpp"
+#include "logger.h"
 
 /**
  * A utility class for handling operation results and errors in a type-safe manner.
@@ -11,11 +11,11 @@
 template<typename T>
 class result;
 
-template<typename T>
-result<T> sucess(T value);
+template <typename U>
+result<U> success(U value);
 
-template<typename T>
-result<T> error(std::string error_msg);
+template <typename U>
+result<U> error(std::string error_msg);
 
 inline result<void> success();
 inline result<void> error(std::string error_msg);
@@ -24,14 +24,17 @@ inline result<void> error(std::string error_msg);
 template<typename T>
 class result {
 public:
-  friend result<T> success<T>(T value);
-  friend result<T> error<T>(std::string error_msg);
+  template<typename U>
+  friend result<U> success(U value);
+
+  template<typename U>
+  friend result<U> error(std::string error_msg);
 
   bool has_error() const {
     return !error_msg.empty();
   }
 
-  T get_value() const {
+  T get_value() {
     return value;
   }
 
@@ -47,21 +50,12 @@ private:
   result(T value, std::string error_msg)
     : value(std::move(value)), error_msg(std::move(error_msg)) {
   }
+  result(std::string error_msg) : error_msg(std::move(error_msg)) {}
 
 private:
   T value;
   std::string error_msg;
 };
-
-template<typename T>
-result<T> success(T value) {
-  return result<T>(value, "");
-}
-
-template <typename T>
-result<T> error(std::string error_msg) {
-  return result<T>(T(), error_msg);
-}
 
 
 
@@ -71,6 +65,9 @@ class result<void> {
 public:
   friend result<void> success();
   friend result<void> error(std::string error_msg);
+
+  template <typename U>
+  friend result<U> success(U value);
 
   bool has_error() const {
     return !error_msg.empty();
@@ -86,6 +83,16 @@ private:
 private:
   std::string error_msg;
 };
+
+template<typename T>
+result<T> success(T value) {
+  return result<T>(value, "");
+}
+
+template <typename T>
+result<T> error(std::string error_msg) {
+  return result<T>(T(), error_msg);
+}
 
 inline result<void> success() {
   return result<void>("");
