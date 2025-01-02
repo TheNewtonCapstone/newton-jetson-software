@@ -53,7 +53,7 @@ public:
     // Configuration methods
     void set_logfile(const std::string& filename) {
         std::lock_guard<std::mutex> lock(mutex);
-        logFile_ = filename;
+        log_file = filename;
     }
 
     void enable(Level level) {
@@ -107,9 +107,9 @@ private:
         // Output to console
         std::cout << ss.str() << std::endl;
 
-        // Output to file if configured
-        if (!logFile_.empty()) {
-            std::ofstream file(logFile_, std::ios::app);
+    // Output to file if configured
+        if (!log_file.empty()) {
+            std::ofstream file(log_file, std::ios::app);
             if (file.is_open()) {
                 file << ss.str() << std::endl;
                 file.flush();
@@ -145,5 +145,5 @@ private:
 
     std::bitset<static_cast<size_t>(Level::COUNT)> enabled_levels;
     std::mutex mutex;
-    std::string logFile_;
+    std::string log_file;
 };

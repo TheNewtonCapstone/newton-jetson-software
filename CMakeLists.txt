@@ -15,7 +15,6 @@ option(ENABLE_TESTING "Enable Test Builds" ON)
 add_subdirectory(utils)
 add_subdirectory(communication)
 
-
 add_executable(${PROJECT_NAME} main.cpp)
 
 target_link_libraries(${PROJECT_NAME} 
