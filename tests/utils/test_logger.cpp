@@ -3,7 +3,6 @@
 #include <fstream>
 #include <string>
 
-using namespace newton;
 
 TEST_CASE("Logger basic functionality", "[utils]") {
   auto& logger = Logger::get_instance();
@@ -11,7 +10,7 @@ TEST_CASE("Logger basic functionality", "[utils]") {
 
   SECTION("info logging") {
     logger.enable(Logger::Level::INFO);
-    newton::Logger::LOG_INFO("Test", "Info message");
+    Logger::LOG_INFO("Test", "Info message");
 
 
     std::ifstream file("test.log");
