@@ -12,7 +12,7 @@ enum class MessageType : uint8_t {
   RESYNC = 0x03
 };
 
-enum class code : uint8_t {
+enum class Code : uint8_t {
   NONE = 0x00,
   TIMING_ERROR = 0x01,
   BUFFER_OVERFLOW = 0x02,
