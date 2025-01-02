@@ -22,7 +22,19 @@ enum class code : uint8_t {
   CRC_ERROR = 0x06,
   EMERGENCY_STOP = 0x07
 };
-
+/*
+ * #pragma pack(push, 1) disables memory padding in structures:
+ *
+ * Without packing:           With packing:
+ * struct {                   struct {
+ *   uint8_t  a;  // 1 byte    uint8_t  a;  // 1 byte
+ *   [pad   3]    // 3 pad     uint32_t b;  // 4 bytes
+ *   uint32_t b;  // 4 bytes } // total: 5 bytes
+ * } // total: 8 bytes
+ *
+ * Used for network protocols to ensure exact byte layout.
+ * Note: May impact performance on some architectures.
+ */
 #pragma pack(push, 1)
 struct MotorCommand {
   uint8_t motor_id;
