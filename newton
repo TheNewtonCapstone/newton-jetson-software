@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
-SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
-source "${SCRIPT_DIR}/.venv/bin/activate"
-# Add the build-kit directory to PYTHONPATH
-export PYTHONPATH="${SCRIPT_DIR}/build-kit/scripts:$PYTHONPATH"
-python3.10 -m build-kit.scripts.cli "$@"
+ROOT="$(dirname "$(readlink -f "$0")")"
+source "${ROOT}/.venv/bin/activate"
+
+# Export environment variables for paths
+export NEWTON_ROOT="${ROOT}"
+export JETSON_CONTAINERS_PATH="${ROOT}/lib/jetson-containers"
+export PYTHONPATH="${ROOT}/:${PYTHONPATH}"
+
+python3.10 -m build_kit.cli "$@"
