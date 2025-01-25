@@ -1,10 +1,8 @@
-cmake_minimum_required(VERSION 3.5)
-project(examples_rclcpp_minimal_composition)
+cmake_minimum_required(VERSION 3.10)
+project(motor)
 
-# Default to C++17
 if(NOT CMAKE_CXX_STANDARD)
   set(CMAKE_CXX_STANDARD 17)
-  set(CMAKE_CXX_STANDARD_REQUIRED ON)
 endif()
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
@@ -14,53 +12,46 @@ endif()
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclcpp_components REQUIRED)
-find_package(std_msgs REQUIRED)
+find_package(odrive_can REQUIRED)
+find_package(std_srvs REQUIRED)
 
-include_directories(include)
+add_library(${PROJECT_NAME} SHARED
+  src/odrive_motor.cpp
+)
 
-add_library(composition_nodes SHARED
-            src/publisher_node.cpp
-            src/subscriber_node.cpp)
-target_compile_definitions(composition_nodes
-  PRIVATE "MINIMAL_COMPOSITION_DLL")
-ament_target_dependencies(composition_nodes rclcpp rclcpp_components std_msgs)
+target_include_directories(${PROJECT_NAME} PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include>
+)
 
-# This package installs libraries without exporting them.
-# Export the library path to ensure that the installed libraries are available.
-if(NOT WIN32)
-  ament_environment_hooks(
-    "${ament_cmake_package_templates_ENVIRONMENT_HOOK_LIBRARY_PATH}")
-endif()
+ament_target_dependencies(${PROJECT_NAME}
+  rclcpp
+  rclcpp_components
+  odrive_can
+  std_srvs
+)
 
-add_executable(composition_publisher src/standalone_publisher.cpp)
-target_link_libraries(composition_publisher composition_nodes)
-ament_target_dependencies(composition_publisher
-  rclcpp)
-
-add_executable(composition_subscriber src/standalone_subscriber.cpp)
-target_link_libraries(composition_subscriber composition_nodes)
-ament_target_dependencies(composition_subscriber
-  rclcpp)
-
-add_executable(composition_composed src/composed.cpp)
-target_link_libraries(composition_composed composition_nodes)
-ament_target_dependencies(composition_composed rclcpp class_loader)
-
-install(TARGETS
-  composition_nodes
-  ARCHIVE DESTINATION lib
-  LIBRARY DESTINATION lib
-  RUNTIME DESTINATION bin)
-
-install(TARGETS
-  composition_publisher
-  composition_subscriber
-  composition_composed
-  DESTINATION lib/${PROJECT_NAME})
+rclcpp_components_register_nodes(${PROJECT_NAME}
+  "motor_control::ODriveMotor"
+)
 
 if(BUILD_TESTING)
-  find_package(ament_lint_auto REQUIRED)
-  ament_lint_auto_find_test_dependencies()
+  find_package(ament_cmake_gtest REQUIRED)
+  add_subdirectory(test)
 endif()
+
+install(
+  TARGETS ${PROJECT_NAME}
+  EXPORT ${PROJECT_NAME}
+  LIBRARY DESTINATION lib
+  ARCHIVE DESTINATION lib
+  RUNTIME DESTINATION bin
+  INCLUDES DESTINATION include
+)
+
+install(
+  DIRECTORY include/
+  DESTINATION include
+)
 
 ament_package()
