@@ -8,3 +8,5 @@ export JETSON_CONTAINERS_PATH="${ROOT}/lib/jetson-containers"
 export PYTHONPATH="${ROOT}/:${PYTHONPATH}"
 
 python3.10 -m build_kit.cli "$@"
+
+# sudo bash -c "curl https://cdn.odriverobotics.com/files/odrive-udev-rules.rules > /etc/udev/rules.d/91-odrive.rules && udevadm control --reload-rules && udevadm trigger"
