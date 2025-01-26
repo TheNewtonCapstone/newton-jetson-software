@@ -8,9 +8,9 @@
 
 namespace newton {
 
-class Motor : public rclcpp::Node {
+struct State class Motor : public rclcpp::Node {
  public:
-  explicit Motor(const std::string& name);
+  explicit Motor(const std::string& id);
 
   bool setPosition(float position, float velocity = 0, float torque = 0);
   bool setVelocity(float velocity, float torque = 0);
@@ -34,12 +34,14 @@ class Motor : public rclcpp::Node {
   rlcpp::sub rclcpp::Client<odrive_can::srv::AxisState>::SharedPtr
       state_client_;
 
-  float current_pos_{0};
-  float current_vel_{0};
-  float current_torque_{0};
-  uint32_t axis_state_{0};
-  uint32_t active_errors_{0};
-  float bus_voltage { 0.0 }
+  std::string id;
+  float position;
+  float velocity;
+  float target_torque;
+  float torque_;
+  uint32_t axis_state;
+  uint32_t active_errors;
+  float bus_voltage;
 };
 
 }  // namespace newton

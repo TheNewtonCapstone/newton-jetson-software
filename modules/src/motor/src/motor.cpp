@@ -2,8 +2,12 @@
 
 namespace newton {
 
-Motor void Motor::statusCallback(
-    const odrive_can::msg::ControllerStatus::SharedPtr msg) {
+Motor::Motor(const std::string& name)
+    : current_pos(0),
+      current_vel(0),
+      current_torque(0),
+      {motor / src / motor.cpp} Motor void Motor::statusCallback(
+          const odrive_can::msg::ControllerStatus::SharedPtr msg) {
   std::lock_guard<std::mutex> lock(status_mutex_);
   current_pos_ = msg->pos_estimate;
   current_vel_ = msg->vel_estimate;
