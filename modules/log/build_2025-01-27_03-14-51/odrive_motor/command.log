@@ -1,6 +1,0 @@
-Invoking command in '/home/modules/build/odrive_motor': /usr/local/bin/cmake /home/modules/src/motor -DCMAKE_INSTALL_PREFIX=/home/modules/install/odrive_motor
-Invoked command in '/home/modules/build/odrive_motor' returned '0': /usr/local/bin/cmake /home/modules/src/motor -DCMAKE_INSTALL_PREFIX=/home/modules/install/odrive_motor
-Invoking command in '/home/modules/build/odrive_motor': /usr/local/bin/cmake --build /home/modules/build/odrive_motor -- -j6 -l6
-Invoked command in '/home/modules/build/odrive_motor' returned '0': /usr/local/bin/cmake --build /home/modules/build/odrive_motor -- -j6 -l6
-Invoking command in '/home/modules/build/odrive_motor': /usr/local/bin/cmake --install /home/modules/build/odrive_motor
-Invoked command in '/home/modules/build/odrive_motor' returned '0': /usr/local/bin/cmake --install /home/modules/build/odrive_motor
