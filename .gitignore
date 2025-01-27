@@ -36,3 +36,6 @@ __pycache__
 .cache
 .vscode
 build
+build/
+log/
+install/
