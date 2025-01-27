@@ -1,0 +1,79 @@
+[0.000000] (-) TimerEvent: {}
+[0.001125] (odrive_motor) JobQueued: {'identifier': 'odrive_motor', 'dependencies': OrderedDict()}
+[0.001299] (odrive_motor) JobStarted: {'identifier': 'odrive_motor'}
+[0.029906] (odrive_motor) JobProgress: {'identifier': 'odrive_motor', 'progress': 'cmake'}
+[0.030871] (odrive_motor) Command: {'cmd': ['/usr/local/bin/cmake', '/home/modules/src/motor', '-DCMAKE_INSTALL_PREFIX=/home/modules/install/odrive_motor'], 'cwd': '/home/modules/build/odrive_motor', 'env': OrderedDict([('TWINE_PASSWORD', 'none'), ('OPENBLAS_CORETYPE', 'ARMV8'), ('PYTHONFAULTHANDLER', '1'), ('CUDACXX', '/usr/local/cuda/bin/nvcc'), ('PYTHONIOENCODING', 'utf-8'), ('PIP_ROOT_USER_ACTION', 'ignore'), ('LANGUAGE', 'en_US:en'), ('PIP_TRUSTED_HOST', 'jetson.webredirect.org'), ('PIP_DEFAULT_TIMEOUT', '100'), ('PYTHONHASHSEED', 'random'), ('HOSTNAME', 'cc50979821f6'), ('TWINE_REPOSITORY_URL', 'http://localhost/jp6/cu126'), ('TAR_INDEX_URL', 'http://jetson.webredirect.org:8000/jp6/cu126'), ('SHLVL', '1'), ('LD_LIBRARY_PATH', '/opt/ros/humble/install/opt/rviz_ogre_vendor/lib:/opt/ros/humble/install/lib:/usr/local/cuda/compat:/usr/local/cuda/lib64:'), ('HOME', '/root'), ('OLDPWD', '/home'), ('CMAKE_CUDA_COMPILER', '/usr/local/cuda/bin/nvcc'), ('TORCH_NVCC_FLAGS', '-Xfatbin -compress-all'), ('PYTHONUNBUFFERED', '1'), ('ROS_PYTHON_VERSION', '3'), ('CUDA_TOOLKIT_ROOT_DIR', '/usr/local/cuda'), ('CUDA_NVCC_EXECUTABLE', '/usr/local/cuda/bin/nvcc'), ('CUDNN_LIB_PATH', '/usr/lib/aarch64-linux-gnu'), ('CUDAARCHS', '87'), ('PIP_CACHE_PURGE', 'true'), ('COLCON_PREFIX_PATH', '/opt/ros/humble/install'), ('ROS_DISTRO', 'humble'), ('SCP_UPLOAD_PASS', 'None'), ('PIP_DISABLE_PIP_VERSION_CHECK', 'on'), ('CUDA_ARCHITECTURES', '87'), ('_', '/usr/bin/colcon'), ('ROS_VERSION', '2'), ('PKG_CONFIG_PATH', '/opt/ros/humble/install/lib/aarch64-linux-gnu/pkgconfig:/opt/ros/humble/install/lib/pkgconfig'), ('NVIDIA_DRIVER_CAPABILITIES', 'all'), ('TERM', 'xterm'), ('ROS_LOCALHOST_ONLY', '0'), ('TWINE_USERNAME', 'jp6'), ('PATH', '/opt/ros/humble/install/bin:/usr/local/cuda/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'), ('PIP_INDEX_URL', 'http://jetson.webredirect.org/jp6/cu126'), ('PIP_NO_CACHE_DIR', 'off'), ('SCP_UPLOAD_USER', 'None'), ('LANG', 'en_US.UTF-8'), ('RMW_IMPLEMENTATION', 'rmw_fastrtps_cpp'), ('LS_COLORS', 'rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.zst=01;31:*.tzst=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.wim=01;31:*.swm=01;31:*.dwm=01;31:*.esd=01;31:*.jpg=01;35:*.jpeg=01;35:*.mjpg=01;35:*.mjpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.webm=01;35:*.webp=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.m4a=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.oga=00;36:*.opus=00;36:*.spx=00;36:*.xspf=00;36:'), ('ROS_ROOT', '/opt/ros/humble'), ('SCP_UPLOAD_URL', 'localhost:/dist/jp6/cu126'), ('AMENT_PREFIX_PATH', '/opt/ros/humble/install:/opt/ros/humble/install'), ('TWINE_NON_INTERACTIVE', '1'), ('DEBIAN_FRONTEND', 'noninteractive'), ('SHELL', '/bin/bash'), ('PYTHON_VERSION', '3.10'), ('OPENCV_VERSION', '4.10.0'), ('NVCC_PATH', '/usr/local/cuda/bin/nvcc'), ('OPENCV_URL', ''), ('PWD', '/home/modules/build/odrive_motor'), ('LC_ALL', 'en_US.UTF-8'), ('CUDA_HOME', '/usr/local/cuda'), ('CUDNN_LIB_INCLUDE_PATH', '/usr/include'), ('PYTHONPATH', '/opt/ros/humble/install/local/lib/python3.10/dist-packages:/opt/ros/humble/install/lib/python3.10/site-packages'), ('NVIDIA_VISIBLE_DEVICES', 'all'), ('COLCON', '1'), ('CUDA_BIN_PATH', '/usr/local/cuda/bin'), ('CMAKE_PREFIX_PATH', '/opt/ros/humble/install')]), 'shell': False}
+[0.099227] (-) TimerEvent: {}
+[0.199807] (-) TimerEvent: {}
+[0.277215] (odrive_motor) StdoutLine: {'line': b'-- The C compiler identification is GNU 11.4.0\n'}
+[0.299923] (-) TimerEvent: {}
+[0.396784] (odrive_motor) StdoutLine: {'line': b'-- The CXX compiler identification is GNU 11.4.0\n'}
+[0.400015] (-) TimerEvent: {}
+[0.425130] (odrive_motor) StdoutLine: {'line': b'-- Detecting C compiler ABI info\n'}
+[0.500228] (-) TimerEvent: {}
+[0.552396] (odrive_motor) StdoutLine: {'line': b'-- Detecting C compiler ABI info - done\n'}
+[0.600423] (-) TimerEvent: {}
+[0.604533] (odrive_motor) StdoutLine: {'line': b'-- Check for working C compiler: /usr/bin/cc - skipped\n'}
+[0.605336] (odrive_motor) StdoutLine: {'line': b'-- Detecting C compile features\n'}
+[0.606981] (odrive_motor) StdoutLine: {'line': b'-- Detecting C compile features - done\n'}
+[0.639020] (odrive_motor) StdoutLine: {'line': b'-- Detecting CXX compiler ABI info\n'}
+[0.700614] (-) TimerEvent: {}
+[0.783025] (odrive_motor) StdoutLine: {'line': b'-- Detecting CXX compiler ABI info - done\n'}
+[0.800759] (-) TimerEvent: {}
+[0.836065] (odrive_motor) StdoutLine: {'line': b'-- Check for working CXX compiler: /usr/bin/c++ - skipped\n'}
+[0.836988] (odrive_motor) StdoutLine: {'line': b'-- Detecting CXX compile features\n'}
+[0.838638] (odrive_motor) StdoutLine: {'line': b'-- Detecting CXX compile features - done\n'}
+[0.859488] (odrive_motor) StdoutLine: {'line': b'-- Found ament_cmake: 1.3.11 (/opt/ros/humble/install/share/ament_cmake/cmake)\n'}
+[0.900921] (-) TimerEvent: {}
+[1.001534] (-) TimerEvent: {}
+[1.102149] (-) TimerEvent: {}
+[1.163166] (odrive_motor) StdoutLine: {'line': b'-- Found Python3: /usr/local/bin/python3 (found version "3.10.12") found components: Interpreter\n'}
+[1.202307] (-) TimerEvent: {}
+[1.302947] (-) TimerEvent: {}
+[1.381525] (odrive_motor) StdoutLine: {'line': b'-- Found rclcpp: 16.0.11 (/opt/ros/humble/install/share/rclcpp/cmake)\n'}
+[1.403029] (-) TimerEvent: {}
+[1.486987] (odrive_motor) StdoutLine: {'line': b'-- Found rosidl_generator_c: 3.1.6 (/opt/ros/humble/install/share/rosidl_generator_c/cmake)\n'}
+[1.497439] (odrive_motor) StdoutLine: {'line': b'-- Found rosidl_adapter: 3.1.6 (/opt/ros/humble/install/share/rosidl_adapter/cmake)\n'}
+[1.503104] (-) TimerEvent: {}
+[1.516670] (odrive_motor) StdoutLine: {'line': b'-- Found rosidl_generator_cpp: 3.1.6 (/opt/ros/humble/install/share/rosidl_generator_cpp/cmake)\n'}
+[1.546290] (odrive_motor) StdoutLine: {'line': b'-- Using all available rosidl_typesupport_c: rosidl_typesupport_fastrtps_c;rosidl_typesupport_introspection_c\n'}
+[1.585276] (odrive_motor) StdoutLine: {'line': b'-- Using all available rosidl_typesupport_cpp: rosidl_typesupport_fastrtps_cpp;rosidl_typesupport_introspection_cpp\n'}
+[1.603201] (-) TimerEvent: {}
+[1.690006] (odrive_motor) StdoutLine: {'line': b'-- Found rmw_implementation_cmake: 6.1.2 (/opt/ros/humble/install/share/rmw_implementation_cmake/cmake)\n'}
+[1.694944] (odrive_motor) StdoutLine: {'line': b'-- Found rmw_fastrtps_cpp: 6.2.7 (/opt/ros/humble/install/share/rmw_fastrtps_cpp/cmake)\n'}
+[1.703290] (-) TimerEvent: {}
+[1.803743] (-) TimerEvent: {}
+[1.863992] (odrive_motor) StdoutLine: {'line': b'-- Found OpenSSL: /usr/lib/aarch64-linux-gnu/libcrypto.so (found version "3.0.2")\n'}
+[1.904015] (-) TimerEvent: {}
+[1.926040] (odrive_motor) StdoutLine: {'line': b'-- Found FastRTPS: /opt/ros/humble/install/include\n'}
+[2.004186] (-) TimerEvent: {}
+[2.012126] (odrive_motor) StdoutLine: {'line': b"-- Using RMW implementation 'rmw_fastrtps_cpp' as default\n"}
+[2.030402] (odrive_motor) StdoutLine: {'line': b'-- Performing Test CMAKE_HAVE_LIBC_PTHREAD\n'}
+[2.104355] (-) TimerEvent: {}
+[2.158306] (odrive_motor) StdoutLine: {'line': b'-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success\n'}
+[2.161798] (odrive_motor) StdoutLine: {'line': b'-- Found Threads: TRUE\n'}
+[2.204740] (-) TimerEvent: {}
+[2.305545] (-) TimerEvent: {}
+[2.334426] (odrive_motor) StderrLine: {'line': b'\x1b[31mCMake Error at CMakeLists.txt:18 (find_package):\n'}
+[2.335086] (odrive_motor) StderrLine: {'line': b'  By not providing "Findodrive_can.cmake" in CMAKE_MODULE_PATH this project\n'}
+[2.335378] (odrive_motor) StderrLine: {'line': b'  has asked CMake to find a package configuration file provided by\n'}
+[2.335625] (odrive_motor) StderrLine: {'line': b'  "odrive_can", but CMake did not find one.\n'}
+[2.335853] (odrive_motor) StderrLine: {'line': b'\n'}
+[2.336074] (odrive_motor) StderrLine: {'line': b'  Could not find a package configuration file provided by "odrive_can" with\n'}
+[2.336296] (odrive_motor) StderrLine: {'line': b'  any of the following names:\n'}
+[2.336513] (odrive_motor) StderrLine: {'line': b'\n'}
+[2.336765] (odrive_motor) StderrLine: {'line': b'    odrive_canConfig.cmake\n'}
+[2.337000] (odrive_motor) StderrLine: {'line': b'    odrive_can-config.cmake\n'}
+[2.337216] (odrive_motor) StderrLine: {'line': b'\n'}
+[2.337425] (odrive_motor) StderrLine: {'line': b'  Add the installation prefix of "odrive_can" to CMAKE_PREFIX_PATH or set\n'}
+[2.337637] (odrive_motor) StderrLine: {'line': b'  "odrive_can_DIR" to a directory containing one of the above files.  If\n'}
+[2.337847] (odrive_motor) StderrLine: {'line': b'  "odrive_can" provides a separate development package or SDK, be sure it has\n'}
+[2.338055] (odrive_motor) StderrLine: {'line': b'  been installed.\n'}
+[2.338273] (odrive_motor) StderrLine: {'line': b'\n'}
+[2.338480] (odrive_motor) StderrLine: {'line': b'\x1b[0m\n'}
+[2.338687] (odrive_motor) StdoutLine: {'line': b'-- Configuring incomplete, errors occurred!\n'}
+[2.358309] (odrive_motor) CommandEnded: {'returncode': 1}
+[2.405636] (-) TimerEvent: {}
+[2.506207] (-) TimerEvent: {}
+[2.554810] (odrive_motor) JobEnded: {'identifier': 'odrive_motor', 'rc': 1}
+[2.566061] (-) EventReactorShutdown: {}

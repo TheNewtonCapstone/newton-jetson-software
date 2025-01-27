@@ -1,0 +1,259 @@
+[0.000000] (-) TimerEvent: {}
+[0.001022] (odrive_motor) JobQueued: {'identifier': 'odrive_motor', 'dependencies': OrderedDict()}
+[0.001584] (odrive_motor) JobStarted: {'identifier': 'odrive_motor'}
+[0.032899] (odrive_motor) JobProgress: {'identifier': 'odrive_motor', 'progress': 'cmake'}
+[0.034267] (odrive_motor) Command: {'cmd': ['/usr/local/bin/cmake', '/home/modules/src/motor', '-DCMAKE_INSTALL_PREFIX=/home/modules/install/odrive_motor'], 'cwd': '/home/modules/build/odrive_motor', 'env': OrderedDict([('TWINE_PASSWORD', 'none'), ('OPENBLAS_CORETYPE', 'ARMV8'), ('PYTHONFAULTHANDLER', '1'), ('CUDACXX', '/usr/local/cuda/bin/nvcc'), ('PYTHONIOENCODING', 'utf-8'), ('PIP_ROOT_USER_ACTION', 'ignore'), ('LANGUAGE', 'en_US:en'), ('PIP_TRUSTED_HOST', 'jetson.webredirect.org'), ('PIP_DEFAULT_TIMEOUT', '100'), ('PYTHONHASHSEED', 'random'), ('HOSTNAME', 'cdc56d8f89b1'), ('TWINE_REPOSITORY_URL', 'http://localhost/jp6/cu126'), ('TAR_INDEX_URL', 'http://jetson.webredirect.org:8000/jp6/cu126'), ('SHLVL', '1'), ('LD_LIBRARY_PATH', '/home/lib/ros_odrive/install/odrive_can/lib:/opt/ros/humble/install/opt/rviz_ogre_vendor/lib:/opt/ros/humble/install/lib:/usr/local/cuda/compat:/usr/local/cuda/lib64:'), ('HOME', '/root'), ('OLDPWD', '/home'), ('CMAKE_CUDA_COMPILER', '/usr/local/cuda/bin/nvcc'), ('TORCH_NVCC_FLAGS', '-Xfatbin -compress-all'), ('PYTHONUNBUFFERED', '1'), ('ROS_PYTHON_VERSION', '3'), ('CUDA_TOOLKIT_ROOT_DIR', '/usr/local/cuda'), ('CUDA_NVCC_EXECUTABLE', '/usr/local/cuda/bin/nvcc'), ('CUDNN_LIB_PATH', '/usr/lib/aarch64-linux-gnu'), ('CUDAARCHS', '87'), ('PIP_CACHE_PURGE', 'true'), ('COLCON_PREFIX_PATH', '/home/lib/ros_odrive/install:/opt/ros/humble/install'), ('ROS_DISTRO', 'humble'), ('SCP_UPLOAD_PASS', 'None'), ('PIP_DISABLE_PIP_VERSION_CHECK', 'on'), ('CUDA_ARCHITECTURES', '87'), ('_', '/usr/bin/colcon'), ('ROS_VERSION', '2'), ('PKG_CONFIG_PATH', '/opt/ros/humble/install/lib/aarch64-linux-gnu/pkgconfig:/opt/ros/humble/install/lib/pkgconfig'), ('NVIDIA_DRIVER_CAPABILITIES', 'all'), ('TERM', 'xterm'), ('ROS_LOCALHOST_ONLY', '0'), ('TWINE_USERNAME', 'jp6'), ('PATH', '/opt/ros/humble/install/bin:/usr/local/cuda/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'), ('PIP_INDEX_URL', 'http://jetson.webredirect.org/jp6/cu126'), ('PIP_NO_CACHE_DIR', 'off'), ('SCP_UPLOAD_USER', 'None'), ('LANG', 'en_US.UTF-8'), ('RMW_IMPLEMENTATION', 'rmw_fastrtps_cpp'), ('LS_COLORS', 'rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.zst=01;31:*.tzst=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.wim=01;31:*.swm=01;31:*.dwm=01;31:*.esd=01;31:*.jpg=01;35:*.jpeg=01;35:*.mjpg=01;35:*.mjpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.webm=01;35:*.webp=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.m4a=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.oga=00;36:*.opus=00;36:*.spx=00;36:*.xspf=00;36:'), ('ROS_ROOT', '/opt/ros/humble'), ('SCP_UPLOAD_URL', 'localhost:/dist/jp6/cu126'), ('AMENT_PREFIX_PATH', '/home/lib/ros_odrive/install/odrive_can:/opt/ros/humble/install:/opt/ros/humble/install'), ('TWINE_NON_INTERACTIVE', '1'), ('DEBIAN_FRONTEND', 'noninteractive'), ('SHELL', '/bin/bash'), ('PYTHON_VERSION', '3.10'), ('OPENCV_VERSION', '4.10.0'), ('NVCC_PATH', '/usr/local/cuda/bin/nvcc'), ('OPENCV_URL', ''), ('PWD', '/home/modules/build/odrive_motor'), ('LC_ALL', 'en_US.UTF-8'), ('CUDA_HOME', '/usr/local/cuda'), ('CUDNN_LIB_INCLUDE_PATH', '/usr/include'), ('PYTHONPATH', '/home/lib/ros_odrive/install/odrive_can/local/lib/python3.10/dist-packages:/opt/ros/humble/install/local/lib/python3.10/dist-packages:/opt/ros/humble/install/lib/python3.10/site-packages'), ('NVIDIA_VISIBLE_DEVICES', 'all'), ('COLCON', '1'), ('CUDA_BIN_PATH', '/usr/local/cuda/bin'), ('CMAKE_PREFIX_PATH', '/home/lib/ros_odrive/install/odrive_can:/opt/ros/humble/install')]), 'shell': False}
+[0.099579] (-) TimerEvent: {}
+[0.200189] (-) TimerEvent: {}
+[0.216113] (odrive_motor) StdoutLine: {'line': b'-- Found ament_cmake: 1.3.11 (/opt/ros/humble/install/share/ament_cmake/cmake)\n'}
+[0.300348] (-) TimerEvent: {}
+[0.400956] (-) TimerEvent: {}
+[0.501582] (-) TimerEvent: {}
+[0.602204] (-) TimerEvent: {}
+[0.680584] (odrive_motor) StdoutLine: {'line': b'-- Found rclcpp: 16.0.11 (/opt/ros/humble/install/share/rclcpp/cmake)\n'}
+[0.702317] (-) TimerEvent: {}
+[0.770452] (odrive_motor) StdoutLine: {'line': b'-- Found rosidl_generator_c: 3.1.6 (/opt/ros/humble/install/share/rosidl_generator_c/cmake)\n'}
+[0.777096] (odrive_motor) StdoutLine: {'line': b'-- Found rosidl_adapter: 3.1.6 (/opt/ros/humble/install/share/rosidl_adapter/cmake)\n'}
+[0.792809] (odrive_motor) StdoutLine: {'line': b'-- Found rosidl_generator_cpp: 3.1.6 (/opt/ros/humble/install/share/rosidl_generator_cpp/cmake)\n'}
+[0.802395] (-) TimerEvent: {}
+[0.818628] (odrive_motor) StdoutLine: {'line': b'-- Using all available rosidl_typesupport_c: rosidl_typesupport_fastrtps_c;rosidl_typesupport_introspection_c\n'}
+[0.852809] (odrive_motor) StdoutLine: {'line': b'-- Using all available rosidl_typesupport_cpp: rosidl_typesupport_fastrtps_cpp;rosidl_typesupport_introspection_cpp\n'}
+[0.902525] (-) TimerEvent: {}
+[0.939829] (odrive_motor) StdoutLine: {'line': b'-- Found rmw_implementation_cmake: 6.1.2 (/opt/ros/humble/install/share/rmw_implementation_cmake/cmake)\n'}
+[0.943164] (odrive_motor) StdoutLine: {'line': b'-- Found rmw_fastrtps_cpp: 6.2.7 (/opt/ros/humble/install/share/rmw_fastrtps_cpp/cmake)\n'}
+[1.002658] (-) TimerEvent: {}
+[1.103193] (-) TimerEvent: {}
+[1.166144] (odrive_motor) StdoutLine: {'line': b"-- Using RMW implementation 'rmw_fastrtps_cpp' as default\n"}
+[1.203292] (-) TimerEvent: {}
+[1.299649] (odrive_motor) StdoutLine: {'line': b'-- Found odrive_can: 0.0.1 (/home/lib/ros_odrive/install/odrive_can/share/odrive_can/cmake)\n'}
+[1.303372] (-) TimerEvent: {}
+[1.326825] (odrive_motor) StdoutLine: {'line': b'-- Found std_srvs: 4.2.4 (/opt/ros/humble/install/share/std_srvs/cmake)\n'}
+[1.357775] (odrive_motor) StdoutLine: {'line': b'-- Found ament_cmake_gtest: 1.3.11 (/opt/ros/humble/install/share/ament_cmake_gtest/cmake)\n'}
+[1.403556] (-) TimerEvent: {}
+[1.495521] (odrive_motor) StdoutLine: {'line': b'-- Configuring done (1.3s)\n'}
+[1.503636] (-) TimerEvent: {}
+[1.523807] (odrive_motor) StdoutLine: {'line': b'-- Generating done (0.0s)\n'}
+[1.528648] (odrive_motor) StdoutLine: {'line': b'-- Build files have been written to: /home/modules/build/odrive_motor\n'}
+[1.547285] (odrive_motor) CommandEnded: {'returncode': 0}
+[1.550460] (odrive_motor) JobProgress: {'identifier': 'odrive_motor', 'progress': 'build'}
+[1.551212] (odrive_motor) Command: {'cmd': ['/usr/local/bin/cmake', '--build', '/home/modules/build/odrive_motor', '--', '-j6', '-l6'], 'cwd': '/home/modules/build/odrive_motor', 'env': OrderedDict([('TWINE_PASSWORD', 'none'), ('OPENBLAS_CORETYPE', 'ARMV8'), ('PYTHONFAULTHANDLER', '1'), ('CUDACXX', '/usr/local/cuda/bin/nvcc'), ('PYTHONIOENCODING', 'utf-8'), ('PIP_ROOT_USER_ACTION', 'ignore'), ('LANGUAGE', 'en_US:en'), ('PIP_TRUSTED_HOST', 'jetson.webredirect.org'), ('PIP_DEFAULT_TIMEOUT', '100'), ('PYTHONHASHSEED', 'random'), ('HOSTNAME', 'cdc56d8f89b1'), ('TWINE_REPOSITORY_URL', 'http://localhost/jp6/cu126'), ('TAR_INDEX_URL', 'http://jetson.webredirect.org:8000/jp6/cu126'), ('SHLVL', '1'), ('LD_LIBRARY_PATH', '/home/lib/ros_odrive/install/odrive_can/lib:/opt/ros/humble/install/opt/rviz_ogre_vendor/lib:/opt/ros/humble/install/lib:/usr/local/cuda/compat:/usr/local/cuda/lib64:'), ('HOME', '/root'), ('OLDPWD', '/home'), ('CMAKE_CUDA_COMPILER', '/usr/local/cuda/bin/nvcc'), ('TORCH_NVCC_FLAGS', '-Xfatbin -compress-all'), ('PYTHONUNBUFFERED', '1'), ('ROS_PYTHON_VERSION', '3'), ('CUDA_TOOLKIT_ROOT_DIR', '/usr/local/cuda'), ('CUDA_NVCC_EXECUTABLE', '/usr/local/cuda/bin/nvcc'), ('CUDNN_LIB_PATH', '/usr/lib/aarch64-linux-gnu'), ('CUDAARCHS', '87'), ('PIP_CACHE_PURGE', 'true'), ('COLCON_PREFIX_PATH', '/home/lib/ros_odrive/install:/opt/ros/humble/install'), ('ROS_DISTRO', 'humble'), ('SCP_UPLOAD_PASS', 'None'), ('PIP_DISABLE_PIP_VERSION_CHECK', 'on'), ('CUDA_ARCHITECTURES', '87'), ('_', '/usr/bin/colcon'), ('ROS_VERSION', '2'), ('PKG_CONFIG_PATH', '/opt/ros/humble/install/lib/aarch64-linux-gnu/pkgconfig:/opt/ros/humble/install/lib/pkgconfig'), ('NVIDIA_DRIVER_CAPABILITIES', 'all'), ('TERM', 'xterm'), ('ROS_LOCALHOST_ONLY', '0'), ('TWINE_USERNAME', 'jp6'), ('PATH', '/opt/ros/humble/install/bin:/usr/local/cuda/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'), ('PIP_INDEX_URL', 'http://jetson.webredirect.org/jp6/cu126'), ('PIP_NO_CACHE_DIR', 'off'), ('SCP_UPLOAD_USER', 'None'), ('LANG', 'en_US.UTF-8'), ('RMW_IMPLEMENTATION', 'rmw_fastrtps_cpp'), ('LS_COLORS', 'rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.zst=01;31:*.tzst=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.wim=01;31:*.swm=01;31:*.dwm=01;31:*.esd=01;31:*.jpg=01;35:*.jpeg=01;35:*.mjpg=01;35:*.mjpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.webm=01;35:*.webp=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.m4a=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.oga=00;36:*.opus=00;36:*.spx=00;36:*.xspf=00;36:'), ('ROS_ROOT', '/opt/ros/humble'), ('SCP_UPLOAD_URL', 'localhost:/dist/jp6/cu126'), ('AMENT_PREFIX_PATH', '/home/lib/ros_odrive/install/odrive_can:/opt/ros/humble/install:/opt/ros/humble/install'), ('TWINE_NON_INTERACTIVE', '1'), ('DEBIAN_FRONTEND', 'noninteractive'), ('SHELL', '/bin/bash'), ('PYTHON_VERSION', '3.10'), ('OPENCV_VERSION', '4.10.0'), ('NVCC_PATH', '/usr/local/cuda/bin/nvcc'), ('OPENCV_URL', ''), ('PWD', '/home/modules/build/odrive_motor'), ('LC_ALL', 'en_US.UTF-8'), ('CUDA_HOME', '/usr/local/cuda'), ('CUDNN_LIB_INCLUDE_PATH', '/usr/include'), ('PYTHONPATH', '/home/lib/ros_odrive/install/odrive_can/local/lib/python3.10/dist-packages:/opt/ros/humble/install/local/lib/python3.10/dist-packages:/opt/ros/humble/install/lib/python3.10/site-packages'), ('NVIDIA_VISIBLE_DEVICES', 'all'), ('COLCON', '1'), ('CUDA_BIN_PATH', '/usr/local/cuda/bin'), ('CMAKE_PREFIX_PATH', '/home/lib/ros_odrive/install/odrive_can:/opt/ros/humble/install')]), 'shell': False}
+[1.603868] (-) TimerEvent: {}
+[1.704456] (-) TimerEvent: {}
+[1.755833] (odrive_motor) StdoutLine: {'line': b'[ 66%] \x1b[32mBuilding CXX object CMakeFiles/odrive_motor_node.dir/src/main.cpp.o\x1b[0m\n'}
+[1.756430] (odrive_motor) StdoutLine: {'line': b'[ 66%] \x1b[32mBuilding CXX object CMakeFiles/odrive_motor_node.dir/src/motor.cpp.o\x1b[0m\n'}
+[1.804651] (-) TimerEvent: {}
+[1.905400] (-) TimerEvent: {}
+[2.006086] (-) TimerEvent: {}
+[2.106764] (-) TimerEvent: {}
+[2.207424] (-) TimerEvent: {}
+[2.308108] (-) TimerEvent: {}
+[2.408803] (-) TimerEvent: {}
+[2.509519] (-) TimerEvent: {}
+[2.610262] (-) TimerEvent: {}
+[2.711005] (-) TimerEvent: {}
+[2.811732] (-) TimerEvent: {}
+[2.912465] (-) TimerEvent: {}
+[3.013213] (-) TimerEvent: {}
+[3.113949] (-) TimerEvent: {}
+[3.214708] (-) TimerEvent: {}
+[3.315471] (-) TimerEvent: {}
+[3.416218] (-) TimerEvent: {}
+[3.517046] (-) TimerEvent: {}
+[3.617801] (-) TimerEvent: {}
+[3.718523] (-) TimerEvent: {}
+[3.819238] (-) TimerEvent: {}
+[3.920113] (-) TimerEvent: {}
+[4.021225] (-) TimerEvent: {}
+[4.121957] (-) TimerEvent: {}
+[4.222687] (-) TimerEvent: {}
+[4.323417] (-) TimerEvent: {}
+[4.424198] (-) TimerEvent: {}
+[4.524923] (-) TimerEvent: {}
+[4.625692] (-) TimerEvent: {}
+[4.726457] (-) TimerEvent: {}
+[4.827194] (-) TimerEvent: {}
+[4.927933] (-) TimerEvent: {}
+[5.028852] (-) TimerEvent: {}
+[5.129761] (-) TimerEvent: {}
+[5.230499] (-) TimerEvent: {}
+[5.331380] (-) TimerEvent: {}
+[5.432132] (-) TimerEvent: {}
+[5.532867] (-) TimerEvent: {}
+[5.633653] (-) TimerEvent: {}
+[5.734404] (-) TimerEvent: {}
+[5.835161] (-) TimerEvent: {}
+[5.936142] (-) TimerEvent: {}
+[6.037221] (-) TimerEvent: {}
+[6.138084] (-) TimerEvent: {}
+[6.238960] (-) TimerEvent: {}
+[6.339916] (-) TimerEvent: {}
+[6.440672] (-) TimerEvent: {}
+[6.541431] (-) TimerEvent: {}
+[6.642267] (-) TimerEvent: {}
+[6.743012] (-) TimerEvent: {}
+[6.843758] (-) TimerEvent: {}
+[6.944688] (-) TimerEvent: {}
+[7.045440] (-) TimerEvent: {}
+[7.146385] (-) TimerEvent: {}
+[7.247236] (-) TimerEvent: {}
+[7.347977] (-) TimerEvent: {}
+[7.448720] (-) TimerEvent: {}
+[7.549492] (-) TimerEvent: {}
+[7.650227] (-) TimerEvent: {}
+[7.750963] (-) TimerEvent: {}
+[7.851690] (-) TimerEvent: {}
+[7.952563] (-) TimerEvent: {}
+[8.053406] (-) TimerEvent: {}
+[8.154266] (-) TimerEvent: {}
+[8.255004] (-) TimerEvent: {}
+[8.355705] (-) TimerEvent: {}
+[8.456389] (-) TimerEvent: {}
+[8.557124] (-) TimerEvent: {}
+[8.657865] (-) TimerEvent: {}
+[8.758607] (-) TimerEvent: {}
+[8.859344] (-) TimerEvent: {}
+[8.960068] (-) TimerEvent: {}
+[9.060796] (-) TimerEvent: {}
+[9.161538] (-) TimerEvent: {}
+[9.262519] (-) TimerEvent: {}
+[9.363345] (-) TimerEvent: {}
+[9.464111] (-) TimerEvent: {}
+[9.564811] (-) TimerEvent: {}
+[9.665537] (-) TimerEvent: {}
+[9.766225] (-) TimerEvent: {}
+[9.866981] (-) TimerEvent: {}
+[9.967683] (-) TimerEvent: {}
+[10.068618] (-) TimerEvent: {}
+[10.169359] (-) TimerEvent: {}
+[10.270076] (-) TimerEvent: {}
+[10.370816] (-) TimerEvent: {}
+[10.471522] (-) TimerEvent: {}
+[10.572246] (-) TimerEvent: {}
+[10.672913] (-) TimerEvent: {}
+[10.773629] (-) TimerEvent: {}
+[10.874346] (-) TimerEvent: {}
+[10.975042] (-) TimerEvent: {}
+[11.075765] (-) TimerEvent: {}
+[11.176477] (-) TimerEvent: {}
+[11.277207] (-) TimerEvent: {}
+[11.377919] (-) TimerEvent: {}
+[11.478635] (-) TimerEvent: {}
+[11.579551] (-) TimerEvent: {}
+[11.680256] (-) TimerEvent: {}
+[11.780932] (-) TimerEvent: {}
+[11.881659] (-) TimerEvent: {}
+[11.982392] (-) TimerEvent: {}
+[12.083089] (-) TimerEvent: {}
+[12.183780] (-) TimerEvent: {}
+[12.284483] (-) TimerEvent: {}
+[12.385266] (-) TimerEvent: {}
+[12.485960] (-) TimerEvent: {}
+[12.586797] (-) TimerEvent: {}
+[12.687511] (-) TimerEvent: {}
+[12.788221] (-) TimerEvent: {}
+[12.888928] (-) TimerEvent: {}
+[12.989640] (-) TimerEvent: {}
+[13.090367] (-) TimerEvent: {}
+[13.191090] (-) TimerEvent: {}
+[13.291811] (-) TimerEvent: {}
+[13.392500] (-) TimerEvent: {}
+[13.493204] (-) TimerEvent: {}
+[13.593884] (-) TimerEvent: {}
+[13.694572] (-) TimerEvent: {}
+[13.795225] (-) TimerEvent: {}
+[13.895892] (-) TimerEvent: {}
+[13.996572] (-) TimerEvent: {}
+[14.097246] (-) TimerEvent: {}
+[14.197899] (-) TimerEvent: {}
+[14.298552] (-) TimerEvent: {}
+[14.399198] (-) TimerEvent: {}
+[14.499868] (-) TimerEvent: {}
+[14.600542] (-) TimerEvent: {}
+[14.701230] (-) TimerEvent: {}
+[14.801880] (-) TimerEvent: {}
+[14.902535] (-) TimerEvent: {}
+[15.003178] (-) TimerEvent: {}
+[15.103911] (-) TimerEvent: {}
+[15.204574] (-) TimerEvent: {}
+[15.305255] (-) TimerEvent: {}
+[15.405895] (-) TimerEvent: {}
+[15.506622] (-) TimerEvent: {}
+[15.607354] (-) TimerEvent: {}
+[15.708027] (-) TimerEvent: {}
+[15.808681] (-) TimerEvent: {}
+[15.909361] (-) TimerEvent: {}
+[16.010021] (-) TimerEvent: {}
+[16.110681] (-) TimerEvent: {}
+[16.211329] (-) TimerEvent: {}
+[16.311974] (-) TimerEvent: {}
+[16.412616] (-) TimerEvent: {}
+[16.513338] (-) TimerEvent: {}
+[16.613983] (-) TimerEvent: {}
+[16.714618] (-) TimerEvent: {}
+[16.815258] (-) TimerEvent: {}
+[16.915910] (-) TimerEvent: {}
+[17.016568] (-) TimerEvent: {}
+[17.117243] (-) TimerEvent: {}
+[17.217897] (-) TimerEvent: {}
+[17.318546] (-) TimerEvent: {}
+[17.419207] (-) TimerEvent: {}
+[17.519861] (-) TimerEvent: {}
+[17.620538] (-) TimerEvent: {}
+[17.721218] (-) TimerEvent: {}
+[17.821870] (-) TimerEvent: {}
+[17.922533] (-) TimerEvent: {}
+[18.023181] (-) TimerEvent: {}
+[18.123835] (-) TimerEvent: {}
+[18.224519] (-) TimerEvent: {}
+[18.325254] (-) TimerEvent: {}
+[18.425954] (-) TimerEvent: {}
+[18.526636] (-) TimerEvent: {}
+[18.627338] (-) TimerEvent: {}
+[18.728047] (-) TimerEvent: {}
+[18.828729] (-) TimerEvent: {}
+[18.929455] (-) TimerEvent: {}
+[19.030134] (-) TimerEvent: {}
+[19.130824] (-) TimerEvent: {}
+[19.231532] (-) TimerEvent: {}
+[19.332224] (-) TimerEvent: {}
+[19.432934] (-) TimerEvent: {}
+[19.528307] (odrive_motor) StdoutLine: {'line': b'[100%] \x1b[32m\x1b[1mLinking CXX executable odrive_motor_node\x1b[0m\n'}
+[19.533024] (-) TimerEvent: {}
+[19.633791] (-) TimerEvent: {}
+[19.734532] (-) TimerEvent: {}
+[19.835292] (-) TimerEvent: {}
+[19.936007] (-) TimerEvent: {}
+[20.036722] (-) TimerEvent: {}
+[20.137437] (-) TimerEvent: {}
+[20.238140] (-) TimerEvent: {}
+[20.306321] (odrive_motor) StdoutLine: {'line': b'[100%] Built target odrive_motor_node\n'}
+[20.320696] (odrive_motor) CommandEnded: {'returncode': 0}
+[20.322919] (odrive_motor) JobProgress: {'identifier': 'odrive_motor', 'progress': 'install'}
+[20.338213] (-) TimerEvent: {}
+[20.438731] (-) TimerEvent: {}
+[20.480489] (odrive_motor) Command: {'cmd': ['/usr/local/bin/cmake', '--install', '/home/modules/build/odrive_motor'], 'cwd': '/home/modules/build/odrive_motor', 'env': OrderedDict([('TWINE_PASSWORD', 'none'), ('OPENBLAS_CORETYPE', 'ARMV8'), ('PYTHONFAULTHANDLER', '1'), ('CUDACXX', '/usr/local/cuda/bin/nvcc'), ('PYTHONIOENCODING', 'utf-8'), ('PIP_ROOT_USER_ACTION', 'ignore'), ('LANGUAGE', 'en_US:en'), ('PIP_TRUSTED_HOST', 'jetson.webredirect.org'), ('PIP_DEFAULT_TIMEOUT', '100'), ('PYTHONHASHSEED', 'random'), ('HOSTNAME', 'cdc56d8f89b1'), ('TWINE_REPOSITORY_URL', 'http://localhost/jp6/cu126'), ('TAR_INDEX_URL', 'http://jetson.webredirect.org:8000/jp6/cu126'), ('SHLVL', '1'), ('LD_LIBRARY_PATH', '/home/lib/ros_odrive/install/odrive_can/lib:/opt/ros/humble/install/opt/rviz_ogre_vendor/lib:/opt/ros/humble/install/lib:/usr/local/cuda/compat:/usr/local/cuda/lib64:'), ('HOME', '/root'), ('OLDPWD', '/home'), ('CMAKE_CUDA_COMPILER', '/usr/local/cuda/bin/nvcc'), ('TORCH_NVCC_FLAGS', '-Xfatbin -compress-all'), ('PYTHONUNBUFFERED', '1'), ('ROS_PYTHON_VERSION', '3'), ('CUDA_TOOLKIT_ROOT_DIR', '/usr/local/cuda'), ('CUDA_NVCC_EXECUTABLE', '/usr/local/cuda/bin/nvcc'), ('CUDNN_LIB_PATH', '/usr/lib/aarch64-linux-gnu'), ('CUDAARCHS', '87'), ('PIP_CACHE_PURGE', 'true'), ('COLCON_PREFIX_PATH', '/home/lib/ros_odrive/install:/opt/ros/humble/install'), ('ROS_DISTRO', 'humble'), ('SCP_UPLOAD_PASS', 'None'), ('PIP_DISABLE_PIP_VERSION_CHECK', 'on'), ('CUDA_ARCHITECTURES', '87'), ('_', '/usr/bin/colcon'), ('ROS_VERSION', '2'), ('PKG_CONFIG_PATH', '/opt/ros/humble/install/lib/aarch64-linux-gnu/pkgconfig:/opt/ros/humble/install/lib/pkgconfig'), ('NVIDIA_DRIVER_CAPABILITIES', 'all'), ('TERM', 'xterm'), ('ROS_LOCALHOST_ONLY', '0'), ('TWINE_USERNAME', 'jp6'), ('PATH', '/opt/ros/humble/install/bin:/usr/local/cuda/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'), ('PIP_INDEX_URL', 'http://jetson.webredirect.org/jp6/cu126'), ('PIP_NO_CACHE_DIR', 'off'), ('SCP_UPLOAD_USER', 'None'), ('LANG', 'en_US.UTF-8'), ('RMW_IMPLEMENTATION', 'rmw_fastrtps_cpp'), ('LS_COLORS', 'rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.zst=01;31:*.tzst=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.wim=01;31:*.swm=01;31:*.dwm=01;31:*.esd=01;31:*.jpg=01;35:*.jpeg=01;35:*.mjpg=01;35:*.mjpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.webm=01;35:*.webp=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.m4a=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.oga=00;36:*.opus=00;36:*.spx=00;36:*.xspf=00;36:'), ('ROS_ROOT', '/opt/ros/humble'), ('SCP_UPLOAD_URL', 'localhost:/dist/jp6/cu126'), ('AMENT_PREFIX_PATH', '/home/lib/ros_odrive/install/odrive_can:/opt/ros/humble/install:/opt/ros/humble/install'), ('TWINE_NON_INTERACTIVE', '1'), ('DEBIAN_FRONTEND', 'noninteractive'), ('SHELL', '/bin/bash'), ('PYTHON_VERSION', '3.10'), ('OPENCV_VERSION', '4.10.0'), ('NVCC_PATH', '/usr/local/cuda/bin/nvcc'), ('OPENCV_URL', ''), ('PWD', '/home/modules/build/odrive_motor'), ('LC_ALL', 'en_US.UTF-8'), ('CUDA_HOME', '/usr/local/cuda'), ('CUDNN_LIB_INCLUDE_PATH', '/usr/include'), ('PYTHONPATH', '/home/lib/ros_odrive/install/odrive_can/local/lib/python3.10/dist-packages:/opt/ros/humble/install/local/lib/python3.10/dist-packages:/opt/ros/humble/install/lib/python3.10/site-packages'), ('NVIDIA_VISIBLE_DEVICES', 'all'), ('COLCON', '1'), ('CUDA_BIN_PATH', '/usr/local/cuda/bin'), ('CMAKE_PREFIX_PATH', '/home/lib/ros_odrive/install/odrive_can:/opt/ros/humble/install')]), 'shell': False}
+[20.538869] (-) TimerEvent: {}
+[20.636983] (odrive_motor) StdoutLine: {'line': b'-- Install configuration: ""\n'}
+[20.637565] (odrive_motor) StdoutLine: {'line': b'-- Installing: /home/modules/install/odrive_motor/lib/odrive_motor/odrive_motor_node\n'}
+[20.638937] (-) TimerEvent: {}
+[20.644894] (odrive_motor) StdoutLine: {'line': b'-- Set non-toolchain portion of runtime path of "/home/modules/install/odrive_motor/lib/odrive_motor/odrive_motor_node" to ""\n'}
+[20.645296] (odrive_motor) StdoutLine: {'line': b'-- Installing: /home/modules/install/odrive_motor/include\n'}
+[20.645501] (odrive_motor) StdoutLine: {'line': b'-- Installing: /home/modules/install/odrive_motor/include/motor.h\n'}
+[20.645787] (odrive_motor) StdoutLine: {'line': b'-- Installing: /home/modules/install/odrive_motor/share/ament_index/resource_index/package_run_dependencies/odrive_motor\n'}
+[20.646136] (odrive_motor) StdoutLine: {'line': b'-- Installing: /home/modules/install/odrive_motor/share/ament_index/resource_index/parent_prefix_path/odrive_motor\n'}
+[20.646510] (odrive_motor) StdoutLine: {'line': b'-- Installing: /home/modules/install/odrive_motor/share/odrive_motor/environment/ament_prefix_path.sh\n'}
+[20.646793] (odrive_motor) StdoutLine: {'line': b'-- Installing: /home/modules/install/odrive_motor/share/odrive_motor/environment/ament_prefix_path.dsv\n'}
+[20.647061] (odrive_motor) StdoutLine: {'line': b'-- Installing: /home/modules/install/odrive_motor/share/odrive_motor/environment/path.sh\n'}
+[20.647331] (odrive_motor) StdoutLine: {'line': b'-- Installing: /home/modules/install/odrive_motor/share/odrive_motor/environment/path.dsv\n'}
+[20.647581] (odrive_motor) StdoutLine: {'line': b'-- Installing: /home/modules/install/odrive_motor/share/odrive_motor/local_setup.bash\n'}
+[20.647831] (odrive_motor) StdoutLine: {'line': b'-- Installing: /home/modules/install/odrive_motor/share/odrive_motor/local_setup.sh\n'}
+[20.648099] (odrive_motor) StdoutLine: {'line': b'-- Installing: /home/modules/install/odrive_motor/share/odrive_motor/local_setup.zsh\n'}
+[20.648375] (odrive_motor) StdoutLine: {'line': b'-- Installing: /home/modules/install/odrive_motor/share/odrive_motor/local_setup.dsv\n'}
+[20.648623] (odrive_motor) StdoutLine: {'line': b'-- Installing: /home/modules/install/odrive_motor/share/odrive_motor/package.dsv\n'}
+[20.648961] (odrive_motor) StdoutLine: {'line': b'-- Installing: /home/modules/install/odrive_motor/share/ament_index/resource_index/packages/odrive_motor\n'}
+[20.649324] (odrive_motor) StdoutLine: {'line': b'-- Installing: /home/modules/install/odrive_motor/share/odrive_motor/cmake/odrive_motorConfig.cmake\n'}
+[20.649527] (odrive_motor) StdoutLine: {'line': b'-- Installing: /home/modules/install/odrive_motor/share/odrive_motor/cmake/odrive_motorConfig-version.cmake\n'}
+[20.649799] (odrive_motor) StdoutLine: {'line': b'-- Installing: /home/modules/install/odrive_motor/share/odrive_motor/package.xml\n'}
+[20.653499] (odrive_motor) CommandEnded: {'returncode': 0}
+[20.718167] (odrive_motor) JobEnded: {'identifier': 'odrive_motor', 'rc': 0}
+[20.720618] (-) EventReactorShutdown: {}
