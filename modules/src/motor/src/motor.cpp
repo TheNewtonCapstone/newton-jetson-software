@@ -1,26 +1,16 @@
 #include "motor.h"
 
-namespace newton {
+using namespace newton;
+Motor::Motor(const std::string& _id)
+    :Node("odrive_node_" + _id), position(0.0){
 
-Motor::Motor(const std::string& name)
-    : current_pos(0),
-      current_vel(0),
-      current_torque(0),
-      {motor / src / motor.cpp} Motor void Motor::statusCallback(
-          const odrive_can::msg::ControllerStatus::SharedPtr msg) {
-  std::lock_guard<std::mutex> lock(status_mutex_);
-  current_pos_ = msg->pos_estimate;
-  current_vel_ = msg->vel_estimate;
-  current_torque_ = msg->torque_estimate;
-  axis_state_ = msg->axis_state;
-  active_errors_ = msg->active_errors;
-}
-
-Motor::Motor(const std::string& name) : Node(name) {
-  // Set up subscriber for position updates
-  status_sub_ = create_subscription<odrive_can::msg::ControllerStatus>(
+  state_sub = create_subscription<odrive_can::msg::ControllerStatus>(
       "controller_status", 10,
       std::bind(&Motor::statusCallback, this, std::placeholders::_1));
+};
+
+void Motor::statusCallback(const odrive_can::msg::ControllerStatus::SharedPtr msg) {
+    printf("Ping\n");
 }
 
-}  // namespace newton
+

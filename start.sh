@@ -1,5 +1,5 @@
 # !/bin/bash
-work_dir=$(pwd)
+work_dir=/home/newton/projects/newton-jetson-software
 # exec docker compose up -d
 function run_container(){
     docker run -it --net=host \
