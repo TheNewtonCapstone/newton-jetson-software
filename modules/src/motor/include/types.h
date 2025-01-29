@@ -14,7 +14,7 @@ namespace newton {
     };
   struct state {
     id leg_id;
-    std::array<joint::state> joints;
+    std::array<joint::state, 3> joints;
     uint32_t error_flags;
   };
 
@@ -80,5 +80,4 @@ namespace newton {
   struct motor_config
 
 
-  
 }  // namespace newton
