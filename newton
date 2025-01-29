@@ -7,6 +7,22 @@ export NEWTON_ROOT="${ROOT}"
 export JETSON_CONTAINERS_PATH="${ROOT}/lib/jetson-containers"
 export PYTHONPATH="${ROOT}/:${PYTHONPATH}"
 
+function display_container_status() {
+    echo "Active Newton containers:"
+    docker ps --filter "ancestor=thenewtoncapstone/newton:l4t-r36.4.0" --format "table {{.ID}}\t{{.Status}}\t{{.Names}}"
+}
+
+# Function to stop containers
+function stop_container() {
+    local container_id=$1
+    if [ -z "$container_id" ]; then
+        echo "Stopping all Newton containers..."
+        docker stop $(docker ps -q --filter "ancestor=thenewtoncapstone/newton:l4t-r36.4.0")
+    else
+        echo "Stopping container $container_id..."
+        docker stop $container_id
+    fi
+}
 function build_odrive_can() {
     echo "Building odrive_can package..."
     
@@ -95,10 +111,17 @@ function display_help_build() {
   echo "Usage: newton build <package>"
   echo "Build a package"
 }
+
 function display_help_run() {
-  echo "Usage: newton run <container_name>"
-  echo "Run a container"
+    echo "Usage: newton run <container_name>"
+    echo "Run a container"
+    echo ""
+    echo "Commands:"
+    echo "  latest           Run the latest Newton container"
+    echo "  status          Display status of running containers"
+    echo "  stop [id]       Stop container(s). If no ID provided, stops all Newton containers"
 }
+
 function display_help_source() {
   echo "Usage: newton source <file to source>"
   echo "Source a container"
@@ -185,4 +208,13 @@ if [ $1 == "build" ]; then
     build_odrive_motor
     ros2 pkg list | grep odrive_motor
   fi
+fi
+
+
+#########################################
+              # STOP
+#########################################
+
+if [ $1 == "stop" ]; then
+    stop_container $2
 fi
