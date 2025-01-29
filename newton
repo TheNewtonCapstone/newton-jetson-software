@@ -54,12 +54,53 @@ function build_odrive_can() {
 
     echo "Sourcing built package..."
     source install/setup.bash
+    sleep .2
 
     cd "$current_dir"
     
     return 0
 }
 
+function build_imu_driver(){
+    echo "Building imu_driver package..."
+    src_dir="${ROOT}/modules/"
+    module_dir="${src_dir}/imu"
+
+    if [ ! -d $src_dir  ]; then
+        echo "Error: directory not found at ${module_dir}"
+        return 1
+    fi
+
+    local current_dir=$(pwd)
+
+    cd $src_dir
+
+    if [ -z "$ROS_DISTRO" ]; then
+        echo "Sourcing ROS environment..."
+        source /opt/ros/humble/setup.bash
+    fi
+
+    echo "Running colcon build..."
+    # TODO : change tm_imu to imu_driver
+    if ! colcon build --packages-select tm_imu --symlink-install; then
+        echo "Error: colcon build failed"
+        cd "$current_dir"
+        return 1
+    fi
+
+    ls -la
+
+    echo "Sourcing built package..."
+    source install/setup.bash
+    
+    sleep .2
+
+    cd "$current_dir"
+
+    ros2 pkg list | grep tm_imu
+    return 0
+
+}
 function build_motor_driver(){
     echo "Building motor_driver package..."
     src_dir="${ROOT}/modules/"
@@ -98,6 +139,8 @@ function build_motor_driver(){
     # Source the newly built package
     echo "Sourcing built package..."
     source install/setup.bash
+
+    sleep .2
 
     # Return to original directory
     cd "$current_dir"
@@ -179,7 +222,8 @@ if [ $1 == "source" ]; then
   fi
 
   if [ $2 == "python" ]; then
-    source ${ROOT}/lib/python-env/bin/activate
+    export PYTHONPATH="${ROOT}/:${PYTHONPATH}"
+    # source ${ROOT}/lib/python-env/bin/activate
     elif [ $2 == "ros" ]; then
       source /opt/ros/humble/install/setup.bash
     elif [ $2 == "odrive_can" ]; then 
@@ -209,6 +253,11 @@ if [ $1 == "build" ]; then
   if [ $2 == "motor_driver" ]; then
     build_motor_driver
     ros2 pkg list | grep motor_driver
+  fi
+
+  if [ $2 == "imu_driver" ]; then
+    build_imu_driver
+    ros2 pkg list | grep tm_imu
   fi
 fi
 
