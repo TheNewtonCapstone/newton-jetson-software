@@ -62,17 +62,4 @@ else
     echo "Virtual environment already exists"
 fi
 
-# Create newton script if it doesn't exist or has changed
-cat > "$ROOT/newton" << 'EOL'
-#!/usr/bin/env bash
-SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
-source "${SCRIPT_DIR}/.venv/bin/activate"
-# Add the build-kit directory to PYTHONPATH
-export PYTHONPATH="${SCRIPT_DIR}/build-kit:$PYTHONPATH"
-python3.10 -m build-kit.scripts.cli "$@"
-EOL
-
 source "$VENV_PATH"/bin/activate
-# Make newton executable and create symlink
-chmod +x "$ROOT/newton"
-sudo ln -sf "$ROOT/newton" "$INSTALL_PREFIX/newton"
