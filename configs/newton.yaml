@@ -4,7 +4,7 @@ motors_params:
   # HAA : Hip Abduction/Adduction
   FL_HAA:
     name: FL_HAA
-    can_id: 1
+    node_id: 1
     offset: 0
     position_limit: [-1.57, 1.57]
     velocity_limit: [-1.0, 1.0]
@@ -13,7 +13,7 @@ motors_params:
   # HFE : Hip Flexion/Extension
   FL_HFE:
     name: FL_HFE
-    can_id: 2
+    node_id: 2
     offset: 0
     position_limit: [-1.57, 1.57]
     velocity_limit: [-1.0, 1.0]
@@ -21,7 +21,7 @@ motors_params:
 
   FL_KFE:
     name: FL_KFE
-    can_id: 3
+    node_id: 3
     offset: 0
     position_limit: [-1.57, 1.57]
     velocity_limit: [-1.0, 1.0]
@@ -29,7 +29,7 @@ motors_params:
 
   FR_HAA:
     name: FR_HAA
-    can_id: 4
+    node_id: 4
     offset: 0
     position_limit: [-1.57, 1.57]
     velocity_limit: [-1.0, 1.0]
@@ -37,7 +37,7 @@ motors_params:
 
   FR_HFE:
     name: FR_HFE
-    can_id: 5
+    node_id: 5
     offset: 0
     position_limit: [-1.57, 1.57]
     velocity_limit: [-1.0, 1.0]
@@ -45,7 +45,7 @@ motors_params:
 
   FR_KFE:
     name: FR_KFE
-    can_id: 6
+    node_id: 6
     offset: 0
     position_limit: [-1.57, 1.57]
     velocity_limit: [-1.0, 1.0]
@@ -53,7 +53,7 @@ motors_params:
 
   RL_HAA:
     name: RL_HAA
-    can_id: 7
+    node_id: 7
     offset: 0
     position_limit: [-1.57, 1.57]
     velocity_limit: [-1.0, 1.0]
@@ -61,7 +61,7 @@ motors_params:
 
   RL_HFE:
     name: RL_HFE
-    can_id: 8
+    node_id: 8
     offset: 0
     position_limit: [-1.57, 1.57]
     velocity_limit: [-1.0, 1.0]
@@ -69,7 +69,7 @@ motors_params:
 
   RL_KFE:
     name: RL_KFE
-    can_id: 9
+    node_id: 9
     offset: 0
     position_limit: [-1.57, 1.57]
     velocity_limit: [-1.0, 1.0]
@@ -77,7 +77,7 @@ motors_params:
 
   RR_HAA:
     name: RR_HAA
-    can_id: 10
+    node_id: 10
     offset: 0
     position_limit: [-1.57, 1.57]
     velocity_limit: [-1.0, 1.0]
@@ -85,7 +85,7 @@ motors_params:
 
   RR_HFE:
     name: RR_HFE
-    can_id: 11
+    node_id: 11
     offset: 0
     position_limit: [-1.57, 1.57]
     velocity_limit: [-1.0, 1.0]
@@ -93,7 +93,7 @@ motors_params:
 
   RR_KFE:
     name: RR_KFE
-    can_id: 12
+    node_id: 12
     offset: 0
     position_limit: [-1.57, 1.57]
     velocity_limit: [-1.0, 1.0]
