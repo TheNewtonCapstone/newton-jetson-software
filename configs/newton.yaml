@@ -1,0 +1,100 @@
+robot_name: newton
+
+motors_params:
+  # HAA : Hip Abduction/Adduction
+  FL_HAA:
+    name: FL_HAA
+    can_id: 1
+    offset: 0
+    position_limit: [-1.57, 1.57]
+    velocity_limit: [-1.0, 1.0]
+    torque_limit: [-3.6, 3.6]
+
+  # HFE : Hip Flexion/Extension
+  FL_HFE:
+    name: FL_HFE
+    can_id: 2
+    offset: 0
+    position_limit: [-1.57, 1.57]
+    velocity_limit: [-1.0, 1.0]
+    torque_limit: [-3.6, 3.6]
+
+  FL_KFE:
+    name: FL_KFE
+    can_id: 3
+    offset: 0
+    position_limit: [-1.57, 1.57]
+    velocity_limit: [-1.0, 1.0]
+    torque_limit: [-3.6, 3.6]
+
+  FR_HAA:
+    name: FR_HAA
+    can_id: 4
+    offset: 0
+    position_limit: [-1.57, 1.57]
+    velocity_limit: [-1.0, 1.0]
+    torque_limit: [-3.6, 3.6]
+
+  FR_HFE:
+    name: FR_HFE
+    can_id: 5
+    offset: 0
+    position_limit: [-1.57, 1.57]
+    velocity_limit: [-1.0, 1.0]
+    torque_limit: [-3.6, 3.6]
+
+  FR_KFE:
+    name: FR_KFE
+    can_id: 6
+    offset: 0
+    position_limit: [-1.57, 1.57]
+    velocity_limit: [-1.0, 1.0]
+    torque_limit: [-3.6, 3.6]
+
+  RL_HAA:
+    name: RL_HAA
+    can_id: 7
+    offset: 0
+    position_limit: [-1.57, 1.57]
+    velocity_limit: [-1.0, 1.0]
+    torque_limit: [-3.6, 3.6]
+
+  RL_HFE:
+    name: RL_HFE
+    can_id: 8
+    offset: 0
+    position_limit: [-1.57, 1.57]
+    velocity_limit: [-1.0, 1.0]
+    torque_limit: [-3.6, 3.6]
+
+  RL_KFE:
+    name: RL_KFE
+    can_id: 9
+    offset: 0
+    position_limit: [-1.57, 1.57]
+    velocity_limit: [-1.0, 1.0]
+    torque_limit: [-3.6, 3.6]
+
+  RR_HAA:
+    name: RR_HAA
+    can_id: 10
+    offset: 0
+    position_limit: [-1.57, 1.57]
+    velocity_limit: [-1.0, 1.0]
+    torque_limit: [-3.6, 3.6]
+
+  RR_HFE:
+    name: RR_HFE
+    can_id: 11
+    offset: 0
+    position_limit: [-1.57, 1.57]
+    velocity_limit: [-1.0, 1.0]
+    torque_limit: [-3.6, 3.6]
+
+  RR_KFE:
+    name: RR_KFE
+    can_id: 12
+    offset: 0
+    position_limit: [-1.57, 1.57]
+    velocity_limit: [-1.0, 1.0]
+    torque_limit: [-3.6, 3.6]
