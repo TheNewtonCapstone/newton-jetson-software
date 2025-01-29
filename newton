@@ -60,7 +60,7 @@ function build_odrive_can() {
     return 0
 }
 
-function build_odrive_motor(){
+function build_motor_driver(){
     echo "Building motor_driver package..."
     src_dir="${ROOT}/modules/"
     module_dir="${src_dir}/motor"
@@ -89,7 +89,7 @@ function build_odrive_motor(){
 
     # Run colcon build with error checking
     echo "Running colcon build..."
-    if ! colcon build --packages-select odrive_motor --symlink-install; then
+    if ! colcon build --packages-select motor_driver --symlink-install; then
         echo "Error: colcon build failed"
         cd "$current_dir"
         return 1
@@ -102,7 +102,7 @@ function build_odrive_motor(){
     # Return to original directory
     cd "$current_dir"
     
-    ros2 pkg list | grep odrive_motor
+    ros2 pkg list | grep motor_driver
     return 0
 }
 
@@ -184,6 +184,8 @@ if [ $1 == "source" ]; then
       source /opt/ros/humble/install/setup.bash
     elif [ $2 == "odrive_can" ]; then 
       source ${ROOT}/lib/ros_odrive/install/setup.bash
+    elif [ $2 == "motor_driver" ]; then 
+      source ${ROOT}/modules/install/setup.bash
   else
     display_help_source
   fi
@@ -204,9 +206,9 @@ if [ $1 == "build" ]; then
     ros2 pkg list | grep odrive_can
   fi
 
-  if [ $2 == "odrive_motor" ]; then
-    build_odrive_motor
-    ros2 pkg list | grep odrive_motor
+  if [ $2 == "motor_driver" ]; then
+    build_motor_driver
+    ros2 pkg list | grep motor_driver
   fi
 fi
 

@@ -8,9 +8,9 @@
 
 namespace newton {
 
-class Motor : public rclcpp::Node {
+class MotorDriver : public rclcpp::Node {
  public:
-  explicit Motor(const std::string& _id);
+  explicit MotorDriver(const std::string& _id);
 
  private:
   void statusCallback(const odrive_can::msg::ControllerStatus::SharedPtr msg);

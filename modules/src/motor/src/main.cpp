@@ -10,10 +10,10 @@ int main(int argc, char* argv[]) {
         auto logger = rclcpp::get_logger("motor_main");
         
         RCLCPP_INFO(logger, "ROS 2 initialized successfully");
-        RCLCPP_INFO(logger, "Creating Motor node...");
+        RCLCPP_INFO(logger, "Creating MotorDriver node...");
         
-        auto node = std::make_shared<newton::Motor>("1");
-        RCLCPP_INFO(logger, "Motor node created, starting spin...");
+        auto node = std::make_shared<newton::MotorDriver>("1");
+        RCLCPP_INFO(logger, "MotorDriver node created, starting spin...");
         
         rclcpp::spin(node);
         RCLCPP_INFO(logger, "Spin completed");

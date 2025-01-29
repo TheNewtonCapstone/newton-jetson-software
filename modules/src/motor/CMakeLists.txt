@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.8)
-project(odrive_motor)
+project(motor_driver)
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
@@ -24,13 +24,13 @@ endif()
 include_directories(include)
 
 # Define executable target
-add_executable(odrive_motor_node
+add_executable(motor_driver_node
     src/motor.cpp
     src/main.cpp
 )
 
 # Add dependencies
-ament_target_dependencies(odrive_motor_node
+ament_target_dependencies(motor_driver_node
   rclcpp
   rclcpp_components
   odrive_can
@@ -38,11 +38,11 @@ ament_target_dependencies(odrive_motor_node
 )
 
 # Set compile features
-target_compile_features(odrive_motor_node PRIVATE cxx_std_20)
+target_compile_features(motor_driver_node PRIVATE cxx_std_20)
 
 # Installation
 install(
-  TARGETS odrive_motor_node
+  TARGETS motor_driver_node
   DESTINATION lib/${PROJECT_NAME}
 )
 
