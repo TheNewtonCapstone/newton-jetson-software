@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format2.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
-<package format="3">
+<package format="2">
   <name>motor_driver</name>
   <version>0.1.0</version>
   <description> Hardware abstraction layer for motor control</description>
@@ -13,12 +13,9 @@
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
-  <build_depend>rclcpp</build_depend>
-  <build_depend>rclcpp_components</build_depend>
-  <build_depend>std_msgs</build_depend>
-
-  <exec_depend>rclcpp</exec_depend>
-  <exec_depend>std_msgs</exec_depend>
+  <depend>rlccpp</depend>
+  <depend>rclcpp_components</depend>
+  <depend>std_msgs</depend>
   <depend>odrive_can</depend>
   <depend>std_srvs</depend>
 

@@ -1,3 +1,4 @@
+# motor_driver CMakeLists.txt
 cmake_minimum_required(VERSION 3.8)
 project(motor_driver)
 
@@ -17,12 +18,21 @@ if(NOT odrive_can_FOUND)
   message(WARNING "odrive_can package not found. Make sure it's built and sourced properly.")
   # You might want to specify the path manually if needed:
   # set(odrive_can_DIR "/path/to/odrive_can/install/share/odrive_can/cmake")
-  # find_package(odrive_can REQUIRED)
+  # find_package(odrive_can UIRED)
 endif()
 
 # Add include directories
 include_directories(include)
 
+add_library(${PROJECT_NAME} SHARED
+    src/motor.cpp
+)
+
+# link against utils library
+target_link_libraries(${PROJECT_NAME} 
+    PRIVATE
+    utils
+)
 # Define executable target
 add_executable(motor_driver_node
     src/motor.cpp
