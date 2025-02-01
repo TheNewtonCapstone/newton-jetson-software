@@ -47,7 +47,10 @@ def generate_launch_description():
 
     motors_params = configs["motors_params"]
     # Declare all launch arguments
-    launch_args = []
+    launch_args = {}
+    for motor_name, motor_config in motors_params.items():
+        for key, value in motor_config.items():
+            launch_args[f"m_{motor_name.lower()}_{key}"] = f"{str(value).lower()}"
 
     nodes = []
 
@@ -61,5 +64,13 @@ def generate_launch_description():
     #     default_value="can0",
     #     description="CAN interface to use",
     # )
+    motor_controller_node =  Node (
+        package="motor_driver",
+        executable="motor_driver_node",
+        name="motor_driver_node",
+        output="screen",
+        emulate_tty=True,
+        parameters=[launch_args],
+    )
 
-    return LaunchDescription([*nodes])
+    return LaunchDescription([*nodes, motor_controller_node])
