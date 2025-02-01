@@ -4,32 +4,7 @@
 #include <string>
 #include <unordered_map>
 
-namespace newton { 
-  namespace leg {
-    enum id {
-      FL = 0,
-      FR = 1,
-      BL = 2,
-      BR = 3,
-    };
-  struct state {
-    id leg_id;
-    std::array<joint::state, 3> joints;
-    uint32_t error_flags;
-  };
-
-    constexpr std::array<id, 4> all = {FL, FR, BL, BR};
-  }  // namespace leg_id
-
-  namespace joint{
-  std::array<std::string, 12> names = 
-    {
-      "fl_haa", "fl_hfe", "fl_kfe",
-      "fr_haa", "fr_hfe", "fr_kfe",
-      "hl_haa", "hl_hfe", "hl_kfe",
-      "hr_haa", "hr_hfe", "hr_kfe"
-    };
-
+namespace newton { namespace joint{
     enum id {
       HAA = 0,
       HFE = 1,
@@ -39,7 +14,6 @@ namespace newton {
       position = 0,
       velocity = 1,
       torque = 2,
-
     };
 
     struct limits {
@@ -67,15 +41,25 @@ namespace newton {
       float gear_ratio;
       float torque_constant;
       float watchdog_timeout;
-      limits limits;
+      joint::limits limits;
     };
-
-    constexpr std::array<id, 3> all = {HAA, HFE, KFE};  
-    using joint_configs = std::unordered_map<std::string, joint::config>;
   } // namespace joint
   
 
-
+  namespace leg {
+    enum id {
+      FL = 0,
+      FR = 1,
+      BL = 2,
+      BR = 3,
+    };
+    struct state {
+    id leg_id;
+    std::array<joint::state, 3> joints;
+    uint32_t error_flags;
+    };
+    constexpr std::array<id, 4> all = {FL, FR, BL, BR};
+  }  // namespace leg_id
 
   namespace system
   {
@@ -85,7 +69,4 @@ namespace newton {
      uint32_t error_status;
    }; 
   } // namespace system
-
-
-
 }  // namespace newton

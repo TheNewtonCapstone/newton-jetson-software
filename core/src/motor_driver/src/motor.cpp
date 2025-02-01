@@ -3,23 +3,24 @@
 
 
 using namespace newton;
-MotorDriver::MotorDriver(const std::string& _id)
-    :Node("odrive_node_" + _id), position(0.0){
+using namespace std::chrono_literals;
+
+MotorDriver::MotorDriver(const rclcpp::NodeOptions &options)
+    :Node("motor_driver"){ 
     // Declare parameters
-    for(auto joint_name : newton::joint::names){
+    for(auto joint_name : joint_names){
         this -> declare_parameter(std::string("m_") + joint_name + "_node_id", "00");
     }
 
     // Create timer
     auto timer_callback = [this](){
-        for(auto joint_name : newton::joint::names){
+        for(auto joint_name : joint_names){
             auto params = this->get_parameter(std::string("m_") + joint_name + "_node_id");
             RCLCPP_INFO(this->get_logger(), "%s: %s", joint_name.c_str(), params.as_string().c_str());
         }
     };
 
     timer_ = this->create_wall_timer(1000ms, timer_callback);
-
     
 };
 

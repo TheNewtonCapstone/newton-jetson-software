@@ -12,6 +12,14 @@ find_package(rclcpp REQUIRED)
 find_package(rclcpp_components REQUIRED)
 find_package(std_srvs REQUIRED)
 
+# add_library(motor_driver_node)
+# target_sources(motor_driver_node
+#   PRIVATE
+#     ${CMAKE_CURRENT_SOURCE_DIR}/src/motor.cpp
+#     PUBLIC 
+#     ${CMAKE_CURRENT_SOURCE_DIR}/include/motor_driver/motor.h
+# )
+
 # Try to find odrive_can package
 find_package(odrive_can QUIET)
 if(NOT odrive_can_FOUND)
@@ -24,20 +32,30 @@ endif()
 # Add include directories
 include_directories(include)
 
-add_library(${PROJECT_NAME} SHARED
-    src/motor.cpp
-)
 
-# link against utils library
-target_link_libraries(${PROJECT_NAME} 
-    PRIVATE
-    utils
-)
+# target_include_directories(motor_driver_node
+#   PUBLIC
+#     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+#     $<INSTALL_INTERFACE:include>
+# )
+
 # Define executable target
 add_executable(motor_driver_node
-    src/motor.cpp
-    src/main.cpp
+src/motor.cpp
+src/main.cpp
 )
+
+# add the utils library
+# set(utils_DIR "${CMAKE_SOURCE_DIR}/../../utils")
+# target_include_directories(motor_driver_node ${CMAKE_SOURCE_DIR}/../../utils/include)
+# message(WARNING "utils include dir: ${utils_DIR}")
+
+
+# Link libraries
+set(MY_PROJECT_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+cmake_path(GET MY_PROJECT_DIR PARENT_PATH result)
+message(WARNING "utils include dir: ${result}")
+# include_directories(${result}/utils/include)
 
 # Add dependencies
 ament_target_dependencies(motor_driver_node
@@ -47,10 +65,13 @@ ament_target_dependencies(motor_driver_node
   std_srvs
 )
 
+# target_link_libraries(motor_driver_node
+#   utils
+# )
+
 # Set compile features
 target_compile_features(motor_driver_node PRIVATE cxx_std_20)
 
-# Installation
 install(
   TARGETS motor_driver_node
   DESTINATION lib/${PROJECT_NAME}
@@ -60,5 +81,10 @@ install(
 # install(DIRECTORY launch
 #   DESTINATION share/${PROJECT_NAME}
 # )
+install(DIRECTORY
+  launch
+  DESTINATION share/${PROJECT_NAME}/
+)
+
 
 ament_package()

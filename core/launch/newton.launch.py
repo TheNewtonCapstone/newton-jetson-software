@@ -56,7 +56,7 @@ def generate_launch_description():
         PathJoinSubstitution([imu_pkg_dir, "launch", "imu.launch.py"])
     )
     motor_launch = IncludeLaunchDescription(
-        PathJoinSubstitution([motor_pkg_dir, "launch", "motors.launch.py"])
+        PathJoinSubstitution([motor_pkg_dir,"launch", "motors.launch.py"])
     )
 
     # can_interface = DeclareLaunchArgument(

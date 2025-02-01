@@ -12,7 +12,7 @@ int main(int argc, char* argv[]) {
         RCLCPP_INFO(logger, "ROS 2 initialized successfully");
         RCLCPP_INFO(logger, "Creating MotorDriver node...");
         
-        auto node = std::make_shared<newton::MotorDriver>("1");
+        auto node = std::make_shared<newton::MotorDriver>();
         RCLCPP_INFO(logger, "MotorDriver node created, starting spin...");
         
         rclcpp::spin(node);

@@ -63,8 +63,8 @@ function build_odrive_can() {
 
 function build_imu_driver(){
     echo "Building imu_driver package..."
-    src_dir="${ROOT}/modules/"
-    module_dir="${src_dir}/imu"
+    src_dir="${ROOT}/core/"
+    module_dir="${src_dir}/src/imu"
 
     if [ ! -d $src_dir  ]; then
         echo "Error: directory not found at ${module_dir}"
@@ -73,7 +73,7 @@ function build_imu_driver(){
 
     local current_dir=$(pwd)
 
-    cd $src_dir
+    cd $module_dir
 
     if [ -z "$ROS_DISTRO" ]; then
         echo "Sourcing ROS environment..."
