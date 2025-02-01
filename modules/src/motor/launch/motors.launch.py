@@ -9,7 +9,7 @@ import os
 import yaml
 
 
-def create_motor_node(motor_name, motor_config):
+def create_odrive_can_node(motor_name, motor_config):
     node = Node(
         package="odrive_can",
         executable="odrive_can_node",
@@ -54,12 +54,13 @@ def generate_launch_description():
     for motor_name, motor_config in motors_params.items():
         print(f"Motor name: {motor_name}")
         print(f"Motor config: {motor_config}")
-        nodes.append(create_motor_node(motor_name, motor_config))
+        nodes.append(create_odrive_can_node(motor_name, motor_config))
 
     # can_interface = DeclareLaunchArgument(
     #     "can_interface",
     #     default_value="can0",
     #     description="CAN interface to use",
     # )
+
 
     return LaunchDescription([*nodes])
