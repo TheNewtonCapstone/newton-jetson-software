@@ -22,6 +22,14 @@ namespace newton {
   }  // namespace leg_id
 
   namespace joint{
+  std::array<std::string, 12> names = 
+    {
+      "fl_haa", "fl_hfe", "fl_kfe",
+      "fr_haa", "fr_hfe", "fr_kfe",
+      "hl_haa", "hl_hfe", "hl_kfe",
+      "hr_haa", "hr_hfe", "hr_kfe"
+    };
+
     enum id {
       HAA = 0,
       HFE = 1,
@@ -42,6 +50,7 @@ namespace newton {
       float torque_min;
       float torque_max;
     };
+    
     struct state{
       float position;
       float velocity;
@@ -76,8 +85,7 @@ namespace newton {
      uint32_t error_status;
    }; 
   } // namespace system
-  
-  struct motor_config
+
 
 
 }  // namespace newton
