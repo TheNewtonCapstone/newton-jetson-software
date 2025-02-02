@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 ROOT="$(dirname "$(readlink -f "$0")")"
-
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+NC='\033[0m' # No Color
 
 # Export environment variables for paths
 export NEWTON_ROOT="${ROOT}"
@@ -8,151 +11,150 @@ export JETSON_CONTAINERS_PATH="${ROOT}/lib/jetson-containers"
 export PYTHONPATH="${ROOT}/:${PYTHONPATH}"
 
 function display_container_status() {
-    echo "Active Newton containers:"
-    docker ps --filter "ancestor=thenewtoncapstone/newton:l4t-r36.4.0" --format "table {{.ID}}\t{{.Status}}\t{{.Names}}"
+  echo "Active Newton containers:"
+  docker ps --filter "ancestor=thenewtoncapstone/newton:l4t-r36.4.0" --format "table {{.ID}}\t{{.Status}}\t{{.Names}}"
 }
 
 # Function to stop containers
 function stop_container() {
-    local container_id=$1
-    if [ -z "$container_id" ]; then
-        echo "Stopping all Newton containers..."
-        docker stop $(docker ps -q --filter "ancestor=thenewtoncapstone/newton:l4t-r36.4.0")
-    else
-        echo "Stopping container $container_id..."
-        docker stop $container_id
-    fi
+  local container_id=$1
+  if [ -z "$container_id" ]; then
+    echo "Stopping all Newton containers..."
+    docker stop $(docker ps -q --filter "ancestor=thenewtoncapstone/newton:l4t-r36.4.0")
+  else
+    echo "Stopping container $container_id..."
+    docker stop $container_id
+  fi
 }
 function build_odrive_can() {
-    echo "Building odrive_can package..."
-    
-    # Check if directory exists
-    if [ ! -d "${ROOT}/lib/ros_odrive/" ]; then
-        echo "Error: ros_odrive directory not found at ${ROOT}/lib/ros_odrive/"
-        return 1
-    fi
-    # Store current directory to return to it later
-    local current_dir=$(pwd)
-    
-    # Change to ros_odrive directory
-    cd "${ROOT}/lib/ros_odrive/"
+  echo "Building odrive_can package..."
 
-    # Source ROS environment if not already sourced
-    if [ -z "$ROS_DISTRO" ]; then
-        echo "Sourcing ROS environment..."
-        source /opt/ros/humble/setup.bash
-    fi
+  # Check if directory exists
+  if [ ! -d "${ROOT}/lib/ros_odrive/" ]; then
+    echo "Error: ros_odrive directory not found at ${ROOT}/lib/ros_odrive/"
+    return 1
+  fi
+  # Store current directory to return to it later
+  local current_dir=$(pwd)
 
-    # Run colcon build with error checking
-    echo "Running colcon build..."
-    if ! colcon build --packages-select odrive_can --symlink-install; then
-        echo "Error: colcon build failed"
-        cd "$current_dir"
-        return 1
-    fi
-    ls -la 
+  # Change to ros_odrive directory
+  cd "${ROOT}/lib/ros_odrive/"
 
-    echo "Sourcing built package..."
-    source install/setup.bash
-    sleep .2
+  # Source ROS environment if not already sourced
+  if [ -z "$ROS_DISTRO" ]; then
+    echo "Sourcing ROS environment..."
+    source /opt/ros/humble/setup.bash
+  fi
 
+  # Run colcon build with error checking
+  echo "Running colcon build..."
+  if ! colcon build --packages-select odrive_can --symlink-install; then
+    echo "Error: colcon build failed"
     cd "$current_dir"
-    
-    return 0
+    return 1
+  fi
+  ls -la
+
+  echo "Sourcing built package..."
+  source install/setup.bash
+  sleep .2
+
+  cd "$current_dir"
+
+  return 0
 }
 
-function build_imu_driver(){
-    echo "Building imu_driver package..."
-    src_dir="${ROOT}/core/"
-    module_dir="${src_dir}/src/imu"
+function build_imu_driver() {
 
-    if [ ! -d $src_dir  ]; then
-        echo "Error: directory not found at ${module_dir}"
-        return 1
-    fi
+  echo -e "${RED}Building imu ${NC}"
 
-    local current_dir=$(pwd)
+  echo "Building imu_driver package..."
+  src_dir="${ROOT}/core/"
+  module_dir="${src_dir}/src/imu"
 
-    cd $module_dir
+  if [ ! -d $src_dir ]; then
+    echo "Error: directory not found at ${module_dir}"
+    return 1
+  fi
 
-    if [ -z "$ROS_DISTRO" ]; then
-        echo "Sourcing ROS environment..."
-        source /opt/ros/humble/setup.bash
-    fi
+  local current_dir=$(pwd)
 
-    echo "Running colcon build..."
-    # TODO : change tm_imu to imu_driver
-    if ! colcon build --packages-select tm_imu --symlink-install; then
-        echo "Error: colcon build failed"
-        cd "$current_dir"
-        return 1
-    fi
+  cd $module_dir
 
-    ls -la
+  if [ -z "$ROS_DISTRO" ]; then
+    echo "Sourcing ROS environment..."
+    source /opt/ros/humble/setup.bash
+  fi
 
-    echo "Sourcing built package..."
-    source install/setup.bash
-    
-    sleep .2
-
+  echo "Running colcon build..."
+  # TODO : change tm_imu to imu_driver
+  if ! colcon build --packages-select tm_imu --symlink-install; then
+    echo "Error: colcon build failed"
     cd "$current_dir"
+    return 1
+  fi
 
-    ros2 pkg list | grep tm_imu
-    return 0
+  ls -la
+
+  echo "Sourcing built package..."
+  source install/setup.bash
+
+  sleep .2
+
+  cd "$current_dir"
+
+  ros2 pkg list | grep tm_imu
+  return 0
 
 }
-function build_motor_driver(){
-    echo "Building motor_driver package..."
-    src_dir="${ROOT}/core/"
-    module_dir="${src_dir}/src/motor_driver"
-    echo "hello"
-    echo $src_dir
-    echo $module_dir
+function build_motor_driver() {
+  echo "Building motor_driver package..."
+  src_dir="${ROOT}/core/"
+  module_dir="${src_dir}/src/motor_driver"
+  echo "hello"
+  echo $src_dir
+  echo $module_dir
 
+  dependencies_dir="${ROOT}/lib/ros_odrive/install"
+  # Check if directory exists
+  if [ ! -d $src_dir ]; then
+    echo "Error: directory not found at ${module_dir}"
+    return 1
+  fi
+  if [ ! -d dependencies_dir ]; then
+    build_odrive_can
+  fi
 
+  local current_dir=$(pwd)
 
-    dependencies_dir="${ROOT}/lib/ros_odrive/install"
-    # Check if directory exists
-    if [ ! -d $src_dir  ]; then
-        echo "Error: directory not found at ${module_dir}"
-        return 1
-    fi
-    if [ ! -d dependencies_dir  ]; then
-        build_odrive_can
-    fi
+  cd $module_dir
 
-    local current_dir=$(pwd)
-    
-    cd $module_dir
-  
-    # Source ROS environment if not already sourced
-    if [ -z "$ROS_DISTRO" ]; then
-        echo "Sourcing ROS environment..."
-        source /opt/ros/humble/setup.bash
-    fi
+  # Source ROS environment if not already sourced
+  if [ -z "$ROS_DISTRO" ]; then
+    echo "Sourcing ROS environment..."
+    source /opt/ros/humble/setup.bash
+  fi
 
-
-    # Run colcon build with error checking
-    echo "Running colcon build..."
-    if ! colcon build --packages-select motor_driver --symlink-install; then
-        echo "Error: colcon build failed"
-        cd "$current_dir"
-        return 1
-    fi
-    ls -la 
-    # Source the newly built package
-    echo "Sourcing built package..."
-    source install/setup.bash
-
-    sleep .2
-
-    # Return to original directory
+  # Run colcon build with error checking
+  echo "Running colcon build..."
+  if ! colcon build --packages-select motor_driver --symlink-install; then
+    echo "Error: colcon build failed"
     cd "$current_dir"
-    
-    ros2 pkg list | grep motor_driver
-    return 0
-}
+    return 1
+  fi
+  ls -la
+  # Source the newly built package
+  echo "Sourcing built package..."
+  source install/setup.bash
 
+  sleep .2
+
+  # Return to original directory
+  cd "$current_dir"
+
+  ros2 pkg list | grep motor_driver
+  return 0
+}
 
 function display_help_build() {
   echo "Usage: newton build <package>"
@@ -160,27 +162,27 @@ function display_help_build() {
 }
 
 function display_help_run() {
-    echo "Usage: newton run <container_name>"
-    echo "Run a container"
-    echo ""
-    echo "Commands:"
-    echo "  latest           Run the latest Newton container"
-    echo "  status          Display status of running containers"
-    echo "  stop [id]       Stop container(s). If no ID provided, stops all Newton containers"
+  echo "Usage: newton run <container_name>"
+  echo "Run a container"
+  echo ""
+  echo "Commands:"
+  echo "  latest           Run the latest Newton container"
+  echo "  status          Display status of running containers"
+  echo "  stop [id]       Stop container(s). If no ID provided, stops all Newton containers"
 }
 
 function display_help_source() {
   echo "Usage: newton source <file to source>"
   echo "Source a container"
 }
-function run_latest(){
-    docker run -it --net=host \
-        -e DISPLAY=$DISPLAY \
-        -v /dev:/dev \
-        --device-cgroup-rule='c *:* rmw' \
-        --device=/dev \
-        -v /${work_dir}:/${work_dir}\
-        thenewtoncapstone/newton:l4t-r36.4.0 \
+function run_latest() {
+  docker run -it --net=host \
+    -e DISPLAY=$DISPLAY \
+    -v /dev:/dev \
+    --device-cgroup-rule='c *:* rmw' \
+    --device=/dev \
+    -v /${work_dir}:/${work_dir} \
+    thenewtoncapstone/newton:l4t-r36.4.0 \
     bin/bash
 }
 
@@ -190,9 +192,9 @@ function run_latest(){
 
 # Check if any arguments were provided
 if [ $# -eq 0 ]; then
-    echo "No arguments provided"
-    display_help_run
-    exit 1
+  echo "No arguments provided"
+  display_help_run
+  exit 1
 fi
 
 if [ $1 == "run" ]; then
@@ -208,16 +210,15 @@ if [ $1 == "run" ]; then
     run_latest
   else
     docker run -it --net=host \
-        -e DISPLAY=$DISPLAY \
-        -v /dev:/dev \
-        --device-cgroup-rule='c *:* rmw' \
-        --device=/dev \
-        -v /${ROOT}:/${ROOT}\
-        thenewtoncapstone/newton:l4t-r36.4.0 \
-    bin/bash
+      -e DISPLAY=$DISPLAY \
+      -v /dev:/dev \
+      --device-cgroup-rule='c *:* rmw' \
+      --device=/dev \
+      -v /${ROOT}:/${ROOT} \
+      thenewtoncapstone/newton:l4t-r36.4.0 \
+      bin/bash
   fi
 fi
-
 
 if [ $1 == "source" ]; then
   # check for second argument
@@ -227,21 +228,20 @@ if [ $1 == "source" ]; then
 
   if [ $2 == "python" ]; then
     export PYTHONPATH="${ROOT}/:${PYTHONPATH}"
-    # source ${ROOT}/lib/python-env/bin/activate
-    elif [ $2 == "ros" ]; then
-      source /opt/ros/humble/install/setup.bash
-    elif [ $2 == "odrive_can" ]; then 
-      source ${ROOT}/lib/ros_odrive/install/setup.bash
-    elif [ $2 == "motor_driver" ]; then 
-      source ${ROOT}/modules/install/setup.bash
+  # source ${ROOT}/lib/python-env/bin/activate
+  elif [ $2 == "ros" ]; then
+    source /opt/ros/humble/install/setup.bash
+  elif [ $2 == "odrive_can" ]; then
+    source ${ROOT}/lib/ros_odrive/install/setup.bash
+  elif [ $2 == "motor_driver" ]; then
+    source ${ROOT}/modules/install/setup.bash
   else
     display_help_source
   fi
 fi
 
-
 #########################################
-# BUILD 
+# BUILD
 #########################################
 if [ $1 == "build" ]; then
   # check for second argument
@@ -265,11 +265,32 @@ if [ $1 == "build" ]; then
   fi
 fi
 
-
 #########################################
-              # STOP
+# STOP
 #########################################
 
 if [ $1 == "stop" ]; then
-    stop_container $2
+  stop_container $2
+  display_container_status
+
+fi
+#################################################
+# CLEAN
+#################################################
+
+if [ $1 == "clean" ]; then
+  PRESERVE_BUILD="./lib/jetson-containers/packages/build"
+  echo -e "${GREEN}Preserving $PRESERVE_BUILD ${NC}"
+  echo -e "${RED}Cleaning up... ${NC}"
+  # find . -name "build" -type d -not -path "$PRESERVE_BUILD" -not -path "$PRESERVE_BUILD/*" -exec echo -e "${RED}Removing {} ${NC}" {} \;
+  find . -type d -name "build" -not -path "$PRESERVE_BUILD" -not -path "$PRESERVE_BUILD/*" \
+    -exec echo -e "${RED}Removing${NC} {}" \; \
+    -exec rm -rf {} +
+
+  find . -type d -name "install" -not -path "$PRESERVE_BUILD" -not -path "$PRESERVE_BUILD/*" \
+    -exec echo -e "${RED}Removing${NC} {}" \; -exec rm -rf {} +
+
+  find . -type d -name "log" -not -path "$PRESERVE_BUILD" -not -path "$PRESERVE_BUILD/*" \
+    -exec echo -e "${RED}Removing${NC} {}" \; -exec rm -rf {} +
+
 fi
