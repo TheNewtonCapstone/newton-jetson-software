@@ -26,6 +26,45 @@ function stop_container() {
     docker stop $container_id
   fi
 }
+
+function build_newton() {
+  echo -e "${GREEN} Building newton package${NC}"
+
+  src_dir="${ROOT}/core/"
+
+  if [ ! -d $src_dir ]; then
+    echo "Error: directory not found at ${src_dir}"
+    return 1
+  fi
+
+  local current_dir=$(pwd)
+
+  cd $module_dir
+
+  if [ -z "$ROS_DISTRO" ]; then
+    echo "Sourcing ROS environment..."
+    source /opt/ros/humble/setup.bash
+  fi
+
+  # TODO : change tm_imu to imu_driver
+  if ! colcon build newton --symlink-install; then
+    echo "Error: colcon build failed"
+    cd "$current_dir"
+    return 1
+  fi
+
+  ls -la
+
+  echo "Sourcing built package..."
+  source install/setup.bash
+
+  sleep .2
+
+  cd "$current_dir"
+
+  return 0
+
+}
 function build_odrive_can() {
   echo "Building odrive_can package..."
 
@@ -234,7 +273,15 @@ if [ $1 == "source" ]; then
   elif [ $2 == "odrive_can" ]; then
     source ${ROOT}/lib/ros_odrive/install/setup.bash
   elif [ $2 == "motor_driver" ]; then
-    source ${ROOT}/modules/install/setup.bash
+    source ${ROOT}/core/src/motor_driver/install/setup.bash
+  elif [ $2 == "imu_driver" ]; then
+    source ${ROOT}/core/src/imu/install/setup.bash
+  elif [ $2 == "all" ]; then
+    source /opt/ros/humble/install/setup.bash
+    source ${ROOT}/lib/ros_odrive/install/setup.bash
+    source ${ROOT}/core/src/motor_driver/install/setup.bash
+    source ${ROOT}/core/src/imu/install/setup.bash
+    source ${ROOT}/core/src/install/setup.bash
   else
     display_help_source
   fi
@@ -252,16 +299,22 @@ if [ $1 == "build" ]; then
   if [ $2 == "odrive_can" ]; then
     build_odrive_can
     ros2 pkg list | grep odrive_can
-  fi
 
-  if [ $2 == "motor_driver" ]; then
+  elif [ $2 == "motor_driver" ]; then
     build_motor_driver
     ros2 pkg list | grep motor_driver
-  fi
 
-  if [ $2 == "imu_driver" ]; then
+  elif [ $2 == "imu_driver" ]; then
     build_imu_driver
     ros2 pkg list | grep tm_imu
+
+  elif [ $2 == "all" ]; then
+    build_odrive_can
+    build_motor_driver
+    build_imu_driver
+    build_newton
+  else
+    echo "Unknown command"
   fi
 fi
 
