@@ -247,6 +247,11 @@ if [ $1 == "run" ]; then
 
   if [ $2 == "latest" ]; then
     run_latest
+
+  elif [ $2 == "can" ]; then
+    echo "Running can"
+    sudo ip link set can0 up type can bitrate 250000
+  
   else
     docker run -it --net=host \
       -e DISPLAY=$DISPLAY \
