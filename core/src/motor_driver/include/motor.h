@@ -57,11 +57,13 @@ void update_joint_state(const odrive_can::msg::ControllerStatus::SharedPtr msg,
 
   rclcpp::TimerBase::SharedPtr timer_;
 
-  std::array<rclcpp::Publisher<odrive_can::msg::ODriveStatus>::SharedPtr,
+  std::array<rclcpp::Subscription<odrive_can::msg::ODriveStatus>::SharedPtr,
              NUM_JOINTS>
       status_pubs;
   std::array<rclcpp::Subscription<odrive_can::msg::ControllerStatus>::SharedPtr,
              NUM_JOINTS>
       joint_state_subs;
+
+      std::array<
 };
 } // namespace newton
