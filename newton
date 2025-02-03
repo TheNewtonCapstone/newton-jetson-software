@@ -26,6 +26,40 @@ function stop_container() {
     docker stop $container_id
   fi
 }
+function build_controller() {
+  echo -e "${GREEN} Building controller ${NC}"
+
+  src_dir="${ROOT}/core/src/controller"
+
+  if [ ! -d $src_dir ]; then
+    echo "Error: directory not found at ${src_dir}"
+    return 1
+  fi
+
+  local current_dir=$(pwd)
+
+  cd $src_dir 
+
+  if [ -z "$ROS_DISTRO" ]; then
+    echo "Sourcing ROS environment..."
+    source /opt/ros/humble/setup.bash
+  fi
+
+  # TODO : change tm_imu to imu_driver
+  if ! colcon build --packages-select controller --symlink-install; then
+    echo "${RED} ERROR: Cannot find controller in the configuration${NC}"
+    cd "$current_dir"
+    return 1
+  fi
+
+  ls -la
+  echo "Sourcing built package..."
+  source install/setup.bash
+  sleep .2
+  cd "$current_dir"
+  return 0
+
+}
 
 function build_newton() {
   echo -e "${GREEN} Building newton package${NC}"
@@ -249,7 +283,7 @@ if [ $1 == "run" ]; then
     run_latest
 
   elif [ $2 == "can" ]; then
-    echo "Running can"
+    echo "${GREEN} Running can ${NC}"
     sudo ip link set can0 up type can bitrate 250000
   
   else
@@ -281,6 +315,8 @@ if [ $1 == "source" ]; then
     source ${ROOT}/core/src/motor_driver/install/setup.bash
   elif [ $2 == "imu_driver" ]; then
     source ${ROOT}/core/src/imu/install/setup.bash
+  elif [ $2 == "controller" ]; then
+    source ${ROOT}/core/src/controller/setup.bash
   elif [ $2 == "all" ]; then
     source /opt/ros/humble/install/setup.bash
     source ${ROOT}/lib/ros_odrive/install/setup.bash
@@ -312,7 +348,8 @@ if [ $1 == "build" ]; then
   elif [ $2 == "imu_driver" ]; then
     build_imu_driver
     ros2 pkg list | grep tm_imu
-
+  elif [ $2 == "controller" ]; then
+      build_controller
   elif [ $2 == "all" ]; then
     build_odrive_can
     build_motor_driver
