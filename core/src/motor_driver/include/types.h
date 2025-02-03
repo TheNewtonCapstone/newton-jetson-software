@@ -26,11 +26,11 @@ namespace newton { namespace joint{
     };
     
     struct state{
+      int index;
       float position;
       float velocity;
       float torque;
       float torque_target;
-      uint32_t watchdog_status;
     };
 
     struct config{
