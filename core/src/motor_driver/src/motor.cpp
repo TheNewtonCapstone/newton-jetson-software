@@ -19,14 +19,14 @@ MotorDriver::MotorDriver(const rclcpp::NodeOptions& options)
 
     auto name = joint_names[i];
 
-  //   status_subs[i] =
-  //       this->create_subscription<odrive_can::msg::ODriveStatus>(
-  //           name + "/odrive_status", 10,
-  //           [=,this](const odrive_can::msg::ODriveStatus::SharedPtr msg) {
-  //             this->update_driver_status(msg, i);
-  // });
+    status_subs[i] =
+        this->create_subscription<odrive_can::msg::ODriveStatus>(
+            name + "/odrive_status", 10,
+            [=,this](const odrive_can::msg::ODriveStatus::SharedPtr msg) {
+              this->update_driver_status(msg, i);
+  });
 
-  joint_states_subs[i] =
+  joint_state_subs[i] =
         this->create_subscription<odrive_can::msg::ControllerStatus>(
             name + "/controller_status", 10,
             [=,this](const odrive_can::msg::ControllerStatus::SharedPtr msg) {
