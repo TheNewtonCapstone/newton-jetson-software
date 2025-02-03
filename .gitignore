@@ -40,3 +40,4 @@ build/
 log/
 install/
 cmake-build-debug/
+.vscode/
