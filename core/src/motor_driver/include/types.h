@@ -10,6 +10,12 @@ namespace newton { namespace joint{
       HFE = 1,
       KFE = 2,
     };
+    enum class axis_state{
+      UNDEFINED = 0,
+      IDLE=1,
+      STARTUP_SEQUENCE = 2,
+      CLOSED_LOOP_CONTROL = 8
+    };
     enum class mode {
       position = 0,
       velocity = 1,

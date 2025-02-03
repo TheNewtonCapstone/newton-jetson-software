@@ -20,8 +20,8 @@ class MotorDriver : public rclcpp::Node {
   result<void> start();
   result<void> stop();
   result<void> shutdown();
-  result<void> set_joint_mode(const newton::joint::id, const joint::mode mode);
-  result<void> set_joint_position(const newton::joint::id, float);
+  result<void> set_joint_mode(const joint::mode mode, int joint_index);
+  void set_joint_position(float, int);
 
   result<void> set_joints_positions(const std::vector<float> positions);
 
@@ -59,11 +59,11 @@ void update_joint_state(const odrive_can::msg::ControllerStatus::SharedPtr msg,
 
   std::array<rclcpp::Subscription<odrive_can::msg::ODriveStatus>::SharedPtr,
              NUM_JOINTS>
-      status_pubs;
+      status_subs;
   std::array<rclcpp::Subscription<odrive_can::msg::ControllerStatus>::SharedPtr,
              NUM_JOINTS>
       joint_state_subs;
-
-      std::array<
+  std::array<rclcpp::Publisher<odrive_can::msg::ControlMessage>::SharedPtr, NUM_JOINTS>
+  control_pubs;
 };
 } // namespace newton

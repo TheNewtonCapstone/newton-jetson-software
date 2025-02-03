@@ -1,6 +1,7 @@
 #include "motor.h"
 
 #include <rclcpp/rclcpp.hpp>
+#include "../../utils/include/result.h"
 
 using namespace newton;
 using namespace std::chrono_literals;
@@ -32,6 +33,20 @@ MotorDriver::MotorDriver(const rclcpp::NodeOptions& options)
             [=,this](const odrive_can::msg::ControllerStatus::SharedPtr msg) {
               this->update_joint_state(msg, i);
   });
+
+  control_pubs[i] =
+  this->create_publisher<odrive_can::msg::ControlMessage>(
+          name + "/control_message", 10);
+
+    static float last_position = 0.0;
+    auto timer_callback = [this](){
+        for(int i = 0; i < 2; ++i){
+          this->set_joint_position(last_position += 0.5, i);
+        }
+    };
+    timer_ = this->create_wall_timer(1000ms, timer_callback);
+
+
     RCLCPP_INFO(this->get_logger(), "Subscribed to %s", name.c_str());
   }
 };
@@ -72,4 +87,15 @@ void MotorDriver::update_joint_state(
           joint_states[joint_index].position,
           joint_states[joint_index].velocity,
           joint_states[joint_index].torque);
+    }
+
+    void MotorDriver::set_joint_position(float position, int index) {
+      odrive_can::msg::ControlMessage msg;
+      msg.control_mode = 2; 
+      msg.input_mode = 1;  
+      msg.input_pos = 0; 
+      msg.input_vel = 0.0;  
+      msg.input_torque = 0.0; 
+      control_pubs[index]->publish(msg);
+      RCLCPP_INFO(this->get_logger(), "Set joint position to %f for %d", position, index);
     }
