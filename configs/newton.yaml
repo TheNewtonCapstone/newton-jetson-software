@@ -4,96 +4,15 @@ motors_params:
   # HAA : Hip Abduction/Adduction
   FL_HAA:
     name: FL_HAA
-    node_id: 1
+    node_id: 0
     offset: 0
     position_limit: 1
     velocity_limit: 1
     torque_limit: 1
-
-  # HFE : Hip Flexion/Extension
+  
   FL_HFE:
     name: FL_HFE
-    node_id: 2
-    offset: 0
-    position_limit: 1
-    velocity_limit: 1
-    torque_limit: 1
-
-  FL_KFE:
-    name: FL_KFE
-    node_id: 3
-    offset: 0
-    position_limit: 1
-    velocity_limit: 1
-    torque_limit: 1
-
-  FR_HAA:
-    name: FR_HAA
-    node_id: 4
-    offset: 0
-    position_limit: 1
-    velocity_limit: 1
-    torque_limit: 1
-
-  FR_HFE:
-    name: FR_HFE
-    node_id: 5
-    offset: 0
-    position_limit: 1
-    velocity_limit: 1
-    torque_limit: 1
-
-  FR_KFE:
-    name: FR_KFE
-    node_id: 6
-    offset: 0
-    position_limit: 1
-    velocity_limit: 1
-    torque_limit: 1
-
-  HL_HAA:
-    name: HL_HAA
-    node_id: 7
-    offset: 0
-    position_limit: 1
-    velocity_limit: 1
-    torque_limit: 1
-
-  HL_HFE:
-    name: HL_HFE
-    node_id: 8
-    offset: 0
-    position_limit: 1
-    velocity_limit: 1
-    torque_limit: 1
-
-  HL_KFE:
-    name: HL_KFE
-    node_id: 9
-    offset: 0
-    position_limit: 1
-    velocity_limit: 1
-    torque_limit: 1
-
-  HR_HAA:
-    name: HR_HAA
-    node_id: 10
-    offset: 0
-    position_limit: 1
-    velocity_limit: 1
-    torque_limit: 1
-
-  HR_HFE:
-    name: HR_HFE
-    node_id: 11
-    offset: 0
-    position_limit: 1
-    velocity_limit: 1
-    torque_limit: 1
-
-  HR_KFE:
-    name: HR_KFE
-    node_id: 12
+    node_id: 1
     offset: 0
     position_limit: 1
     velocity_limit: 1
