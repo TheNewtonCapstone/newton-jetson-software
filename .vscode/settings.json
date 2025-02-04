@@ -64,7 +64,9 @@
     "typeinfo": "cpp",
     "variant": "cpp",
     "format": "cpp",
-    "__nullptr": "cpp"
+    "__nullptr": "cpp",
+    "map": "cpp",
+    "cinttypes": "cpp"
   },
-  "cmake.sourceDirectory": "/home/galileo/workspaces/newton-jetson-software/core"
+  "cmake.sourceDirectory": "/home/newton/projects/newton-jetson-software/core"
 }

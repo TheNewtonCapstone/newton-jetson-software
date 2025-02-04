@@ -20,35 +20,16 @@ MotorDriver::MotorDriver(const rclcpp::NodeOptions& options)
 
     auto name = joint_names[i];
 
-    status_subs[i] =
-        this->create_subscription<odrive_can::msg::ODriveStatus>(
-            name + "/odrive_status", 10,
-            [=,this](const odrive_can::msg::ODriveStatus::SharedPtr msg) {
-              this->update_driver_status(msg, i);
-  });
-
-  joint_state_subs[i] =
-        this->create_subscription<odrive_can::msg::ControllerStatus>(
-            name + "/controller_status", 10,
-            [=,this](const odrive_can::msg::ControllerStatus::SharedPtr msg) {
-              this->update_joint_state(msg, i);
-  });
-
+  clients[i] = this->create_client<odrive_can::srv::AxisState>(
+                name + "/request_axis_state"
+        );
   control_pubs[i] =
   this->create_publisher<odrive_can::msg::ControlMessage>(
           name + "/control_message", 10);
 
-    static float last_position = 0.0;
-    auto timer_callback = [this](){
-        for(int i = 0; i < 2; ++i){
-          this->set_joint_position(last_position += 0.5, i);
-        }
-    };
-    timer_ = this->create_wall_timer(1000ms, timer_callback);
-
-
     RCLCPP_INFO(this->get_logger(), "Subscribed to %s", name.c_str());
-  }
+  } 
+  init();
 };
 
 void MotorDriver::update_driver_status(
@@ -98,4 +79,100 @@ void MotorDriver::update_joint_state(
       msg.input_torque = 0.0; 
       control_pubs[index]->publish(msg);
       RCLCPP_INFO(this->get_logger(), "Set joint position to %f for %d", position, index);
+}
+
+
+void MotorDriver::request_axis_state(size_t joint_index, uint32_t requested_state) {
+  auto client = this->clients[joint_index];
+  const auto& joint_name= joint_names[joint_index];
+
+  while(!client->wait_for_service(std::chrono::seconds(1))) {
+    if(!rclcpp::ok()){
+      RCLCPP_ERROR(this->get_logger(),
+        "ROS interrupted while waiting for axis state service for joint %s",
+        joint_name.c_str());
+      return;
     }
+    RCLCPP_INFO(this->get_logger(), "Trying to request axis change for node %s",
+    joint_name.c_str());
+  }
+
+  auto request = std::make_shared<odrive_can::srv::AxisState::Request>();
+  request->axis_requested_state = requested_state;
+
+  RCLCPP_INFO(this->get_logger(), "Requesting state %u for joint %s", 
+              requested_state, joint_names[joint_index].c_str());
+              
+  auto future = client->async_send_request(request);
+  auto timeout = std::chrono::seconds(10);
+  auto future_status = rclcpp::spin_until_future_complete(this->get_node_base_interface(), future, timeout);
+  
+  if (future_status == rclcpp::FutureReturnCode::SUCCESS) {
+    auto response = future.get();
+    if (response->procedure_result == 0) {
+      RCLCPP_INFO(this->get_logger(), 
+        "Successfully set state for joint %s", joint_name.c_str());
+    } else {
+      RCLCPP_ERROR(this->get_logger(), 
+        "Failed to set state for joint %s. Error code: %d", 
+        joint_name.c_str(), response->procedure_result);
+    }
+  } else if (future_status == rclcpp::FutureReturnCode::TIMEOUT) {
+    RCLCPP_ERROR(this->get_logger(), 
+      "Service call timed out for joint %s after %ld seconds", 
+      joint_name.c_str(), timeout.count());
+  } else {
+    RCLCPP_ERROR(this->get_logger(), 
+      "Failed to call axis state service for joint %s", 
+      joint_name.c_str());
+  }
+
+}
+
+
+
+void MotorDriver::init() {
+  RCLCPP_INFO(this->get_logger(), "Initializing MotorDriver...");
+  
+  request_axis_state(0, 1);
+  RCLCPP_INFO(this->get_logger(), "Set to idles %d", 0);
+  request_axis_state(1, 1);
+  RCLCPP_INFO(this->get_logger(), "Set %d to idle", 1);
+
+  std::this_thread::sleep_for(std::chrono::seconds(1));
+
+  // init 
+  for (size_t i = 0; i < NUM_JOINTS; i++) {
+    odrive_can::msg::ControlMessage msg;
+    msg.control_mode = 3;  
+    msg.input_mode = 1;    
+    msg.input_pos = 0.0;
+    msg.input_vel = 0.0;
+    msg.input_torque = 0.0;
+    
+    control_pubs[i]->publish(msg);
+  }
+
+  std::this_thread::sleep_for(std::chrono::seconds(1));
+  request_axis_state(0, 8);
+  RCLCPP_INFO(this->get_logger(), "Set to 1 %d", 0);
+  request_axis_state(1, 8);
+  RCLCPP_INFO(this->get_logger(), "Set %d to idle", 1);
+    odrive_can::msg::ControlMessage msg_0;
+    msg_0.control_mode = 2;  
+    msg_0.input_mode = 1;    
+    msg_0.input_pos = 0.0;
+    msg_0.input_vel = 5.0;
+    msg_0.input_torque = 0.0;
+
+    
+    odrive_can::msg::ControlMessage msg_1;
+    msg_1.control_mode = 2;  
+    msg_1.input_mode = 1;    
+    msg_1.input_pos = 0.0;
+    msg_1.input_vel = 5.0;
+    msg_1.input_torque = 0.0;
+
+    control_pubs[0]->publish(msg_0);
+    control_pubs[1]->publish(msg_1);
+  }

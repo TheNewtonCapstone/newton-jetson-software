@@ -16,13 +16,13 @@ class MotorDriver : public rclcpp::Node {
   explicit MotorDriver(
       const rclcpp::NodeOptions &options = rclcpp::NodeOptions());
   ~MotorDriver() = default;
-  result<void> init();  // initialize the motor driver do checks
+  void init();  // initialize the motor driver do checks
   result<void> start();
   result<void> stop();
   result<void> shutdown();
   result<void> set_joint_mode(const joint::mode mode, int joint_index);
   void set_joint_position(float, int);
-
+  void request_axis_state(size_t joint_index, uint32_t requested_state);
   result<void> set_joints_positions(const std::vector<float> positions);
 
  private:
@@ -57,6 +57,8 @@ void update_joint_state(const odrive_can::msg::ControllerStatus::SharedPtr msg,
 
   rclcpp::TimerBase::SharedPtr timer_;
 
+  std::array<rclcpp::Client<odrive_can::srv::AxisState>::SharedPtr, NUM_JOINTS> clients;
+
   std::array<rclcpp::Subscription<odrive_can::msg::ODriveStatus>::SharedPtr,
              NUM_JOINTS>
       status_subs;
@@ -65,5 +67,6 @@ void update_joint_state(const odrive_can::msg::ControllerStatus::SharedPtr msg,
       joint_state_subs;
   std::array<rclcpp::Publisher<odrive_can::msg::ControlMessage>::SharedPtr, NUM_JOINTS>
   control_pubs;
+
 };
 } // namespace newton
