@@ -21,6 +21,8 @@ class MotorDriver : public rclcpp::Node {
   result<void> stop();
   result<void> shutdown();
   result<void> set_joint_mode(const joint::mode mode, int joint_index);
+
+  void collect_data_callback();
   void set_joint_position(float, int);
   void request_axis_state(size_t joint_index, uint32_t requested_state);
   result<void> set_joints_positions(const std::vector<float> positions);
@@ -32,6 +34,7 @@ void update_joint_state(const odrive_can::msg::ControllerStatus::SharedPtr msg,
     int joint_index);
 
   rclcpp::Subscription<odrive_can::msg::ControllerStatus>::SharedPtr state_sub;
+  
   result<void> load_configs();
 
   // safety checks

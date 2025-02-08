@@ -2,6 +2,7 @@
 
 #include <rclcpp/rclcpp.hpp>
 #include "../../utils/include/result.h"
+#include <cmath>
 
 using namespace newton;
 using namespace std::chrono_literals;
@@ -18,17 +19,35 @@ MotorDriver::MotorDriver(const rclcpp::NodeOptions& options)
         this->get_parameter(std::string("m_") + joint_names[i] + "_node_id")
             .as_string();
 
-    auto name = joint_names[i];
+  auto name = joint_names[i];
+
+  status_subs[i] =
+        this->create_subscription<odrive_can::msg::ODriveStatus>(
+            name + "/odrive_status", 10,
+            [=,this](const odrive_can::msg::ODriveStatus::SharedPtr msg) {
+              this->update_driver_status(msg, i);
+  });
+
+  joint_state_subs[i] =
+        this->create_subscription<odrive_can::msg::ControllerStatus>(
+            name + "/controller_status", 10,
+            [=,this](const odrive_can::msg::ControllerStatus::SharedPtr msg) {
+              this->update_joint_state(msg, i);
+  });
 
   clients[i] = this->create_client<odrive_can::srv::AxisState>(
                 name + "/request_axis_state"
-        );
+  );
+
   control_pubs[i] =
   this->create_publisher<odrive_can::msg::ControlMessage>(
           name + "/control_message", 10);
 
     RCLCPP_INFO(this->get_logger(), "Subscribed to %s", name.c_str());
   } 
+
+  timer_ = this->create_wall_timer(500ms, std::bind(&MotorDriver::collect_data_callback, this));
+
   init();
 };
 
@@ -61,20 +80,13 @@ void MotorDriver::update_joint_state(
            .torque_target = msg->torque_estimate,
            };
         joint_states[joint_index] = new_state;
-
-        RCLCPP_INFO(this->get_logger(),
-          "Updated joint state for %d: position=%f, velocity=%f, torque=%f",
-          joint_states[joint_index].index,
-          joint_states[joint_index].position,
-          joint_states[joint_index].velocity,
-          joint_states[joint_index].torque);
     }
 
     void MotorDriver::set_joint_position(float position, int index) {
       odrive_can::msg::ControlMessage msg;
-      msg.control_mode = 2; 
+      msg.control_mode = 3; 
       msg.input_mode = 1;  
-      msg.input_pos = 0; 
+      msg.input_pos = position; 
       msg.input_vel = 0.0;  
       msg.input_torque = 0.0; 
       control_pubs[index]->publish(msg);
@@ -159,20 +171,61 @@ void MotorDriver::init() {
   request_axis_state(1, 8);
   RCLCPP_INFO(this->get_logger(), "Set %d to idle", 1);
     odrive_can::msg::ControlMessage msg_0;
-    msg_0.control_mode = 2;  
+    msg_0.control_mode = 3;  
     msg_0.input_mode = 1;    
-    msg_0.input_pos = 0.0;
-    msg_0.input_vel = 5.0;
+    msg_0.input_pos = 5 ;
+    msg_0.input_vel = 0.0;
     msg_0.input_torque = 0.0;
 
     
     odrive_can::msg::ControlMessage msg_1;
-    msg_1.control_mode = 2;  
+    msg_1.control_mode = 3;  
     msg_1.input_mode = 1;    
-    msg_1.input_pos = 0.0;
-    msg_1.input_vel = 5.0;
+    msg_1.input_pos = 5;
+    msg_1.input_vel = 0.0;
     msg_1.input_torque = 0.0;
 
-    control_pubs[0]->publish(msg_0);
-    control_pubs[1]->publish(msg_1);
+    //control_pubs[0]->publish(msg_0);
+    //control_pubs[1]->publish(msg_1);
   }
+
+
+void MotorDriver::collect_data_callback(){
+
+  newton::joint::state hfe_state={
+      .index = joint_states[0].index,
+      .position=joint_states[0].position,
+      .velocity = joint_states[0].velocity,
+      .torque = joint_states[0].torque,
+      .torque_target = joint_states[0].torque_target,
+    };
+
+  newton::joint::state kfe_state = {
+      .index = joint_states[1].index,
+      .position = joint_states[1].position,
+      .velocity = joint_states[1].velocity,
+      .torque = joint_states[1].torque,
+      .torque_target = joint_states[1].torque_target,
+    };
+
+
+  RCLCPP_INFO(this->get_logger(), "Call pack %f position", hfe_state.position);
+  float  amplitude = 226.0f;
+  float amplitude_sqr = amplitude * amplitude;
+  int arm_length = 160; // mm 
+  float arm_length_sqr = (float)arm_length * arm_length;
+  float c = std::acos((amplitude_sqr - 2.f * arm_length_sqr)/(3.f * arm_length_sqr));
+
+  float turns = c / 3.14159f;
+
+  odrive_can::msg::ControlMessage msg_0;
+  msg_0.control_mode = 3;  
+  msg_0.input_mode = 1;    
+  msg_0.input_pos = turns;
+  msg_0.input_vel = 0.0;
+  msg_0.input_torque = 0.0;
+
+  // control_pubs[1]->publish(msg_0);
+  
+  RCLCPP_INFO(this->get_logger(), "Callback c: %f", c);
+}
