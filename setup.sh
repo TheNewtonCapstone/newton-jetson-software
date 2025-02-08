@@ -4,7 +4,6 @@ ROOT=$(pwd)
 export NEWTON_ROOT="${ROOT}"
 export JETSON_CONTAINERS_PATH="${ROOT}/lib/jetson-containers"
 export PYTHONPATH="${ROOT}/:${PYTHONPATH}"
-ROOT=$(pwd)
 echo $ROOT
 INSTALL_PREFIX="/usr/local/bin"
 
