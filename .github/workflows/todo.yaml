@@ -3,7 +3,6 @@ on:
   pull_request:
   push:
     branches:
-      - '*'
       - '!master'
   workflow_dispatch:
     inputs:
@@ -21,7 +20,7 @@ jobs:
       - name: "TODO to Issue"
         uses: "alstr/todo-to-issue-action@v5"
         with:
-          CLOSE_ISSUES: false
+          CLOSE_ISSUES: true
           AUTO_ASSIGN: true
           PROJECT: "organization/TheNewtonCapstone/TheNewtonCapstone"
           PROJECTS_SECRET: "${{ secrets.PROJECTS_SECRET }}"
