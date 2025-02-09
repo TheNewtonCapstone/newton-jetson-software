@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-ROOT=$(pwd)
+ROOT="$(dirname "$(readlink -f "$0")")"
+
 # Export environment variables for paths
 export NEWTON_ROOT="${ROOT}"
 export JETSON_CONTAINERS_PATH="${ROOT}/lib/jetson-containers"

@@ -7,6 +7,6 @@ source /opt/ros/"$ROS_DISTRO"/setup.bash --
 
 # add sourcing to .bashrc
 echo "source '/opt/ros/$ROS_DISTRO/setup.bash'" >> ~/.bashrc
-echo "source '/home/newton/projects/newton-jetson-software/setup.bash'" >> ~/.bashrc
+echo ". '/home/newton/projects/newton-jetson-software/setup.bash'" >> ~/.bashrc
 
 exec "$@"

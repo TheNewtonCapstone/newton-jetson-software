@@ -91,15 +91,16 @@ COPY requirements.txt /temp/requirements.txt
 
 
 RUN chown -R $USERNAME:$USERNAME /home/$USERNAME
-RUN chmod +x /temp/newton_entrypoint.sh
+RUN chmod +x /newton_entrypoint.sh
 
-# Switch to non-root user
-USER $USERNAME
-WORKDIR /home/${USERNAME}
 
 # Install Python dependencies
 RUN pip3 install --user --upgrade pip && \
     pip3 install --user -r /temp/requirements.txt
 
+# Switch to non-root user
+USER $USERNAME
+WORKDIR /home/${USERNAME}
 
+ENTRYPOINT [ "/newton_entrypoint.sh" ]
 CMD ["bash"]
