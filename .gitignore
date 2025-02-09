@@ -41,3 +41,4 @@ log/
 install/
 cmake-build-debug/
 .vscode/
+.vscode-server/
