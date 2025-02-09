@@ -6,6 +6,7 @@ ARG USERNAME=dev
 ARG UID=1000
 ARG GID=$UID
 ARG CMAKE_VERSION=3.27.7
+ARG USERNAME=newton
 
 # Install language and timezone
 RUN apt-get update && apt-get install -y \
