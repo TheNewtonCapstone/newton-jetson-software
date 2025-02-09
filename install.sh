@@ -21,4 +21,4 @@ fi
 python3.10 -m venv "$VENV_PATH"
 source "$VENV_PATH"/bin/activate
 pip install --upgrade pip
-pip install -r requirements.txt
+pip install -r docker/requirements.txt
