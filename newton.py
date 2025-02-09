@@ -15,16 +15,37 @@ import select
 
 
 app = typer.Typer()
-build_app = typer.Typer()
-app.add_typer(build_app, name="ctn", help="Actions related with containers")
+ctn_app = typer.Typer()
+pkg_app = type.Typer()
+
+app.add_typer(ctn_app, name="ctn", help="Actions related with containers")
+app.add_typer(pkg_app, name="pkg", help="Actions related with packages")
 console = Console()
 ROOT_DIR = ""
 
-# TODO - add support for creating new workspaces
+pkg_app.command("build")
+def build_package(
+        name: str = typer.Argument(..., help="Name of the container to build"),
+):
+    """Build ros package """
+    if name == "motor_driver":
+        pass
+    elif name == "odrive_can":
+        pass
+    console.print("Built")
+
+pkg_app.command("source")
+def source_package():
+    pass
+
+@app.command("clean")
+def clean_workspace():
+    pass
 @app.command()
 def init():
     """Initialize a new robot workspace"""
     pass
+
 
 
 @app.command()
@@ -35,7 +56,7 @@ def list_packages():
     except Exception as e:
         console.print(f"[red]Error listing packages: {str(e)}[/red]")
 
-# TODO - add support for creating new modules
+
 @app.command()
 def create():
     pass
@@ -53,7 +74,18 @@ def search(
         console.print(f"[red]Error searching packages: {str(e)}[/red]")
 
 
-@build_app.command("build")
+
+@ctn_app.command("list")
+def list_containers():
+    pass
+
+
+@ctn_app.command("run")
+def run_container(
+    name: str = typer.Argument(..., help="Name of the container to run")):
+    pass
+
+@ctn_app.command("build")
 def build_container(
         name: str = typer.Argument(..., help="Name of the container to build"),
         cache: bool = typer.Option(False, help="Use cache when building the container"),
@@ -81,8 +113,9 @@ def build_container(
         workspace_root = get_workspace_root()
         arch = platform.machine()
 
-        if arch == "arm64":
-          docker_file_name = "Dockerfile.arm64"
+        if arch == "aarch64":
+          docker_file_name = "Dockerfile.aarch_64"
+          console.print("Docker", docker_file_name)
         elif arch == "x86_64":
           docker_file_name = "Dockerfile.x86_64"
         else:
