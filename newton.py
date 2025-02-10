@@ -2,6 +2,8 @@ import os
 import platform
 import subprocess
 import shutil
+from posix import getcwd
+import shlex
 import typer
 from click import prompt
 from rich import print
@@ -11,83 +13,151 @@ from rich.table import Table
 from typing import List, Optional
 from pathlib import Path
 import select
+from typing_extensions import  Annotated
+from enum import Enum
+
+
+ROOT_DIR = None
+
+class PkgName(str, Enum):
+    motor_driver = "motor_driver"
+    odrive_can = "odrive_can"
+    imu_driver = "imu_driver"
+    newton = "newton"
+    all = "all"
 
 
 
-app = typer.Typer()
+app = typer.Typer(
+    help="run nt [COMMAND] --help for more information"
+)
 ctn_app = typer.Typer()
 pkg_app = typer.Typer()
 
+
 app.add_typer(ctn_app, name="ctn", help="Actions related with containers")
 app.add_typer(pkg_app, name="pkg", help="Actions related with packages")
-console = Console()
-ROOT_DIR = ""
 
-pkg_app.command("build")
-def build_package(
-        name: str = typer.Argument(..., help="Name of the container to build"),
+console = Console()
+
+@pkg_app.command("clean")
+def clean_workspace(
+    name:Annotated[PkgName, typer.Argument(
+        help="Name of the package to clean",
+    )] = PkgName.all 
 ):
-    """Build ros package """
+    """" Clean a ros package removes build, install and log directories"""
+    if name == "all":
+        console.print(f"[red]Cleaning all packages[/red]")
+        try:
+            for directory in ROOT_DIR.rglob('build'):
+                if "venv" in str(directory):
+                    continue
+                if "jetson-containers" in str(directory):
+                    continue
+                console.print(f"[red]Cleaning package: {directory}[/red]")
+                shutil.rmtree(directory)
+
+            for directory in ROOT_DIR.rglob('install'):
+                if "venv" in str(directory):
+                    continue
+                if "jetson-containers" in str(directory):
+                    continue
+                console.print(f"[red]Cleaning package: {directory}[/red]")
+                shutil.rmtree(directory)
+
+
+            for directory in ROOT_DIR.rglob('log'):
+                if "venv" in str(directory):
+                    continue
+                if "jetson-containers" in str(directory):
+                    continue
+                console.print(f"[red]Cleaning package: {directory}[/red]")
+                shutil.rmtree(directory)
+        except Exception as e:
+            console.print(f"[red]Error cleaning package: {str(e)}[/red]")
+            return
+    if name == "motor_driver":
+        try:
+            clean_ros_package(Path(ROOT_DIR,"core","src","motor_driver"))
+        except Exception as e:
+            console.print(f"[red]Error cleaning package: {str(e)}[/red]")
+            return
+    if name == "odrive_can":
+        console.print(f"[red]Cleaning odrive_can package[/red]")
+        try:
+            clean_ros_package(Path(ROOT_DIR, "lib", "ros_odrive"))
+        except Exception as e:
+            console.print(f"[red]Error cleaning package: {str(e)}[/red]")
+            return
+    if name == "imu_driver":
+        try:
+            clean_ros_package(Path(ROOT_DIR, "core", "src", "imu"))
+        except Exception as e:
+            console.print(f"[red]Error cleaning package: {str(e)}[/red]")
+            return
+
+
+    console.print(f"[green] Successfully cleaned {name} package[/green]")
+
+
+@pkg_app.command("build")
+def build_package(
+        name:Annotated[PkgName, typer.Argument(
+            help="Name of the package to build")],
+):
+    """Build ros package and source"""
     if name == "motor_driver":
         pass
     elif name == "odrive_can":
-        pass
-    console.print("Built")
+        try:
+            console.print("Building odrive_can")
+            cmd = ["ros2", "pkg", "list"]
+            process = subprocess.Popen(cmd,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+            output, error = process.communicate(timeout=4)
 
-pkg_app.command("source")
-def source_package():
-    pass
+            if "odrive_can" in str(output):
+                console.print("Package already installed")
+                return
 
-@app.command("clean")
-def clean_workspace():
-    pass
-@app.command()
-def init():
-    """Initialize a new robot workspace"""
-    pass
+            root = get_workspace_root()
+            odrive_can_path = Path(root, "lib", "ros_odrive")
+            if not odrive_can_path.exists():
+                raise Exception(f"Could not find package: {odrive_can_path}")
 
+            os.chdir(odrive_can_path)
+            print(os.getcwd())
+            cmd = ["colcon", "build", "--packages-select", "odrive_can", "--symlink-install"]
+            os.execvp(cmd[0], cmd)
+        except Exception as e:
+            console.print(f"[red]Error building package: {str(e)}[/red]")
+    elif name == "imu_driver":
+        console.print("Building imu_driver")
+        try:
+            cmd = ["ros2", "pkg", "list"]
+            process = subprocess.Popen(cmd,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+            output, error = process.communicate(timeout=4)
 
+            if "tm_imu" in str(output):
+                console.print("Package already installed")
+                return
 
-@app.command()
-def list_packages():
-    """List all available packages"""
-    try:
-      pass
-    except Exception as e:
-        console.print(f"[red]Error listing packages: {str(e)}[/red]")
+            imu_driver_path = Path(ROOT_DIR, "core", "src", "imu")
+            if not imu_driver_path.exists():
+                raise Exception(f"Could not find package: {imu_driver_path}")
 
+            os.chdir(imu_driver_path)
+            print(os.getcwd())
+            cmd = ["colcon", "build", "--packages-select", "tm_imu", "--symlink-install"]
+            os.execvp(cmd[0], cmd)
+        except Exception as e:
+            console.print(f"[red]Error building package: {str(e)}[/red]")
 
-@app.command()
-def create():
-    pass
-
-
-@app.command()
-def search(
-        term: str = typer.Argument(..., help="Search term for finding packages")
-):
-    """Search for available packages"""
-    try:
-      pass
-
-    except Exception as e:
-        console.print(f"[red]Error searching packages: {str(e)}[/red]")
-
-
-
-@ctn_app.command("list")
-def list_containers():
-    pass
 
 
 @ctn_app.command("run")
 def run_container(
-    name: str = typer.Argument(..., help="Name of the container to run"),
-    command: Optional[List[str]] = typer.Option(None, "--cmd", help="Command to run in the container"),
-    interactive: bool = typer.Option(True, "--interactive", "-i", help="Run container in interactive mode"),
-    workspace_source: bool = typer.Option(True, "--workspace-source", help="Source workspace setup.bash"),
-    use_display: bool = typer.Option(True, "--display", help="Enable X11 display forwarding"),
-    host_network: bool = typer.Option(True, "--host-network", help="Use host network")
+    container: Annotated[str, typer.Argument(help="Name of the container to run")]= "onnx-ros",
 ):
     """Run a container with hardware access and proper ROS2 environment setup"""
     try:
@@ -101,8 +171,8 @@ def run_container(
             "--device=/dev",
             "-v", f"{workspace_root}:{workspace_root}",
             "-w", str(workspace_root),
-            name,
-            "/bin/bash"
+            container,
+            str(ROOT_DIR)
         ]
         os.execvp(cmd[0], cmd)
     except Exception as e:
@@ -216,7 +286,6 @@ def test(
     print(f"Running {test_type} tests...")
     # Test logic here
 
-
 def get_workspace_root() -> Path:
     """Get the workspace root directory"""
     if 'WORKSPACE_ROOT' in os.environ:
@@ -233,8 +302,43 @@ def get_workspace_root() -> Path:
     return Path.cwd()
 
 
+
+def is_package_installed(package_name: str) -> bool:
+    """Check if a package is installed"""
+    try:
+        subprocess.check_output(["dpkg", "-s", package_name])
+        return True
+    except subprocess.CalledProcessError:
+        return False
+
 def has_cuda():
-  return 1
+    return 1
+
+def source_bash_file(path):
+    """Source a bash file and return the new environment"""
+    command = f'source {path} && env'
+    pipe = subprocess.Popen(['/bin/bash', '-c', command], stdout=subprocess.PIPE)
+    output = pipe.communicate()[0].decode()
+    env = {}
+    for line in output.splitlines():
+        try:
+            key, value = line.split('=', 1)
+            env[key] = value
+        except ValueError:
+            continue
+
+    return env
+
+def clean_ros_package(path: Path):
+    """Clean a ros package removes build, install and log directories"""
+    try:
+        if not path.exists():
+            raise Exception(f"Could not find package: {path}")
+        shutil.rmtree(Path(path, "build"))
+        shutil.rmtree(Path(path, "install"))
+        shutil.rmtree(Path(path, "log"))
+    except Exception as e:
+        console.print(f"[red]Error cleaning package: {str(e)}[/red]")
 @app.command()
 def info(
         package_name: str = typer.Argument(..., help="Name of the package to get info about")
@@ -256,4 +360,5 @@ def info(
     except Exception as e:
         console.print(f"[red]Error getting package info: {str(e)}[/red]")
 if __name__ == "__main__":
+    ROOT_DIR = get_workspace_root()
     app()
