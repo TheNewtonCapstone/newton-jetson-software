@@ -48,11 +48,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 
-RUN pip3 install --user --upgrade pip && \
-    pip3 install --user click \ 
+RUN pip3 install --upgrade pip && \
+    pip3 install click \ 
     typer \
-    rich \
-    packaging 
+    packaging \
+    rich 
 
 RUN cd /tmp && \
     curl -LO https://github.com/Kitware/CMake/releases/download/v${CMAKE_VERSION}/cmake-${CMAKE_VERSION}-linux-x86_64.sh && \
@@ -60,7 +60,6 @@ RUN cd /tmp && \
     ./cmake-${CMAKE_VERSION}-linux-x86_64.sh --skip-license --prefix=/usr/local && \
     rm cmake-${CMAKE_VERSION}-linux-x86_64.sh
 
-# Install ROS 2
 RUN sudo add-apt-repository universe \
     && curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg \
     && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(. /etc/os-release && echo $UBUNTU_CODENAME) main" | sudo tee /etc/apt/sources.list.d/ros2.list > /dev/null \
@@ -94,16 +93,11 @@ RUN groupadd -g $GID $USERNAME \
 COPY scripts/bashrc /home/$USERNAME/.bashrc
 COPY scripts/vimrc /home/$USERNAME/.vimrc
 COPY scripts/newton_entrypoint.sh /newton_entrypoint.sh
-COPY requirements.txt /temp/requirements.txt
 
 
 RUN chown -R $USERNAME:$USERNAME /home/$USERNAME
 RUN chmod +x /newton_entrypoint.sh
 
-
-# Install Python dependencies
-RUN pip3 install --user --upgrade pip && \
-    pip3 install --user -r /temp/requirements.txt
 
 # Switch to non-root user
 USER $USERNAME
