@@ -22,3 +22,9 @@ python3.10 -m venv "$VENV_PATH"
 source "$VENV_PATH"/bin/activate
 pip install --upgrade pip
 pip install -r docker/requirements.txt
+echo "source $VENV_PATH/bin/activate" >> ~/.bashrc
+path=$(pwd)
+echo "alias nt='python3 $path/newton.py'" >> ~/.bashrc
+echo "alias nt='python3 $path/newton.py'" >> ~/.zshrc
+bash
+zsh
