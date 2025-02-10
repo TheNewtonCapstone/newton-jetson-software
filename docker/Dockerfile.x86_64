@@ -54,27 +54,31 @@ RUN cd /opt/onnxruntime && \
   cd /opt && \
   rm -rf onnxruntime
 
+RUN pip3 install --upgrade pip && \
+  pip3 install click \ 
+  typer \
+  rich \
+  packaging 
+
+
+
 # Create user and setup sudo
 RUN groupadd -g $GID $USERNAME \
   && useradd -lm -u $UID -g $USERNAME -s /bin/bash $USERNAME \
   && echo "$USERNAME ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 
-# Copy configuration files
 COPY scripts/bashrc /home/$USERNAME/.bashrc
 COPY scripts/vimrc /home/$USERNAME/.vimrc
 COPY scripts/newton_entrypoint.sh /newton_entrypoint.sh
-COPY requirements.txt /temp/requirements.txt
 
 RUN chown -R $USERNAME:$USERNAME /home/$USERNAME
 
 ENV LD_LIBRARY_PATH=/usr/local/lib
 
+# Install Python dependencies
 # Switch to non-root user
-USER $USERNAME
 WORKDIR /home/$USERNAME
 
-# Install Python dependencies
-RUN pip3 install --user --upgrade pip && \
-  pip3 install --user -r /temp/requirements.txt
-
+USER $USERNAME
+ENTRYPOINT [ "/newton_entrypoint.sh" ]
 CMD ["bash"]
