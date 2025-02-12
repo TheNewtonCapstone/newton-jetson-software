@@ -1,26 +1,31 @@
 {
-    "name": "ROS 2 Workspace humble-ros-base",
+    "name": "Newton dev container",
     "remoteUser": "newton",
     "build": {
-        "dockerfile": "../docker/Dockerfile.x86_64",
+        "dockerfile": "../docker/Dockerfile.x86_64.dev",
+        "context": "../docker/",
         "args": {
-            "USERNAME": "newton",
-            "GID": "1000",
-            "UID": "1000"
+            "USERNAME": "newton"
         }
     },
     "customizations": {
         "vscode": {
             "extensions": [
                 "ms-python.python",
+                "ms-vscode.cpptools",
+                "llvm-vs-code-extensions.vscode-clangd",
+                "ms-vscode.cmake-tools",
+                "twxs.cmake",
+                "ms-azuretools.vscode-docker",
+                "ms-vscode-remote.remote-containers",
+                "ms-iot.vscode-ros",
                 "charliermarsh.ruff",
                 "ms-vscode.cpptools-extension-pack",
-                "ms-iot.vscode-ros",
                 "smilerobotics.urdf",
                 "redhat.vscode-xml",
                 "tamasfe.even-better-toml",
                 "timonwong.shellcheck",
-                "yzhang.markdown-all-in-one",
+                "yzhang.markdown-all-in-one"
             ],
             "settings": {
                 "files.associations": {
@@ -28,14 +33,48 @@
                     "*.srdf": "xml",
                     "*.urdf": "xml",
                     "*.xacro": "xml"
+                },
+                "clangd.arguments": [
+                    "--background-index",
+                    "--compile-commands-dir=${workspaceFolder}/core/build",
+                    "--header-insertion=never",
+                    "--completion-style=detailed"
+                ],
+                // "C_Cpp.intelliSenseEngine": "disabled",
+                "cmake.configureOnOpen": false,
+                // "cmake.sourceDirectory": "${workspaceFolder}/core",
+                // "cmake.buildDirectory": "${workspaceFolder}/core/build",
+                // "cmake.installPrefix": "${workspaceFolder}/core/install",
+                "cmake.generator": "Unix Makefiles",
+                "ros.distro": "humble",
+                "cmake.configureEnvironment": {
+                    "CXX": "/usr/bin/clang++",
+                    "CC": "/usr/bin/clang",
+                    "CMAKE_PREFIX_PATH": "/opt/ros/humble:${workspaceFolder}/ros_odrive/install",
+                    "ONNXRUNTIME_INCLUDE_DIR": "/usr/local/include/onnxruntime",
+                    "ONNXRUNTIME_LIB_DIR": "/usr/local/lib"
                 }
             }
         }
     },
-    "workspaceFolder": "/home/newton/",
-    "workspaceMount": "source=${localWorkspaceFolder},target=/home/newton/,type=bind",
-    "mounts": [],
+    "workspaceFolder": "/home/newton/workspace",
+    "workspaceMount": "source=${localWorkspaceFolder},target=/home/newton/workspace,type=bind",
+    "mounts": [
+        "source=/dev,target=/dev,type=bind"
+    ],
     "runArgs": [
-        "--net=host"
-    ]
+        "--net=host",
+        "--privileged",
+        "--device-cgroup-rule=c *:* rmw",
+        "--device=/dev"
+    ],
+    "remoteEnv": {
+        "LD_LIBRARY_PATH": "/usr/local/lib:/opt/ros/humble/lib:${workspaceFolder}/core/install/newton/lib",
+        "PATH": "/opt/ros/humble/bin:${env:PATH}",
+        // "PYTHONPATH": "/opt/ros/humble/lib/python3.10/site-packages:${workspaceFolder}/core/install/lib/python3.10/site-packages",
+        "AMENT_PREFIX_PATH": "/opt/ros/humble",
+        // "COLCON_PREFIX_PATH": "${workspaceFolder}/core/install:${workspaceFolder}/ros_odrive/install",
+        "ROS_DISTRO": "humble",
+        "CMAKE_PREFIX_PATH": "/opt/ros/humble:${workspaceFolder}/ros_odrive/install"
+    }
 }

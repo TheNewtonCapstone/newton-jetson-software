@@ -1,0 +1,228 @@
+2025-02-12T02:25:44.959Z [info] [proc] Executing command: /usr/local/bin/cmake --version
+2025-02-12T02:25:45.024Z [info] [proc] Executing command: /usr/local/bin/cmake -E capabilities
+2025-02-12T02:25:45.127Z [debug] [main] Safe constructing new CMakeProject instance
+2025-02-12T02:25:45.128Z [debug] [variant] Constructing VariantManager
+2025-02-12T02:25:45.129Z [debug] [main] Constructing new CMakeProject instance
+2025-02-12T02:25:45.130Z [debug] [main] Starting CMake Tools second-phase init
+2025-02-12T02:25:45.254Z [debug] [kit] Not reading non-existent kits file: /home/newton/.local/share/CMakeTools/cmake-tools-kits.json
+2025-02-12T02:25:45.319Z [debug] [kit] Not reading non-existent kits file: /home/newton/.vscode/cmake-kits.json
+2025-02-12T02:25:46.880Z [info] [variant] Loaded new set of variants
+2025-02-12T02:25:46.882Z [debug] [main] CMakeProject instance initialization complete.
+2025-02-12T02:25:48.308Z [debug] [extension] Configuring workspace on open /home/newton
+2025-02-12T02:25:50.954Z [debug] [kitsController] Rescanning for kits
+2025-02-12T02:25:50.955Z [debug] [kit] Scanning for Kits on system
+2025-02-12T02:25:50.983Z [debug] [kit] Scanning directory /vscode/vscode-server/bin/linux-x64/33fc5a94a3f99ebe7087e8fe79fbe1d37a251016/bin/remote-cli for compilers
+2025-02-12T02:25:50.984Z [debug] [kit] Scanning directory /usr/local/sbin for compilers
+2025-02-12T02:25:50.984Z [debug] [kit] Scanning directory /usr/local/bin for compilers
+2025-02-12T02:25:50.984Z [debug] [kit] Scanning directory /usr/sbin for compilers
+2025-02-12T02:25:50.984Z [debug] [kit] Scanning directory /usr/bin for compilers
+2025-02-12T02:25:50.984Z [debug] [kit] Scanning directory /sbin for compilers
+2025-02-12T02:25:50.985Z [debug] [kit] Scanning directory /bin for compilers
+2025-02-12T02:25:50.985Z [debug] [kit] Skipping scan of not existing path undefined\LLVM\bin
+2025-02-12T02:25:50.985Z [debug] [kit] Found 0 kits in directory undefined\LLVM\bin
+2025-02-12T02:25:50.985Z [debug] [kit] Skipping scan of not existing path undefined\msys64\mingw32\bin
+2025-02-12T02:25:50.985Z [debug] [kit] Found 0 kits in directory undefined\msys64\mingw32\bin
+2025-02-12T02:25:50.986Z [debug] [kit] Skipping scan of not existing path undefined\msys64\mingw64\bin
+2025-02-12T02:25:50.986Z [debug] [kit] Found 0 kits in directory undefined\msys64\mingw64\bin
+2025-02-12T02:25:50.986Z [debug] [kit] Skipping scan of not existing path undefined\msys64\clang32\bin
+2025-02-12T02:25:50.986Z [debug] [kit] Found 0 kits in directory undefined\msys64\clang32\bin
+2025-02-12T02:25:50.986Z [debug] [kit] Skipping scan of not existing path undefined\msys64\clang64\bin
+2025-02-12T02:25:50.986Z [debug] [kit] Found 0 kits in directory undefined\msys64\clang64\bin
+2025-02-12T02:25:50.986Z [debug] [kit] Skipping scan of not existing path undefined\msys64\clangarm64\bin
+2025-02-12T02:25:50.987Z [debug] [kit] Found 0 kits in directory undefined\msys64\clangarm64\bin
+2025-02-12T02:25:50.987Z [debug] [kit] Skipping scan of not existing path undefined\msys64\ucrt64\bin
+2025-02-12T02:25:50.987Z [debug] [kit] Found 0 kits in directory undefined\msys64\ucrt64\bin
+2025-02-12T02:25:51.022Z [debug] [kit] Found 0 kits in directory /vscode/vscode-server/bin/linux-x64/33fc5a94a3f99ebe7087e8fe79fbe1d37a251016/bin/remote-cli
+2025-02-12T02:25:51.023Z [debug] [kit] Found 0 kits in directory /usr/local/sbin
+2025-02-12T02:25:51.024Z [debug] [kit] Found 0 kits in directory /usr/local/bin
+2025-02-12T02:25:51.029Z [debug] [kit] Found 0 kits in directory /usr/sbin
+2025-02-12T02:25:51.041Z [debug] [kit] Found 0 kits in directory /sbin
+2025-02-12T02:25:51.049Z [debug] [kit] Testing GCC binary: /usr/bin/c89-gcc
+2025-02-12T02:25:51.050Z [info] [proc] Executing command: /usr/bin/c89-gcc -v
+2025-02-12T02:25:51.057Z [debug] [kit] Testing GCC binary: /usr/bin/c99-gcc
+2025-02-12T02:25:51.057Z [info] [proc] Executing command: /usr/bin/c99-gcc -v
+2025-02-12T02:25:51.068Z [debug] [kit] Testing GCC binary: /usr/bin/gcc
+2025-02-12T02:25:51.069Z [info] [proc] Executing command: /usr/bin/gcc -v
+2025-02-12T02:25:51.075Z [debug] [kit] Testing GCC binary: /usr/bin/gcc-11
+2025-02-12T02:25:51.076Z [info] [proc] Executing command: /usr/bin/gcc-11 -v
+2025-02-12T02:25:51.101Z [debug] [kit] Testing GCC binary: /usr/bin/x86_64-linux-gnu-gcc
+2025-02-12T02:25:51.101Z [info] [proc] Executing command: /usr/bin/x86_64-linux-gnu-gcc -v
+2025-02-12T02:25:51.107Z [debug] [kit] Testing GCC binary: /usr/bin/x86_64-linux-gnu-gcc-11
+2025-02-12T02:25:51.108Z [info] [proc] Executing command: /usr/bin/x86_64-linux-gnu-gcc-11 -v
+2025-02-12T02:25:51.117Z [debug] [kit] Testing GCC binary: /bin/c89-gcc
+2025-02-12T02:25:51.118Z [info] [proc] Executing command: /bin/c89-gcc -v
+2025-02-12T02:25:51.125Z [debug] [kit] Testing GCC binary: /bin/c99-gcc
+2025-02-12T02:25:51.126Z [info] [proc] Executing command: /bin/c99-gcc -v
+2025-02-12T02:25:51.136Z [debug] [kit] Testing GCC binary: /bin/gcc
+2025-02-12T02:25:51.137Z [info] [proc] Executing command: /bin/gcc -v
+2025-02-12T02:25:51.143Z [debug] [kit] Testing GCC binary: /bin/gcc-11
+2025-02-12T02:25:51.143Z [info] [proc] Executing command: /bin/gcc-11 -v
+2025-02-12T02:25:51.166Z [debug] [kit] Testing GCC binary: /bin/x86_64-linux-gnu-gcc
+2025-02-12T02:25:51.167Z [info] [proc] Executing command: /bin/x86_64-linux-gnu-gcc -v
+2025-02-12T02:25:51.173Z [debug] [kit] Testing GCC binary: /bin/x86_64-linux-gnu-gcc-11
+2025-02-12T02:25:51.174Z [info] [proc] Executing command: /bin/x86_64-linux-gnu-gcc-11 -v
+2025-02-12T02:25:51.365Z [debug] [kit] Detected GCC compiler: /bin/x86_64-linux-gnu-gcc-11
+2025-02-12T02:25:51.367Z [debug] [kit] Detected GCC compiler: /bin/x86_64-linux-gnu-gcc
+2025-02-12T02:25:51.369Z [debug] [kit] Detected GCC compiler: /bin/gcc-11
+2025-02-12T02:25:51.370Z [debug] [kit] Detected GCC compiler: /bin/gcc
+2025-02-12T02:25:51.372Z [debug] [kit] Detected GCC compiler: /bin/c99-gcc
+2025-02-12T02:25:51.374Z [debug] [kit] Detected GCC compiler: /bin/c89-gcc
+2025-02-12T02:25:51.375Z [debug] [kit] Detected GCC compiler: /usr/bin/x86_64-linux-gnu-gcc-11
+2025-02-12T02:25:51.377Z [debug] [kit] Detected GCC compiler: /usr/bin/x86_64-linux-gnu-gcc
+2025-02-12T02:25:51.379Z [debug] [kit] Detected GCC compiler: /usr/bin/gcc-11
+2025-02-12T02:25:51.380Z [debug] [kit] Detected GCC compiler: /usr/bin/gcc
+2025-02-12T02:25:51.382Z [debug] [kit] Detected GCC compiler: /usr/bin/c99-gcc
+2025-02-12T02:25:51.383Z [debug] [kit] Detected GCC compiler: /usr/bin/c89-gcc
+2025-02-12T02:25:51.408Z [debug] [kit] Testing GCC binary: /bin/c99-gcc
+2025-02-12T02:25:51.409Z [info] [proc] Executing command: /bin/c99-gcc -v
+2025-02-12T02:25:51.415Z [debug] [kit] Testing GCC binary: /bin/c89-gcc
+2025-02-12T02:25:51.415Z [info] [proc] Executing command: /bin/c89-gcc -v
+2025-02-12T02:25:51.420Z [debug] [kit] Testing GCC binary: /usr/bin/c99-gcc
+2025-02-12T02:25:51.420Z [info] [proc] Executing command: /usr/bin/c99-gcc -v
+2025-02-12T02:25:51.426Z [debug] [kit] Testing GCC binary: /usr/bin/c89-gcc
+2025-02-12T02:25:51.426Z [info] [proc] Executing command: /usr/bin/c89-gcc -v
+2025-02-12T02:25:51.446Z [debug] [kit] Detected GCC compiler: /usr/bin/c89-gcc
+2025-02-12T02:25:51.447Z [debug] [kit] Detected GCC compiler: /usr/bin/c99-gcc
+2025-02-12T02:25:51.449Z [debug] [kit] Detected GCC compiler: /bin/c89-gcc
+2025-02-12T02:25:51.451Z [debug] [kit] Detected GCC compiler: /bin/c99-gcc
+2025-02-12T02:25:51.452Z [debug] [kit] Found 6 kits in directory /usr/bin
+2025-02-12T02:25:51.452Z [debug] [kit] Found 6 kits in directory /bin
+2025-02-12T02:25:51.453Z [info] [kit] Found Kit (trusted): GCC 11.4.0 x86_64-linux-gnu
+2025-02-12T02:25:51.453Z [info] [kit] Found Kit (trusted): GCC 11.4.0 x86_64-linux-gnu
+2025-02-12T02:25:51.453Z [info] [kit] Found Kit (trusted): GCC 11.4.0 x86_64-linux-gnu
+2025-02-12T02:25:51.453Z [info] [kit] Found Kit (trusted): GCC 11.4.0 x86_64-linux-gnu
+2025-02-12T02:25:51.453Z [info] [kit] Found Kit (trusted): GCC 11.4.0 x86_64-linux-gnu
+2025-02-12T02:25:51.453Z [info] [kit] Found Kit (trusted): GCC 11.4.0 x86_64-linux-gnu
+2025-02-12T02:25:51.453Z [info] [kit] Found Kit (trusted): GCC 11.4.0 x86_64-linux-gnu
+2025-02-12T02:25:51.453Z [info] [kit] Found Kit (trusted): GCC 11.4.0 x86_64-linux-gnu
+2025-02-12T02:25:51.454Z [info] [kit] Found Kit (trusted): GCC 11.4.0 x86_64-linux-gnu
+2025-02-12T02:25:51.454Z [info] [kit] Found Kit (trusted): GCC 11.4.0 x86_64-linux-gnu
+2025-02-12T02:25:51.454Z [info] [kit] Found Kit (trusted): GCC 11.4.0 x86_64-linux-gnu
+2025-02-12T02:25:51.454Z [info] [kit] Found Kit (trusted): GCC 11.4.0 x86_64-linux-gnu
+2025-02-12T02:25:51.455Z [debug] [kitsController] Saving kits to /home/newton/.local/share/CMakeTools/cmake-tools-kits.json
+2025-02-12T02:25:51.455Z [debug] [kitsController] Saving new kits to /home/newton/.local/share/CMakeTools/cmake-tools-kits.json
+2025-02-12T02:25:51.481Z [debug] [kitsController] Start selection of kits. Found 3 kits.
+2025-02-12T02:25:51.481Z [debug] [kitsController] Opening kit selection QuickPick
+2025-02-12T02:25:53.703Z [debug] [main] Not starting CMake driver: no kit selected
+2025-02-12T02:25:53.704Z [debug] [kitsController] User selected kit {"label":"GCC 11.4.0 x86_64-linux-gnu","description":"Using compilers: C = /usr/bin/gcc, CXX = /usr/bin/g++","kit":{"name":"GCC 11.4.0 x86_64-linux-gnu","compilers":{"C":"/usr/bin/gcc","CXX":"/usr/bin/g++"},"isTrusted":true}}
+2025-02-12T02:25:53.704Z [debug] [main] Injecting new Kit into CMake driver
+2025-02-12T02:25:54.387Z [debug] [main] Starting new CMake driver
+2025-02-12T02:25:54.387Z [debug] [main] Starting CMake driver
+2025-02-12T02:25:54.387Z [debug] [cmakefileapi-driver] Creating instance of CMakeFileApiDriver
+2025-02-12T02:25:54.388Z [debug] [driver] Initializing base driver using kit
+2025-02-12T02:25:54.389Z [debug] [kit] Testing GCC binary: /usr/bin/gcc
+2025-02-12T02:25:54.389Z [info] [proc] Executing command: /usr/bin/gcc -v
+2025-02-12T02:25:54.441Z [debug] [kit] Detected GCC compiler: /usr/bin/gcc
+2025-02-12T02:25:54.442Z [debug] [driver] CMakeDriver Kit set to GCC 11.4.0 x86_64-linux-gnu
+2025-02-12T02:25:54.443Z [debug] [kit] The environment for kit 'GCC 11.4.0 x86_64-linux-gnu': {
+  "HOSTNAME": "galileo-ubuntu",
+  "LD_LIBRARY_PATH": "/usr/local/lib",
+  "HOME": "/home/newton",
+  "ROS_DISTRO": "humble",
+  "PATH": "/vscode/vscode-server/bin/linux-x64/33fc5a94a3f99ebe7087e8fe79fbe1d37a251016/bin/remote-cli:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+  "LANG": "C.UTF-8",
+  "SHELL": "/bin/bash",
+  "LC_ALL": "C.UTF-8",
+  "PWD": "/vscode/vscode-server/bin/linux-x64/33fc5a94a3f99ebe7087e8fe79fbe1d37a251016",
+  "VSCODE_CWD": "/vscode/vscode-server/bin/linux-x64/33fc5a94a3f99ebe7087e8fe79fbe1d37a251016",
+  "VSCODE_NLS_CONFIG": "{\"userLocale\":\"en\",\"osLocale\":\"en\",\"resolvedLanguage\":\"en\",\"defaultMessagesFile\":\"/vscode/vscode-server/bin/linux-x64/33fc5a94a3f99ebe7087e8fe79fbe1d37a251016/out/nls.messages.json\",\"locale\":\"en\",\"availableLanguages\":{}}",
+  "VSCODE_HANDLES_SIGPIPE": "true",
+  "VSCODE_ESM_ENTRYPOINT": "vs/workbench/api/node/extensionHostProcess",
+  "VSCODE_HANDLES_UNCAUGHT_ERRORS": "true",
+  "REMOTE_CONTAINERS_IPC": "/tmp/vscode-remote-containers-ipc-e31a66a5-92aa-4330-b7c9-3834e95e4b9b.sock",
+  "REMOTE_CONTAINERS_SOCKETS": "[\"/tmp/vscode-ssh-auth-e31a66a5-92aa-4330-b7c9-3834e95e4b9b.sock\",\"/tmp/.X11-unix/X2\",\"/home/newton/.gnupg/S.gpg-agent\"]",
+  "SHLVL": "1",
+  "_": "/usr/bin/cat",
+  "SSH_AUTH_SOCK": "/tmp/vscode-ssh-auth-e31a66a5-92aa-4330-b7c9-3834e95e4b9b.sock",
+  "DISPLAY": ":2",
+  "REMOTE_CONTAINERS_DISPLAY_SOCK": "/tmp/.X11-unix/X2",
+  "XDG_RUNTIME_DIR": "/tmp/user/1000",
+  "WAYLAND_DISPLAY": "vscode-wayland-d9f81aad-5079-48b0-ae06-e71acfc2cb0a.sock",
+  "REMOTE_CONTAINERS": "true",
+  "BROWSER": "/vscode/vscode-server/bin/linux-x64/33fc5a94a3f99ebe7087e8fe79fbe1d37a251016/bin/helpers/browser.sh",
+  "ELECTRON_RUN_AS_NODE": "1",
+  "VSCODE_IPC_HOOK_CLI": "/tmp/user/1000/vscode-ipc-b96361e8-1e7e-41da-874f-701b90fcb48d.sock",
+  "VSCODE_L10N_BUNDLE_LOCATION": "",
+  "APPLICATION_INSIGHTS_NO_DIAGNOSTIC_CHANNEL": "1"
+}
+2025-02-12T02:25:54.443Z [debug] [driver] Trying to detect generator supported by system
+2025-02-12T02:25:54.453Z [warning] [proc] The command: ninja --version failed with error: Error: spawn ninja ENOENT
+2025-02-12T02:25:54.466Z [warning] [proc] The command: ninja-build --version failed with error: Error: spawn ninja-build ENOENT
+2025-02-12T02:25:54.494Z [debug] [expand] expanded ${workspaceFolder}/build
+2025-02-12T02:25:54.495Z [debug] [driver] Setting new variant Debug
+2025-02-12T02:25:54.872Z [debug] [expand] expanded ${workspaceFolder}/build
+2025-02-12T02:25:54.873Z [info] [main] Configuring project: newton 
+2025-02-12T02:25:54.873Z [debug] [main] Saving open files before configure/build
+2025-02-12T02:25:54.972Z [debug] [expand] expanded ${workspaceFolder}/build
+2025-02-12T02:25:54.973Z [debug] [driver] Start configure 
+2025-02-12T02:25:54.973Z [debug] [driver] Running pre-configure checks and steps
+2025-02-12T02:25:54.975Z [debug] [driver] Using compilers in GCC 11.4.0 x86_64-linux-gnu for configure
+2025-02-12T02:25:54.979Z [debug] [expand] expanded ${workspaceFolder}/build
+2025-02-12T02:25:54.997Z [debug] [cmakefileapi-driver] Configuring using kit
+2025-02-12T02:25:54.998Z [debug] [cmakefileapi-driver] Invoking CMake /usr/local/bin/cmake with arguments ["-DCMAKE_BUILD_TYPE:STRING=Debug","-DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE","-DCMAKE_C_COMPILER:FILEPATH=/usr/bin/gcc","-DCMAKE_CXX_COMPILER:FILEPATH=/usr/bin/g++","--no-warn-unused-cli","-S/home/newton/core","-B/home/newton/build","-G","Unix Makefiles"]
+2025-02-12T02:25:55.000Z [info] [proc] Executing command: /usr/local/bin/cmake -DCMAKE_BUILD_TYPE:STRING=Debug -DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE -DCMAKE_C_COMPILER:FILEPATH=/usr/bin/gcc -DCMAKE_CXX_COMPILER:FILEPATH=/usr/bin/g++ --no-warn-unused-cli -S/home/newton/core -B/home/newton/build -G "Unix Makefiles"
+2025-02-12T02:25:55.000Z [debug] [proc]   with environment: {"HOSTNAME":"galileo-ubuntu","LD_LIBRARY_PATH":"/usr/local/lib","HOME":"/home/newton","ROS_DISTRO":"humble","PATH":"/vscode/vscode-server/bin/linux-x64/33fc5a94a3f99ebe7087e8fe79fbe1d37a251016/bin/remote-cli:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin","LANG":"C.UTF-8","SHELL":"/bin/bash","LC_ALL":"C.UTF-8","PWD":"/vscode/vscode-server/bin/linux-x64/33fc5a94a3f99ebe7087e8fe79fbe1d37a251016","VSCODE_CWD":"/vscode/vscode-server/bin/linux-x64/33fc5a94a3f99ebe7087e8fe79fbe1d37a251016","VSCODE_NLS_CONFIG":"{\"userLocale\":\"en\",\"osLocale\":\"en\",\"resolvedLanguage\":\"en\",\"defaultMessagesFile\":\"/vscode/vscode-server/bin/linux-x64/33fc5a94a3f99ebe7087e8fe79fbe1d37a251016/out/nls.messages.json\",\"locale\":\"en\",\"availableLanguages\":{}}","VSCODE_HANDLES_SIGPIPE":"true","VSCODE_ESM_ENTRYPOINT":"vs/workbench/api/node/extensionHostProcess","VSCODE_HANDLES_UNCAUGHT_ERRORS":"true","REMOTE_CONTAINERS_IPC":"/tmp/vscode-remote-containers-ipc-e31a66a5-92aa-4330-b7c9-3834e95e4b9b.sock","REMOTE_CONTAINERS_SOCKETS":"[\"/tmp/vscode-ssh-auth-e31a66a5-92aa-4330-b7c9-3834e95e4b9b.sock\",\"/tmp/.X11-unix/X2\",\"/home/newton/.gnupg/S.gpg-agent\"]","SHLVL":"1","_":"/usr/bin/cat","SSH_AUTH_SOCK":"/tmp/vscode-ssh-auth-e31a66a5-92aa-4330-b7c9-3834e95e4b9b.sock","DISPLAY":":2","REMOTE_CONTAINERS_DISPLAY_SOCK":"/tmp/.X11-unix/X2","XDG_RUNTIME_DIR":"/tmp/user/1000","WAYLAND_DISPLAY":"vscode-wayland-d9f81aad-5079-48b0-ae06-e71acfc2cb0a.sock","REMOTE_CONTAINERS":"true","BROWSER":"/vscode/vscode-server/bin/linux-x64/33fc5a94a3f99ebe7087e8fe79fbe1d37a251016/bin/helpers/browser.sh","ELECTRON_RUN_AS_NODE":"1","VSCODE_IPC_HOOK_CLI":"/tmp/user/1000/vscode-ipc-b96361e8-1e7e-41da-874f-701b90fcb48d.sock","VSCODE_L10N_BUNDLE_LOCATION":"","APPLICATION_INSIGHTS_NO_DIAGNOSTIC_CHANNEL":"1"}
+2025-02-12T02:25:55.472Z [info] [cmake] Not searching for unused variables given on the command line.
+2025-02-12T02:25:55.472Z [info] [cmake] -- The C compiler identification is GNU 11.4.0
+2025-02-12T02:25:55.473Z [info] [cmake] -- The CXX compiler identification is GNU 11.4.0
+2025-02-12T02:25:55.473Z [info] [cmake] -- Detecting C compiler ABI info
+2025-02-12T02:25:55.473Z [info] [cmake] -- Detecting C compiler ABI info - done
+2025-02-12T02:25:55.473Z [info] [cmake] -- Check for working C compiler: /usr/bin/gcc - skipped
+2025-02-12T02:25:55.473Z [info] [cmake] -- Detecting C compile features
+2025-02-12T02:25:55.473Z [info] [cmake] -- Detecting C compile features - done
+2025-02-12T02:25:55.474Z [info] [cmake] -- Detecting CXX compiler ABI info
+2025-02-12T02:25:55.474Z [info] [cmake] -- Detecting CXX compiler ABI info - done
+2025-02-12T02:25:55.474Z [info] [cmake] -- Check for working CXX compiler: /usr/bin/g++ - skipped
+2025-02-12T02:25:55.474Z [info] [cmake] -- Detecting CXX compile features
+2025-02-12T02:25:55.474Z [info] [cmake] -- Detecting CXX compile features - done
+2025-02-12T02:25:55.474Z [info] [cmake] -- Configuring incomplete, errors occurred!
+2025-02-12T02:25:55.476Z [error] [cmake] CMake Error at CMakeLists.txt:17 (find_package):
+2025-02-12T02:25:55.477Z [error] [cmake]   By not providing "Findament_cmake.cmake" in CMAKE_MODULE_PATH this project
+2025-02-12T02:25:55.477Z [error] [cmake]   has asked CMake to find a package configuration file provided by
+2025-02-12T02:25:55.477Z [error] [cmake]   "ament_cmake", but CMake did not find one.
+2025-02-12T02:25:55.477Z [error] [cmake] 
+2025-02-12T02:25:55.477Z [error] [cmake]   Could not find a package configuration file provided by "ament_cmake" with
+2025-02-12T02:25:55.477Z [error] [cmake]   any of the following names:
+2025-02-12T02:25:55.477Z [error] [cmake] 
+2025-02-12T02:25:55.478Z [error] [cmake]     ament_cmakeConfig.cmake
+2025-02-12T02:25:55.478Z [error] [cmake]     ament_cmake-config.cmake
+2025-02-12T02:25:55.478Z [error] [cmake] 
+2025-02-12T02:25:55.478Z [error] [cmake]   Add the installation prefix of "ament_cmake" to CMAKE_PREFIX_PATH or set
+2025-02-12T02:25:55.478Z [error] [cmake]   "ament_cmake_DIR" to a directory containing one of the above files.  If
+2025-02-12T02:25:55.478Z [error] [cmake]   "ament_cmake" provides a separate development package or SDK, be sure it
+2025-02-12T02:25:55.478Z [error] [cmake]   has been installed.
+2025-02-12T02:25:55.478Z [error] [cmake] 
+2025-02-12T02:25:55.478Z [error] [cmake] 
+2025-02-12T02:25:55.479Z [warning] [proc] The command: /usr/local/bin/cmake -DCMAKE_BUILD_TYPE:STRING=Debug -DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE -DCMAKE_C_COMPILER:FILEPATH=/usr/bin/gcc -DCMAKE_CXX_COMPILER:FILEPATH=/usr/bin/g++ --no-warn-unused-cli -S/home/newton/core -B/home/newton/build -G "Unix Makefiles" exited with code: 1
+2025-02-12T02:25:57.379Z [info] [main] Configuring project: newton 
+2025-02-12T02:25:57.379Z [debug] [main] Saving open files before configure/build
+2025-02-12T02:25:57.495Z [debug] [expand] expanded ${workspaceFolder}/build
+2025-02-12T02:25:57.496Z [debug] [driver] Start configure 
+2025-02-12T02:25:57.496Z [debug] [driver] Running pre-configure checks and steps
+2025-02-12T02:25:57.501Z [debug] [driver] Using compilers in GCC 11.4.0 x86_64-linux-gnu for configure
+2025-02-12T02:25:57.506Z [debug] [expand] expanded ${workspaceFolder}/build
+2025-02-12T02:25:58.644Z [debug] [cmakefileapi-driver] Configuring using kit
+2025-02-12T02:25:58.644Z [debug] [cmakefileapi-driver] Invoking CMake /usr/local/bin/cmake with arguments ["-DCMAKE_BUILD_TYPE:STRING=Debug","-DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE","-DCMAKE_C_COMPILER:FILEPATH=/usr/bin/gcc","-DCMAKE_CXX_COMPILER:FILEPATH=/usr/bin/g++","--no-warn-unused-cli","-S/home/newton/core","-B/home/newton/build","-G","Unix Makefiles"]
+2025-02-12T02:25:58.646Z [info] [proc] Executing command: /usr/local/bin/cmake -DCMAKE_BUILD_TYPE:STRING=Debug -DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE -DCMAKE_C_COMPILER:FILEPATH=/usr/bin/gcc -DCMAKE_CXX_COMPILER:FILEPATH=/usr/bin/g++ --no-warn-unused-cli -S/home/newton/core -B/home/newton/build -G "Unix Makefiles"
+2025-02-12T02:25:58.647Z [debug] [proc]   with environment: {"HOSTNAME":"galileo-ubuntu","LD_LIBRARY_PATH":"/usr/local/lib","HOME":"/home/newton","ROS_DISTRO":"humble","PATH":"/vscode/vscode-server/bin/linux-x64/33fc5a94a3f99ebe7087e8fe79fbe1d37a251016/bin/remote-cli:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin","LANG":"C.UTF-8","SHELL":"/bin/bash","LC_ALL":"C.UTF-8","PWD":"/vscode/vscode-server/bin/linux-x64/33fc5a94a3f99ebe7087e8fe79fbe1d37a251016","VSCODE_CWD":"/vscode/vscode-server/bin/linux-x64/33fc5a94a3f99ebe7087e8fe79fbe1d37a251016","VSCODE_NLS_CONFIG":"{\"userLocale\":\"en\",\"osLocale\":\"en\",\"resolvedLanguage\":\"en\",\"defaultMessagesFile\":\"/vscode/vscode-server/bin/linux-x64/33fc5a94a3f99ebe7087e8fe79fbe1d37a251016/out/nls.messages.json\",\"locale\":\"en\",\"availableLanguages\":{}}","VSCODE_HANDLES_SIGPIPE":"true","VSCODE_ESM_ENTRYPOINT":"vs/workbench/api/node/extensionHostProcess","VSCODE_HANDLES_UNCAUGHT_ERRORS":"true","REMOTE_CONTAINERS_IPC":"/tmp/vscode-remote-containers-ipc-e31a66a5-92aa-4330-b7c9-3834e95e4b9b.sock","REMOTE_CONTAINERS_SOCKETS":"[\"/tmp/vscode-ssh-auth-e31a66a5-92aa-4330-b7c9-3834e95e4b9b.sock\",\"/tmp/.X11-unix/X2\",\"/home/newton/.gnupg/S.gpg-agent\"]","SHLVL":"1","_":"/usr/bin/cat","SSH_AUTH_SOCK":"/tmp/vscode-ssh-auth-e31a66a5-92aa-4330-b7c9-3834e95e4b9b.sock","DISPLAY":":2","REMOTE_CONTAINERS_DISPLAY_SOCK":"/tmp/.X11-unix/X2","XDG_RUNTIME_DIR":"/tmp/user/1000","WAYLAND_DISPLAY":"vscode-wayland-d9f81aad-5079-48b0-ae06-e71acfc2cb0a.sock","REMOTE_CONTAINERS":"true","BROWSER":"/vscode/vscode-server/bin/linux-x64/33fc5a94a3f99ebe7087e8fe79fbe1d37a251016/bin/helpers/browser.sh","ELECTRON_RUN_AS_NODE":"1","VSCODE_IPC_HOOK_CLI":"/tmp/user/1000/vscode-ipc-b96361e8-1e7e-41da-874f-701b90fcb48d.sock","VSCODE_L10N_BUNDLE_LOCATION":"","APPLICATION_INSIGHTS_NO_DIAGNOSTIC_CHANNEL":"1"}
+2025-02-12T02:25:58.682Z [error] [cmake] CMake Error at CMakeLists.txt:17 (find_package):
+2025-02-12T02:25:58.683Z [error] [cmake]   By not providing "Findament_cmake.cmake" in CMAKE_MODULE_PATH this project
+2025-02-12T02:25:58.683Z [error] [cmake]   has asked CMake to find a package configuration file provided by
+2025-02-12T02:25:58.683Z [error] [cmake]   "ament_cmake", but CMake did not find one.
+2025-02-12T02:25:58.683Z [error] [cmake] 
+2025-02-12T02:25:58.684Z [error] [cmake]   Could not find a package configuration file provided by "ament_cmake" with
+2025-02-12T02:25:58.686Z [error] [cmake]   any of the following names:
+2025-02-12T02:25:58.687Z [error] [cmake] 
+2025-02-12T02:25:58.687Z [error] [cmake]     ament_cmakeConfig.cmake
+2025-02-12T02:25:58.687Z [error] [cmake]     ament_cmake-config.cmake
+2025-02-12T02:25:58.687Z [error] [cmake] 
+2025-02-12T02:25:58.688Z [error] [cmake]   Add the installation prefix of "ament_cmake" to CMAKE_PREFIX_PATH or set
+2025-02-12T02:25:58.688Z [error] [cmake]   "ament_cmake_DIR" to a directory containing one of the above files.  If
+2025-02-12T02:25:58.688Z [error] [cmake]   "ament_cmake" provides a separate development package or SDK, be sure it
+2025-02-12T02:25:58.688Z [error] [cmake]   has been installed.
+2025-02-12T02:25:58.689Z [error] [cmake] 
+2025-02-12T02:25:58.689Z [error] [cmake] 
+2025-02-12T02:25:58.690Z [info] [cmake] Not searching for unused variables given on the command line.
+2025-02-12T02:25:58.690Z [info] [cmake] -- Configuring incomplete, errors occurred!
+2025-02-12T02:25:58.693Z [warning] [proc] The command: /usr/local/bin/cmake -DCMAKE_BUILD_TYPE:STRING=Debug -DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE -DCMAKE_C_COMPILER:FILEPATH=/usr/bin/gcc -DCMAKE_CXX_COMPILER:FILEPATH=/usr/bin/g++ --no-warn-unused-cli -S/home/newton/core -B/home/newton/build -G "Unix Makefiles" exited with code: 1
+2025-02-12T02:28:22.266Z [debug] [extension] Deactivate CMakeTools

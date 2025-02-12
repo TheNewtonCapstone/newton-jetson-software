@@ -68,5 +68,5 @@
     "map": "cpp",
     "cinttypes": "cpp"
   },
-  "cmake.sourceDirectory": "/home/newton/projects/newton-jetson-software/core"
+  "cmake.sourceDirectory": "/home/newton/workspace/core"
 }

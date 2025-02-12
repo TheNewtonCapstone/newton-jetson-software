@@ -168,10 +168,10 @@ def run_container(
             "-v", "/dev:/dev",
             "--device-cgroup-rule=c *:* rmw",
             "--device=/dev",
-            "-v", f"{ROOT_DIR}:{ROOT_DIR}",
-            "-w", str(ROOT_DIR),
+            "-v", f"{ROOT_DIR}:/home/newton/workspace", 
+            "-w", "/home/newton/workspace", 
             container,
-            str(ROOT_DIR)
+            "home/newton/workspace"
         ]
         os.execvp(cmd[0], cmd)
     except Exception as e:

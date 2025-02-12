@@ -1,0 +1,18 @@
+[user]
+	email = shamiivan@gmail.com
+	name = shamiivan
+[credential "https://github.com"]
+	helper = 
+	helper = !/usr/bin/gh auth git-credential
+[credential "https://gist.github.com"]
+	helper = 
+	helper = !/usr/bin/gh auth git-credential
+[safe]
+	directory = /home/augus/
+	directory = /home/galileo
+[core]
+	autocrlf = input
+[init]
+	defaultBranch = main
+[credential]
+	helper = "!f() { /home/newton/.vscode-server/bin/33fc5a94a3f99ebe7087e8fe79fbe1d37a251016/node /tmp/vscode-remote-containers-e31a66a5-92aa-4330-b7c9-3834e95e4b9b.js git-credential-helper $*; }; f"
