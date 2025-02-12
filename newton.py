@@ -161,7 +161,6 @@ def run_container(
 ):
     """Run a container with hardware access and proper ROS2 environment setup"""
     try:
-        workspace_root = get_workspace_root()
         cmd = [
             "docker", "run", "-it",
             "--net=host",
@@ -169,8 +168,8 @@ def run_container(
             "-v", "/dev:/dev",
             "--device-cgroup-rule=c *:* rmw",
             "--device=/dev",
-            "-v", f"{workspace_root}:{workspace_root}",
-            "-w", str(workspace_root),
+            "-v", f"{ROOT_DIR}:{ROOT_DIR}",
+            "-w", str(ROOT_DIR),
             container,
             str(ROOT_DIR)
         ]
@@ -195,8 +194,10 @@ def build_container(
             cmd.append("--no-cache")
 
         # pass in build arguments
+        
 
         default_args = {
+            "USERNAME":"newton",
             "ROOT": f"{str(get_workspace_root())}",
             "HAS_CUDA": str(has_cuda())
         }

@@ -2,7 +2,6 @@ FROM dustynv/onnxruntime:1.20-r36.4.0
 
 # Set environment variables
 ENV DEBIAN_FRONTEND=noninteractive
-ARG USERNAME=dev
 ARG UID=1000
 ARG GID=$UID
 ARG CMAKE_VERSION=3.27.7
@@ -48,8 +47,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 
-RUN pip3 install --upgrade pip && \
-    pip3 install click \ 
+RUN pip install --upgrade pip && \
+    pip install click \ 
     typer \
     packaging \
     rich 
@@ -69,10 +68,8 @@ RUN sudo add-apt-repository universe \
     ros-dev-tools \
     && rm -rf /var/lib/apt/lists/*
 
-# Initialize rosdep
 RUN rosdep init || echo "rosdep already initialized"
 
-# Set up ROS environment
 ENV ROS_DISTRO=humble
 ENV AMENT_PREFIX_PATH=/opt/ros/humble
 ENV COLCON_PREFIX_PATH=/opt/ros/humble
@@ -84,12 +81,10 @@ ENV ROS_VERSION=2
 ENV ROS_AUTOMATIC_DISCOVERY_RANGE=SUBNET
 ENV AMENT_CPPCHECK_ALLOW_SLOW_VERSIONS=1
 
-# Create and switch to user
 RUN groupadd -g $GID $USERNAME \
     && useradd -lm -u $UID -g $USERNAME -s /bin/bash $USERNAME \
     && echo "$USERNAME ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 
-# Copy configuration files
 COPY scripts/bashrc /home/$USERNAME/.bashrc
 COPY scripts/vimrc /home/$USERNAME/.vimrc
 COPY scripts/newton_entrypoint.sh /newton_entrypoint.sh
