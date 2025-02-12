@@ -1,6 +1,7 @@
 {
-    "name": "Newton dev container",
+    "name": "newton-dev",
     "remoteUser": "newton",
+    "postStartCommand": ". /newton_entrypoint.sh",
     "build": {
         "dockerfile": "../docker/Dockerfile.x86_64.dev",
         "context": "../docker/",
@@ -33,26 +34,6 @@
                     "*.srdf": "xml",
                     "*.urdf": "xml",
                     "*.xacro": "xml"
-                },
-                "clangd.arguments": [
-                    "--background-index",
-                    "--compile-commands-dir=${workspaceFolder}/core/build",
-                    "--header-insertion=never",
-                    "--completion-style=detailed"
-                ],
-                // "C_Cpp.intelliSenseEngine": "disabled",
-                "cmake.configureOnOpen": false,
-                // "cmake.sourceDirectory": "${workspaceFolder}/core",
-                // "cmake.buildDirectory": "${workspaceFolder}/core/build",
-                // "cmake.installPrefix": "${workspaceFolder}/core/install",
-                "cmake.generator": "Unix Makefiles",
-                "ros.distro": "humble",
-                "cmake.configureEnvironment": {
-                    "CXX": "/usr/bin/clang++",
-                    "CC": "/usr/bin/clang",
-                    "CMAKE_PREFIX_PATH": "/opt/ros/humble:${workspaceFolder}/ros_odrive/install",
-                    "ONNXRUNTIME_INCLUDE_DIR": "/usr/local/include/onnxruntime",
-                    "ONNXRUNTIME_LIB_DIR": "/usr/local/lib"
                 }
             }
         }
@@ -67,14 +48,5 @@
         "--privileged",
         "--device-cgroup-rule=c *:* rmw",
         "--device=/dev"
-    ],
-    "remoteEnv": {
-        "LD_LIBRARY_PATH": "/usr/local/lib:/opt/ros/humble/lib:${workspaceFolder}/core/install/newton/lib",
-        "PATH": "/opt/ros/humble/bin:${env:PATH}",
-        // "PYTHONPATH": "/opt/ros/humble/lib/python3.10/site-packages:${workspaceFolder}/core/install/lib/python3.10/site-packages",
-        "AMENT_PREFIX_PATH": "/opt/ros/humble",
-        // "COLCON_PREFIX_PATH": "${workspaceFolder}/core/install:${workspaceFolder}/ros_odrive/install",
-        "ROS_DISTRO": "humble",
-        "CMAKE_PREFIX_PATH": "/opt/ros/humble:${workspaceFolder}/ros_odrive/install"
-    }
+    ]
 }
