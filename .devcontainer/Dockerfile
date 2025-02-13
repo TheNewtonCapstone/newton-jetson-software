@@ -3,6 +3,7 @@ FROM ros:humble-ros-base
 ARG USERNAME=rosdev
 ARG UID=1000
 ARG GID=$UID
+ARG ROS_DISTRO=humble
 
 # Install some dependencies packages
 RUN apt update -q \
