@@ -44,3 +44,4 @@ cmake-build-debug/
 .vscode-server/
 .local/
 .cache/
+.donet/
