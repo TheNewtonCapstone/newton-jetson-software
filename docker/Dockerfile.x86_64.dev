@@ -80,7 +80,7 @@ RUN groupadd -g $GID $USERNAME \
 
 COPY scripts/bashrc /home/$USERNAME/.bashrc
 COPY scripts/vimrc /home/$USERNAME/.vimrc
-COPY scripts/newton_entrypoint.sh /newton_entrypoint.sh
+COPY scripts/newton_entrypoint.sh /
 
 RUN chown -R $USERNAME:$USERNAME /home/$USERNAME
 
@@ -88,8 +88,8 @@ ENV LD_LIBRARY_PATH=/usr/local/lib
 
 # Install Python dependencies
 # Switch to non-root user
-RUN mkdir -p /home/$USERNAME/src/
-WORKDIR /home/$USERNAME/
+RUN mkdir -p /home/$USERNAME/workspace
+WORKDIR /home/$USERNAME/workspace
 
 USER $USERNAME
 ENTRYPOINT [ "/newton_entrypoint.sh" ]

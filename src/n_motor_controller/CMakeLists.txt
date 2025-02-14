@@ -1,10 +1,12 @@
 # motor_driver CMakeLists.txt
 cmake_minimum_required(VERSION 3.8)
-project(motor_driver)
+project(n_motor_controller)
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
+
+
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
@@ -12,13 +14,8 @@ find_package(rclcpp REQUIRED)
 find_package(rclcpp_components REQUIRED)
 find_package(std_srvs REQUIRED)
 
-# add_library(motor_driver_node)
-# target_sources(motor_driver_node
-#   PRIVATE
-#     ${CMAKE_CURRENT_SOURCE_DIR}/src/motor.cpp
-#     PUBLIC 
-#     ${CMAKE_CURRENT_SOURCE_DIR}/include/motor_driver/motor.h
-# )
+include_directories(${UTILS_DIR}/build)
+
 
 # Try to find odrive_can package
 find_package(odrive_can QUIET)
@@ -29,15 +26,17 @@ if(NOT odrive_can_FOUND)
   # find_package(odrive_can UIRED)
 endif()
 
+# get the utils directory
+set(MY_PROJECT_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+cmake_path(GET MY_PROJECT_DIR PARENT_PATH level1)
+cmake_path(GET level1 PARENT_PATH level2)
+set(ROOT_PATH ${level2})
+set(UTILS_DIR ${level2}/utils)
+
 # Add include directories
 include_directories(include)
+include_directories(($UTILS_DIR)/include)
 
-
-# target_include_directories(motor_driver_node
-#   PUBLIC
-#     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-#     $<INSTALL_INTERFACE:include>
-# )
 
 # Define executable target
 add_executable(motor_driver_node
@@ -45,17 +44,12 @@ src/motor.cpp
 src/main.cpp
 )
 
-# add the utils library
-# set(utils_DIR "${CMAKE_SOURCE_DIR}/../../utils")
-# target_include_directories(motor_driver_node ${CMAKE_SOURCE_DIR}/../../utils/include)
-# message(WARNING "utils include dir: ${utils_DIR}")
 
 
-# Link libraries
-set(MY_PROJECT_DIR ${CMAKE_CURRENT_SOURCE_DIR})
-cmake_path(GET MY_PROJECT_DIR PARENT_PATH result)
-message(WARNING "utils include dir: ${result}")
-# include_directories(${result}/utils/include)
+message(WARNING "grandparent dir: ${level2}")
+message(WARNING "parent dir: ${level1}")
+message(WARNING "current dir: ${MY_PROJECT_DIR}")
+message(WARNING "utils include dir: ${UTILS_DIR}")
 
 # Add dependencies
 ament_target_dependencies(motor_driver_node
@@ -65,9 +59,18 @@ ament_target_dependencies(motor_driver_node
   std_srvs
 )
 
-# target_link_libraries(motor_driver_node
-#   utils
-# )
+target_include_directories(motor_driver_node
+  PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include>
+    ${UTILS_DIR}/include  
+
+)
+
+target_link_libraries(motor_driver_node
+  # ${ROOT_PATH}/build/libutils.so 
+  ${UTILS_DIR}/build/libutils.so
+)
 
 # Set compile features
 target_compile_features(motor_driver_node PRIVATE cxx_std_20)
@@ -77,10 +80,7 @@ install(
   DESTINATION lib/${PROJECT_NAME}
 )
 
-# If you have a launch directory, uncomment this
-# install(DIRECTORY launch
-#   DESTINATION share/${PROJECT_NAME}
-# )
+
 install(DIRECTORY
   launch
   DESTINATION share/${PROJECT_NAME}/

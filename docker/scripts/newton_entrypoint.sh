@@ -3,6 +3,7 @@
 # set -e
 echo "Hello Docker!"
 
+ROS_DISTRO=humble
 # setup ros2 environment
 source /opt/ros/"$ROS_DISTRO"/setup.bash --
 source /opt/ros/humble/setup.bash
@@ -14,6 +15,7 @@ ROOT=$1
 # Execute the command with stdin attached
 if [ $# -gt 0 ]; then
   # Print the arguments
-  echo "alias nt='python3 $ROOT/newton.py'" >> ~/.bashrc
+  echo "alias nt='python3 ~/$ROOT/newton.py'" >> ~/.bashrc
+echo "export WORKSPACE_ROOT=/home/workspace/$ROOT" >> ~/.bashrch
 fi
 exec bash

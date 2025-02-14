@@ -1,7 +1,6 @@
 #include "motor.h"
 
 #include <rclcpp/rclcpp.hpp>
-#include "../../utils/include/result.h"
 
 using namespace newton;
 using namespace std::chrono_literals;

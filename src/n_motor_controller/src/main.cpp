@@ -1,9 +1,12 @@
 #include <rclcpp/rclcpp.hpp>
 #include "motor.h"
 #include <iostream>
+#include "result.h"
+
 
 int main(int argc, char* argv[]) {
     std::cout << "Program starting..." << std::endl;
+    
     
     try {
         rclcpp::init(argc, argv);
