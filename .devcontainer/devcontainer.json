@@ -34,7 +34,15 @@
                     "*.srdf": "xml",
                     "*.urdf": "xml",
                     "*.xacro": "xml"
-                }
+                },
+                "C_Cpp.intelliSenseEngine": "disabled",
+                "clangd.arguments": [
+                    "--compile-commands-dir=${workspaceFolder}/scr/build",
+                    "--completion-style=detailed",
+                    "--clang-tidy",
+                    "--clang-tidy-checks=-*,modernize*",
+                    "--header-insertion=never"
+                ]
             }
         }
     },
