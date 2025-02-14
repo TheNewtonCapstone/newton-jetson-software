@@ -42,3 +42,5 @@ install/
 cmake-build-debug/
 .vscode/
 .vscode-server/
+.local/
+.cache/
