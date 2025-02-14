@@ -23,8 +23,9 @@ source "$VENV_PATH"/bin/activate
 pip install --upgrade pip
 pip install -r docker/requirements.txt
 echo "source $VENV_PATH/bin/activate" >> ~/.bashrc
-path=$(pwd)
-echo "alias nt='python3 $path/newton.py'" >> ~/.bashrc
-echo "alias nt='python3 $path/newton.py'" >> ~/.zshrc
+path_to_newton_dir=$(pwd)
+echo "export WORKSPACE_ROOT=$path_to_newton_dir" >> ~/.bashrch
+echo "alias nt='python3 $path_to_newton_dir/newton.py'" >> ~/.bashrc
+echo "alias nt='python3 $path_to_newton_dir/newton.py'" >> ~/.zshrc
 bash
 zsh
