@@ -34,6 +34,52 @@ MotorDriver::MotorDriver(const rclcpp::NodeOptions& options)
   init();
 };
 
+result<void> MotorDriver::init() {
+  RCLCPP_INFO(this->get_logger(), "Initializing MotorDriver...");
+  
+  request_axis_state(0, 1);
+  RCLCPP_INFO(this->get_logger(), "Set to idles %d", 0);
+  request_axis_state(1, 1);
+  RCLCPP_INFO(this->get_logger(), "Set %d to idle", 1);
+
+  std::this_thread::sleep_for(std::chrono::seconds(1));
+
+  // init 
+  for (size_t i = 0; i < NUM_JOINTS; i++) {
+    odrive_can::msg::ControlMessage msg;
+    msg.control_mode = 3;  
+    msg.input_mode = 1;    
+    msg.input_pos = 0.0;
+    msg.input_vel = 0.0;
+    msg.input_torque = 0.0;
+    
+    control_pubs[i]->publish(msg);
+  }
+
+  std::this_thread::sleep_for(std::chrono::seconds(1));
+  request_axis_state(0, 8);
+  RCLCPP_INFO(this->get_logger(), "Set to 1 %d", 0);
+  request_axis_state(1, 8);
+  RCLCPP_INFO(this->get_logger(), "Set %d to idle", 1);
+    odrive_can::msg::ControlMessage msg_0;
+    msg_0.control_mode = 2;  
+    msg_0.input_mode = 1;    
+    msg_0.input_pos = 0.0;
+    msg_0.input_vel = 5.0;
+    msg_0.input_torque = 0.0;
+
+    
+    odrive_can::msg::ControlMessage msg_1;
+    msg_1.control_mode = 2;  
+    msg_1.input_mode = 1;    
+    msg_1.input_pos = 0.0;
+    msg_1.input_vel = 5.0;
+    msg_1.input_torque = 0.0;
+
+    control_pubs[0]->publish(msg_0);
+    control_pubs[1]->publish(msg_1);
+    return result<void>::success();
+  }
 void MotorDriver::update_driver_status(
     const odrive_can::msg::ODriveStatus::SharedPtr msg, int joint_index) {
 
@@ -84,14 +130,14 @@ void MotorDriver::update_joint_state(
 }
 
 
+
 result<void> MotorDriver::request_axis_state(size_t joint_index, uint32_t requested_state) {
   auto client = this->clients[joint_index];
   const auto& joint_name= joint_names[joint_index];
 
   while(!client->wait_for_service(std::chrono::seconds(1))) {
     if(!rclcpp::ok()){
-      
-      return result<void>::error("Motor Driver", std::string("Interrupted while waiting for service for joint ") + joint_name);
+      return result<void>::error("MotorDriver", "Interrupted while waiting for service for joint %s", joint_name.c_str());
     }
     N_LOG_WARN("MotorDriver", "Waiting for axis state service for joint %s", joint_name.c_str());
   }
@@ -105,72 +151,21 @@ result<void> MotorDriver::request_axis_state(size_t joint_index, uint32_t reques
   auto timeout = std::chrono::seconds(10);
   auto future_status = rclcpp::spin_until_future_complete(this->get_node_base_interface(), future, timeout);
   
-  if (future_status == rclcpp::FutureReturnCode::SUCCESS) {
-    auto response = future.get();
-    if (response->procedure_result == 0) {
-      N_LOG_INFO("MotorDriver", "Successfully set state for joint %s", joint_name.c_str());
-      return result<void>::success();
-    } else {
-      N_LOG_ERROR("MotorDriver", "Failed to set state for joint %s. Error code: %d", joint_name.c_str(), response->procedure_result);
-      return result<void>::error("Motor Driver", "Failed to set state for joint");
-    }
-  } else if (future_status == rclcpp::FutureReturnCode::TIMEOUT) {
-    RCLCPP_ERROR(this->get_logger(), 
-      "Service call timed out for joint %s after %ld seconds", 
-      joint_name.c_str(), timeout.count());
-  } else {
-    RCLCPP_ERROR(this->get_logger(), 
-      "Failed to call axis state service for joint %s", 
-      joint_name.c_str());
+  
+  // future status has 3 possible values: SUCCESS, TIMEOUT, INTERRUPTED
+  if (future_status == rclcpp::FutureReturnCode::TIMEOUT){
+    return result<void>::error("Motor Driver", "Timeout while waiting for response for joint %s", joint_name.c_str());
+  } 
+  
+  if (future_status == rclcpp::FutureReturnCode::INTERRUPTED) {
+    return result<void>::error("Motor Driver", "Interrupted while waiting for response for joint %s", joint_name.c_str());
   }
-
+  
+  
+  if(future_status == rclcpp::FutureReturnCode::SUCCESS && future.get()->procedure_result != 0) {
+      return result<void>::error("Motor Driver", "Failed to set state for joint %s", joint_name.c_str());
+  } 
+    
+    return result<void>::success();
 }
 
-
-
-result<void> MotorDriver::init() {
-  RCLCPP_INFO(this->get_logger(), "Initializing MotorDriver...");
-  
-  request_axis_state(0, 1);
-  RCLCPP_INFO(this->get_logger(), "Set to idles %d", 0);
-  request_axis_state(1, 1);
-  RCLCPP_INFO(this->get_logger(), "Set %d to idle", 1);
-
-  std::this_thread::sleep_for(std::chrono::seconds(1));
-
-  // init 
-  for (size_t i = 0; i < NUM_JOINTS; i++) {
-    odrive_can::msg::ControlMessage msg;
-    msg.control_mode = 3;  
-    msg.input_mode = 1;    
-    msg.input_pos = 0.0;
-    msg.input_vel = 0.0;
-    msg.input_torque = 0.0;
-    
-    control_pubs[i]->publish(msg);
-  }
-
-  std::this_thread::sleep_for(std::chrono::seconds(1));
-  request_axis_state(0, 8);
-  RCLCPP_INFO(this->get_logger(), "Set to 1 %d", 0);
-  request_axis_state(1, 8);
-  RCLCPP_INFO(this->get_logger(), "Set %d to idle", 1);
-    odrive_can::msg::ControlMessage msg_0;
-    msg_0.control_mode = 2;  
-    msg_0.input_mode = 1;    
-    msg_0.input_pos = 0.0;
-    msg_0.input_vel = 5.0;
-    msg_0.input_torque = 0.0;
-
-    
-    odrive_can::msg::ControlMessage msg_1;
-    msg_1.control_mode = 2;  
-    msg_1.input_mode = 1;    
-    msg_1.input_pos = 0.0;
-    msg_1.input_vel = 5.0;
-    msg_1.input_torque = 0.0;
-
-    control_pubs[0]->publish(msg_0);
-    control_pubs[1]->publish(msg_1);
-    return result<void>::success();
-  }
