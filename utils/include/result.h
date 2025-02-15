@@ -11,24 +11,18 @@
 template<typename T>
 class result;
 
-template <typename U>
-result<U> success(U value);
-
-template <typename U>
-result<U> error(std::string error_msg);
-
-inline result<void> success();
-inline result<void> error(std::string error_msg);
-
 
 template<typename T>
 class result {
 public:
-  template<typename U>
-  friend result<U> success(U value);
 
-  template<typename U>
-  friend result<U> error(std::string error_msg);
+  static result<T> success(T value){
+    return result<T>(value, "");
+  }
+
+  static result<T> error(std::string error_msg) {
+    return result<T>(error_msg);
+  }
 
   bool has_error() const {
     return !error_msg.empty();
@@ -63,12 +57,14 @@ private:
 template<>
 class result<void> {
 public:
-  friend result<void> success();
-  friend result<void> error(std::string error_msg);
-
-  template <typename U>
-  friend result<U> success(U value);
-
+  static result<void> success() {
+    return result<void>("");
+  }
+  static result<void> error(std::string tag, std::string error_msg) {
+    N_LOG_ERROR(tag, error_msg.c_str());
+    return result<void>(error_msg);
+  }
+  
   bool has_error() const {
     return !error_msg.empty();
   };
@@ -84,20 +80,3 @@ private:
   std::string error_msg;
 };
 
-template<typename T>
-result<T> success(T value) {
-  return result<T>(value, "");
-}
-
-template <typename T>
-result<T> error(std::string error_msg) {
-  return result<T>(T(), error_msg);
-}
-
-inline result<void> success() {
-  return result<void>("");
-}
-
-inline result<void> error(std::string error_msg) {
-  return result<void>(error_msg);
-}
