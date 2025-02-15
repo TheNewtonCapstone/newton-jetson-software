@@ -16,12 +16,26 @@ public:
   explicit MotorDriver(
       const rclcpp::NodeOptions &options = rclcpp::NodeOptions());
   ~MotorDriver() = default;
+  /**
+    * @brief Initialize all the motors with the necessary runtime parameters
+    * Odrive node takes care of communicating with the motor drivers via CAN.
+    * The method loops through all the joints and sets the runtime parameters
+
+    * @return result<void> indicating success or failure
+   */
   result<void> init();  // initialize all the motors with the necessary runtime parameters
   void start();
   void stop();
   void shutdown();
   void set_joint_mode(const joint::mode mode, int joint_index);
   void set_joint_position(float, int);
+
+/**
+  * @brief Send a request to the motor driver node to set the joint mode. 
+  *  See https://docs.odriverobotics.com/v/latest/manual/can-protocol.html#can-msg-set-axis-state for more details
+  * @param mode: the mode to set the joint to
+  * @param joint_index: the index of the joint to set the mode for
+ */
   result<void> request_axis_state(size_t joint_index, uint32_t requested_state);
   void set_joints_positions(const std::vector<float> positions);
 
