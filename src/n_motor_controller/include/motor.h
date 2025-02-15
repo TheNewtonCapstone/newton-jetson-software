@@ -7,6 +7,7 @@
 #include "odrive_can/srv/axis_state.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "types.h"
+#include "result.h"
 
 namespace newton {
 
@@ -15,13 +16,13 @@ public:
   explicit MotorDriver(
       const rclcpp::NodeOptions &options = rclcpp::NodeOptions());
   ~MotorDriver() = default;
-  void init(); // initialize the motor driver do checks
+  result<void> init();  // initialize all the motors with the necessary runtime parameters
   void start();
   void stop();
   void shutdown();
   void set_joint_mode(const joint::mode mode, int joint_index);
   void set_joint_position(float, int);
-  void request_axis_state(size_t joint_index, uint32_t requested_state);
+  result<void> request_axis_state(size_t joint_index, uint32_t requested_state);
   void set_joints_positions(const std::vector<float> positions);
 
 private:

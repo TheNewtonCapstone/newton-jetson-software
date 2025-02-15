@@ -1,12 +1,15 @@
 #include "motor.h"
+#include "logger.h"
 
 #include <rclcpp/rclcpp.hpp>
 
 using namespace newton;
 using namespace std::chrono_literals;
 
+
 MotorDriver::MotorDriver(const rclcpp::NodeOptions& options)
     : Node("motor_driver") {
+
   // Declare parameters
   for (auto joint_name : joint_names) {
     this->declare_parameter(std::string("m_") + joint_name + "_node_id", "-1");
@@ -34,12 +37,12 @@ MotorDriver::MotorDriver(const rclcpp::NodeOptions& options)
 void MotorDriver::update_driver_status(
     const odrive_can::msg::ODriveStatus::SharedPtr msg, int joint_index) {
 
-    auto bus_voltage = msg->bus_voltage;
-    auto motor_temperature = msg->motor_temperature;
-    auto bus_current = msg->bus_current;
-    auto active_errors = msg->active_errors;
-    auto disarm_reasons = msg->disarm_reason;
-    auto fet_temperature = msg->fet_temperature;
+    // auto bus_voltage = msg->bus_voltage;
+    // auto motor_temperature = msg->motor_temperature;
+    // auto bus_current = msg->bus_current;
+    // auto active_errors = msg->active_errors;
+    // auto disarm_reasons = msg->disarm_reason;
+    // auto fet_temperature = msg->fet_temperature;
   // Update joint state
   // RCLCPP_INFO(this->get_logger(),
   //             "Joint %s: bus_voltage=%f, motor_temperature=%f, bus_current=%f, "
@@ -81,26 +84,22 @@ void MotorDriver::update_joint_state(
 }
 
 
-void MotorDriver::request_axis_state(size_t joint_index, uint32_t requested_state) {
+result<void> MotorDriver::request_axis_state(size_t joint_index, uint32_t requested_state) {
   auto client = this->clients[joint_index];
   const auto& joint_name= joint_names[joint_index];
 
   while(!client->wait_for_service(std::chrono::seconds(1))) {
     if(!rclcpp::ok()){
-      RCLCPP_ERROR(this->get_logger(),
-        "ROS interrupted while waiting for axis state service for joint %s",
-        joint_name.c_str());
-      return;
+      
+      return result<void>::error("Motor Driver", std::string("Interrupted while waiting for service for joint ") + joint_name);
     }
-    RCLCPP_INFO(this->get_logger(), "Trying to request axis change for node %s",
-    joint_name.c_str());
+    N_LOG_WARN("MotorDriver", "Waiting for axis state service for joint %s", joint_name.c_str());
   }
 
   auto request = std::make_shared<odrive_can::srv::AxisState::Request>();
   request->axis_requested_state = requested_state;
 
-  RCLCPP_INFO(this->get_logger(), "Requesting state %u for joint %s", 
-              requested_state, joint_names[joint_index].c_str());
+  N_LOG_INFO("MotorDriver", "Requesting state %u for joint %s", requested_state, joint_name.c_str());
               
   auto future = client->async_send_request(request);
   auto timeout = std::chrono::seconds(10);
@@ -109,12 +108,11 @@ void MotorDriver::request_axis_state(size_t joint_index, uint32_t requested_stat
   if (future_status == rclcpp::FutureReturnCode::SUCCESS) {
     auto response = future.get();
     if (response->procedure_result == 0) {
-      RCLCPP_INFO(this->get_logger(), 
-        "Successfully set state for joint %s", joint_name.c_str());
+      N_LOG_INFO("MotorDriver", "Successfully set state for joint %s", joint_name.c_str());
+      return result<void>::success();
     } else {
-      RCLCPP_ERROR(this->get_logger(), 
-        "Failed to set state for joint %s. Error code: %d", 
-        joint_name.c_str(), response->procedure_result);
+      N_LOG_ERROR("MotorDriver", "Failed to set state for joint %s. Error code: %d", joint_name.c_str(), response->procedure_result);
+      return result<void>::error("Motor Driver", "Failed to set state for joint");
     }
   } else if (future_status == rclcpp::FutureReturnCode::TIMEOUT) {
     RCLCPP_ERROR(this->get_logger(), 
@@ -130,7 +128,7 @@ void MotorDriver::request_axis_state(size_t joint_index, uint32_t requested_stat
 
 
 
-void MotorDriver::init() {
+result<void> MotorDriver::init() {
   RCLCPP_INFO(this->get_logger(), "Initializing MotorDriver...");
   
   request_axis_state(0, 1);
@@ -174,4 +172,5 @@ void MotorDriver::init() {
 
     control_pubs[0]->publish(msg_0);
     control_pubs[1]->publish(msg_1);
+    return result<void>::success();
   }
