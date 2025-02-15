@@ -97,6 +97,12 @@ def clean_workspace(
         except Exception as e:
             console.print(f"[red]Error cleaning package: {str(e)}[/red]")
             return
+    if name == "n_utils":
+        try:
+            clean_ros_package(Path(ROOT_DIR, "utils"))
+        except Exception as e:
+            console.print(f"[red]Error cleaning package: {str(e)}[/red]")
+            return
 
     console.print(f"[green] Successfully cleaned {name} package[/green]")
 
@@ -117,6 +123,7 @@ def build_package(
     if name == PkgName.all:
         build_package(PkgName.n_utils)
         try:
+            build_package(PkgName.n_utils)
             src_path = Path(ROOT_DIR, "src")
             if not src_path.exists():
                 raise Exception(f"Could not find package: {src_path}")
