@@ -21,6 +21,49 @@ public:
     COUNT
   };
 
+  template <typename... Args>
+  static void INFO(const std::string& tag, const char* format, Args... args)
+  {
+    auto& logger= newton::Logger::get_instance();
+    auto level = newton::Logger::Level::INFO;
+    if (logger.is_enabled(level))
+    {
+      logger.log_formatted(level, tag, format, std::forward<Args>(args)...);
+    }
+  }
+
+  template <typename... Args>
+  static void DEBUG(const std::string& tag, const char* format, Args... args)
+  {
+    auto& logger= newton::Logger::get_instance();
+    auto level = newton::Logger::Level::DEBUG;
+    if (logger.is_enabled(level))
+    {
+      logger.log_formatted(level, tag, format, std::forward<Args>(args)...);
+    }
+  }
+
+  template <typename... Args>
+  static void WARN(const std::string& tag, const char* format, Args... args)
+  {
+    auto& logger= newton::Logger::get_instance();
+    auto level = newton::Logger::Level::WARN;
+    if (logger.is_enabled(level))
+    {
+      logger.log_formatted(level, tag, format, std::forward<Args>(args)...);
+    }
+  } 
+  template<typename... Args>
+  static void ERROR(const std::string& tag, const char* msg, Args... args)
+  {
+    auto& logger= newton::Logger::get_instance();
+    auto level = newton::Logger::Level::ERROR;
+    if (logger.is_enabled(level))
+    {
+      logger.log_formatted(level, tag, msg, std::forward<Args>(args)...);
+    }
+  }
+
   // Configuration methods
   void set_logfile(const std::string& filename)
   {
@@ -135,46 +178,3 @@ private:
   std::string logFile_;
 };
 }  // namespace newton
-
-template <typename... Args>
-static void N_LOG_INFO(const std::string& tag, const char* format, Args... args)
-{
-  auto& logger= newton::Logger::get_instance();
-  auto level = newton::Logger::Level::INFO;
-  if (logger.is_enabled(level))
-  {
-    logger.log_formatted(level, tag, format, std::forward<Args>(args)...);
-  }
-};
-
-template <typename... Args>
-static void N_LOG_DEBUG(const std::string& tag, const char* format, Args... args)
-{
-  auto& logger= newton::Logger::get_instance();
-  auto level = newton::Logger::Level::DEBUG;
-  if (logger.is_enabled(level))
-  {
-    logger.log_formatted(level, tag, format, std::forward<Args>(args)...);
-  }
-};
-
-template <typename... Args>
-static void N_LOG_WARN(const std::string& tag, const char* format, Args... args)
-{
-  auto& logger= newton::Logger::get_instance();
-  auto level = newton::Logger::Level::WARN;
-  if (logger.is_enabled(level))
-  {
-    logger.log_formatted(level, tag, format, std::forward<Args>(args)...);
-  }
-};
-template<typename... Args>
-static void N_LOG_ERROR(const std::string& tag, const char* msg, Args... args)
-{
-  auto& logger= newton::Logger::get_instance();
-  auto level = newton::Logger::Level::ERROR;
-  if (logger.is_enabled(level))
-  {
-    logger.log_formatted(level, tag, msg, std::forward<Args>(args)...);
-  }
-};

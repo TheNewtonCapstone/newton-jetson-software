@@ -20,11 +20,26 @@ MotorDriver::MotorDriver(const rclcpp::NodeOptions& options)
         this->get_parameter(std::string("m_") + joint_names[i] + "_node_id")
             .as_string();
 
-    auto name = joint_names[i];
+  auto name = joint_names[i];
+
+  status_subs[i] =
+        this->create_subscription<odrive_can::msg::ODriveStatus>(
+            name + "/odrive_status", 10,
+            [=,this](const odrive_can::msg::ODriveStatus::SharedPtr msg) {
+              this->update_driver_status(msg, i);
+  });
+
+  joint_state_subs[i] =
+        this->create_subscription<odrive_can::msg::ControllerStatus>(
+            name + "/controller_status", 10,
+            [=,this](const odrive_can::msg::ControllerStatus::SharedPtr msg) {
+              this->update_joint_state(msg, i);
+  });
 
   clients[i] = this->create_client<odrive_can::srv::AxisState>(
                 name + "/request_axis_state"
-        );
+  );
+
   control_pubs[i] =
   this->create_publisher<odrive_can::msg::ControlMessage>(
           name + "/control_message", 10);
@@ -139,13 +154,13 @@ result<void> MotorDriver::request_axis_state(size_t joint_index, uint32_t reques
     if(!rclcpp::ok()){
       return result<void>::error("MotorDriver", "Interrupted while waiting for service for joint %s", joint_name.c_str());
     }
-    N_LOG_WARN("MotorDriver", "Waiting for axis state service for joint %s", joint_name.c_str());
+    Logger::WARN("MotorDriver", "Waiting for axis state service for joint %s", joint_name.c_str());
   }
 
   auto request = std::make_shared<odrive_can::srv::AxisState::Request>();
   request->axis_requested_state = requested_state;
 
-  N_LOG_INFO("MotorDriver", "Requesting state %u for joint %s", requested_state, joint_name.c_str());
+  Logger::INFO("MotorDriver", "Requesting state %u for joint %s", requested_state, joint_name.c_str());
               
   auto future = client->async_send_request(request);
   auto timeout = std::chrono::seconds(10);

@@ -200,6 +200,8 @@ def build_package(
                 "--packages-select",
                 "odrive_can",
                 "--symlink-install",
+                "--cmake-args",
+                "-DCMAKE_EXPORT_COMPILE_COMMANDS=1",
             ]
             os.execvp(cmd[0], cmd)
         except Exception as e:
