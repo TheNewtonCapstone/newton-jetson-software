@@ -15,13 +15,19 @@ class result;
 template<typename T>
 class result {
 public:
-
+  
   static result<T> success(T value){
     return result<T>(value, "");
   }
 
   static result<T> error(std::string error_msg) {
     return result<T>(error_msg);
+  }
+
+  template<typename... Args>
+  static result<T> error(std::string tag, const char* format, Args... args) {
+    N_LOG_ERROR(tag, format, args...);
+    return result<T>(std::string(format));
   }
 
   bool has_error() const {
@@ -60,9 +66,10 @@ public:
   static result<void> success() {
     return result<void>("");
   }
-  static result<void> error(std::string tag, std::string error_msg) {
-    N_LOG_ERROR(tag, error_msg.c_str());
-    return result<void>(error_msg);
+  template<typename... Args>
+  static result<void> error(std::string tag, const char* format, Args... args) {
+    N_LOG_ERROR(tag, format, args...);
+    return result<void>(std::string(format));
   }
   
   bool has_error() const {
