@@ -45,3 +45,4 @@ cmake-build-debug/
 .local/
 .cache/
 .donet/
+.env
