@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.8)
+
 project(utils)
 
 # Make sure to build as a shared library

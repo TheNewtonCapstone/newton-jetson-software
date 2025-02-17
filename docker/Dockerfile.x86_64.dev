@@ -69,6 +69,7 @@ RUN pip3 install --upgrade pip && \
   pip3 install click \ 
   typer \
   rich \
+  influxdb-client \
   packaging 
 
 
@@ -80,7 +81,7 @@ RUN groupadd -g $GID $USERNAME \
 
 COPY scripts/bashrc /home/$USERNAME/.bashrc
 COPY scripts/vimrc /home/$USERNAME/.vimrc
-COPY scripts/newton_entrypoint.sh /
+COPY scripts/newton_entrypoint.sh /newton_entrypoint.sh
 
 RUN chown -R $USERNAME:$USERNAME /home/$USERNAME
 
