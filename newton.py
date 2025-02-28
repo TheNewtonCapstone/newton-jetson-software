@@ -289,7 +289,7 @@ def build_package(
 def run_container(
     container: Annotated[
         str, typer.Argument(help="Name of the container to run")
-    ] = "onnx-ros",
+    ] = "newton-locomotion",
     dev: Annotated[
         bool,
         typer.Option(
@@ -299,19 +299,6 @@ def run_container(
 ):
     """Run a container with hardware access and proper ROS2 environment setup"""
     try:
-        # arch
-        arch = platform.machine()
-        if arch == "aarch64":
-            container = f"{container}-aarch_64"
-        elif arch == "x86_64":
-            container = f"{container}-x86_64"
-        else:
-            raise Exception(f"Unsupported architecture: {arch}")
-
-        if dev:
-            container = f"{container}:dev"
-        else:
-            container = f"{container}:latest"
 
         print("Container: ", container)
         cmd = [
@@ -344,12 +331,12 @@ def build_container(
     name: Annotated[
         str, typer.Argument(help="Name of the container to build")
     ] = "onnx-ros",
-    no_cache: Annotated[
+    cache: Annotated[
         bool,
         typer.Option(
             help="Use cache when building the container",
         ),
-    ] = False,
+    ] = True,
     dev: Annotated[
         bool,
         typer.Option(
@@ -366,10 +353,9 @@ def build_container(
         if build_args:
             for arg in build_args:
                 cmd.extend(["--build-arg", arg])
-        if no_cache:
+        if not cache:
             cmd.append("--no-cache")
 
-        # pass in build arguments
 
         default_args = {
             "USERNAME": "newton",
