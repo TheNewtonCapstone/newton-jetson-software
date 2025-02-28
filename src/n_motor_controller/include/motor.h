@@ -29,6 +29,7 @@ public:
   void shutdown();
   void set_joint_mode(const joint::mode mode, int joint_index);
   void set_joint_position(float, int);
+  void set_all_joint_positions(const std::array<float, 12> &positions);
 
 /**
   * @brief Send a request to the motor driver node to set the joint mode. 

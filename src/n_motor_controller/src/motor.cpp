@@ -144,7 +144,23 @@ void MotorDriver::update_joint_state(
       RCLCPP_INFO(this->get_logger(), "Set joint position to %f for %d", position, index);
 }
 
+    void MotorDriver::set_all_joint_positions(const std::array<float, 12> &positions) {
+      for (int i = 0; i < NUM_JOINTS; i++) {
+        if (!control_pubs[i]) {
+        RCLCPP_WARN
+          (this->get_logger(), "Control publisher for joint %d is not initialized", i);
+          continue;
+      }
 
+        odrive_can::msg::ControlMessage msg;
+        msg.control_mode = 2; 
+        msg.input_mode = 1;  
+        msg.input_pos = positions[i]; 
+        msg.input_vel = 0.0;  
+        msg.input_torque = 0.0; 
+        control_pubs[i]->publish(msg);
+      }
+    }
 
 result<void> MotorDriver::request_axis_state(size_t joint_index, uint32_t requested_state) {
   auto client = this->clients[joint_index];
