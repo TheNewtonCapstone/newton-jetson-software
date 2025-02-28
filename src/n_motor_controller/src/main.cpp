@@ -1,5 +1,6 @@
 #include <rclcpp/rclcpp.hpp>
 #include "motor.h"
+#include "harmonic_gait.h"
 #include <iostream>
 #include "result.h"
 
@@ -15,7 +16,7 @@ int main(int argc, char* argv[]) {
         RCLCPP_INFO(logger, "ROS 2 initialized successfully");
         RCLCPP_INFO(logger, "Creating MotorDriver node...");
         
-        auto node = std::make_shared<newton::MotorDriver>();
+        auto node = std::make_shared<newton::HarmonicGait>();
         RCLCPP_INFO(logger, "MotorDriver node created, starting spin...");
         
         rclcpp::spin(node);

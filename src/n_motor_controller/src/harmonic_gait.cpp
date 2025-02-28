@@ -1,4 +1,5 @@
-#include "motor.h"
+#include "harmonic_gait.h"
+
 #include "logger.h"
 
 #include <rclcpp/rclcpp.hpp>
@@ -7,7 +8,7 @@ using namespace newton;
 using namespace std::chrono_literals;
 
 
-MotorDriver::MotorDriver(const rclcpp::NodeOptions& options)
+HarmonicGait::HarmonicGait(const rclcpp::NodeOptions& options)
     : Node("motor_driver") {
 
   // Declare parameters
@@ -44,18 +45,20 @@ MotorDriver::MotorDriver(const rclcpp::NodeOptions& options)
   this->create_publisher<odrive_can::msg::ControlMessage>(
           name + "/control_message", 10);
   
+  // init timer
+  timer_ = this->create_wall_timer(500ms, std::bind(&HarmonicGait::move, this));  
 
   RCLCPP_INFO(this->get_logger(), "Subscribed to %s", name.c_str());
   } 
   init();
 };
 
-result<void> MotorDriver::init() {
-  RCLCPP_INFO(this->get_logger(), "Initializing MotorDriver...");
+result<void> HarmonicGait::init() {
+  RCLCPP_INFO(this->get_logger(), "Initializing HarmonicGait...");
   
-  request_axis_state(0, 1);
+//   request_axis_state(0, 1);
   RCLCPP_INFO(this->get_logger(), "Set to idles %d", 0);
-  request_axis_state(1, 1);
+//   request_axis_state(1, 1);
   RCLCPP_INFO(this->get_logger(), "Set %d to idle", 1);
 
   std::this_thread::sleep_for(std::chrono::seconds(1));
@@ -73,9 +76,9 @@ result<void> MotorDriver::init() {
   }
 
   std::this_thread::sleep_for(std::chrono::seconds(1));
-  request_axis_state(0, 8);
+//   request_axis_state(0, 8);
   RCLCPP_INFO(this->get_logger(), "Set to 1 %d", 0);
-  request_axis_state(1, 8);
+//   request_axis_state(1, 8);
   RCLCPP_INFO(this->get_logger(), "Set %d to idle", 1);
     odrive_can::msg::ControlMessage msg_0;
     msg_0.control_mode = 2;  
@@ -94,9 +97,12 @@ result<void> MotorDriver::init() {
 
     control_pubs[0]->publish(msg_0);
     control_pubs[1]->publish(msg_1);
+    
+    last_time = this->get_clock()->now();
     return result<void>::success();
   }
-void MotorDriver::update_driver_status(
+
+void HarmonicGait::update_driver_status(
     const odrive_can::msg::ODriveStatus::SharedPtr msg, int joint_index) {
 
     // auto bus_voltage = msg->bus_voltage;
@@ -114,7 +120,7 @@ void MotorDriver::update_driver_status(
 }
 
 
-void MotorDriver::update_joint_state(
+void HarmonicGait::update_joint_state(
     const odrive_can::msg::ControllerStatus::SharedPtr msg, int joint_index) {
         newton::joint::state new_state = 
           {
@@ -134,7 +140,7 @@ void MotorDriver::update_joint_state(
           joint_states[joint_index].torque);
     }
 
-    void MotorDriver::set_joint_position(float position, int index) {
+    void HarmonicGait::set_joint_position(float position, int index) {
       odrive_can::msg::ControlMessage msg;
       msg.control_mode = 2; 
       msg.input_mode = 1;  
@@ -145,7 +151,7 @@ void MotorDriver::update_joint_state(
       RCLCPP_INFO(this->get_logger(), "Set joint position to %f for %d", position, index);
 }
 
-    void MotorDriver::set_all_joint_positions(const std::array<float, 12> &positions) {
+    void HarmonicGait::set_all_joint_positions(const std::array<float, 12> &positions) {
       for (int i = 0; i < NUM_JOINTS; i++) {
         if (!control_pubs[i]) {
         RCLCPP_WARN
@@ -163,21 +169,21 @@ void MotorDriver::update_joint_state(
       }
     }
 
-result<void> MotorDriver::request_axis_state(size_t joint_index, uint32_t requested_state) {
+result<void> HarmonicGait::request_axis_state(size_t joint_index, uint32_t requested_state) {
   auto client = this->clients[joint_index];
   const auto& joint_name= joint_names[joint_index];
 
   while(!client->wait_for_service(std::chrono::seconds(1))) {
     if(!rclcpp::ok()){
-      return result<void>::error("MotorDriver", "Interrupted while waiting for service for joint %s", joint_name.c_str());
+      return result<void>::error("HarmonicGait", "Interrupted while waiting for service for joint %s", joint_name.c_str());
     }
-    Logger::WARN("MotorDriver", "Waiting for axis state service for joint %s", joint_name.c_str());
+    Logger::WARN("HarmonicGait", "Waiting for axis state service for joint %s", joint_name.c_str());
   }
 
   auto request = std::make_shared<odrive_can::srv::AxisState::Request>();
   request->axis_requested_state = requested_state;
 
-  Logger::INFO("MotorDriver", "Requesting state %u for joint %s", requested_state, joint_name.c_str());
+  Logger::INFO("HarmonicGait", "Requesting state %u for joint %s", requested_state, joint_name.c_str());
               
   auto future = client->async_send_request(request);
   auto timeout = std::chrono::seconds(10);
@@ -199,4 +205,25 @@ result<void> MotorDriver::request_axis_state(size_t joint_index, uint32_t reques
   } 
     
     return result<void>::success();
+}
+
+void HarmonicGait::move() {
+  auto now = this->get_clock()->now();
+  auto dt = now - last_time;
+  
+
+    #define PI 3.14159265358979323846
+    # define TWO_PI 6.28318530717958647692
+
+    float amplitude = 0.5;
+    float frequency = 0.5;
+    float phase = 0.0;
+
+    float position = amplitude * sin(TWO_PI * frequency * now.nanoseconds() + phase);
+    float leg_length = 0.16; # 
+
+    float hfe = 
+
+  RCLCPP_INFO(this->get_logger(), "Harmonic motion %f, Now", position); 
+last_time = now;
 }

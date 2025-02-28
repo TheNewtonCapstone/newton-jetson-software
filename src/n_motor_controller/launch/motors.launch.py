@@ -59,10 +59,10 @@ def generate_launch_description():
     for motor_name, motor_config in motors_params.items():
         print(f"Motor name: {motor_name}")
         print(f"Motor config: {motor_config}")
-        nodes.append(create_motor_node(motor_name, motor_config))
+        # nodes.append(create_motor_node(motor_name, motor_config))
 
     motor_controller_node =  Node (
-        package="motor_driver",
+        package="n_motor_controller",
         executable="motor_driver_node",
         name="motor_driver_node",
         output="screen",
@@ -70,24 +70,4 @@ def generate_launch_description():
         parameters=[launch_args],
     )
 
-    return LaunchDescription([Node(
-
-        package="odrive_can",
-        executable="odrive_can_node",
-        name="odrive_can",
-        namespace="motor1",
-        parameters=[
-            {
-                "node_id": 1,
-                "interface": "can0",
-                "publish_period_ms": 1,
-                "axis_idle_on_shutdown": True,
-            }
-        ],
-        remappings=[
-            ("control_message", "control_message"),
-            ("odrive_status", "odrive_status"),
-            ("controller_status", "controller_status"),
-        ],
-    )])
-    return LaunchDescription([*nodes, motor_controller_node])
+    return LaunchDescription([motor_controller_node])

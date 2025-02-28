@@ -42,6 +42,7 @@ include_directories(($UTILS_DIR)/include)
 add_executable(motor_driver_node
 src/motor.cpp
 src/main.cpp
+src/harmonic_gait.cpp
 )
 
 
