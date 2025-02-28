@@ -36,7 +36,7 @@ def create_motor_node(motor_name, motor_config):
 
 def generate_launch_description():
     # get root path of the package
-    root_path = pythonpath = os.environ.get("NEWTON_ROOT")
+    root_path = pythonpath = os.environ.get("PWD")
     config_path = os.path.join(root_path, "configs", "newton.yaml")
 
     try:
@@ -70,4 +70,24 @@ def generate_launch_description():
         parameters=[launch_args],
     )
 
+    return LaunchDescription([Node(
+
+        package="odrive_can",
+        executable="odrive_can_node",
+        name="odrive_can",
+        namespace="motor1",
+        parameters=[
+            {
+                "node_id": 1,
+                "interface": "can0",
+                "publish_period_ms": 1,
+                "axis_idle_on_shutdown": True,
+            }
+        ],
+        remappings=[
+            ("control_message", "control_message"),
+            ("odrive_status", "odrive_status"),
+            ("controller_status", "controller_status"),
+        ],
+    )])
     return LaunchDescription([*nodes, motor_controller_node])
