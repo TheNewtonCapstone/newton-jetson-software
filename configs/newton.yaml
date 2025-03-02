@@ -17,3 +17,11 @@ motors_params:
     position_limit: 1
     velocity_limit: 1
     torque_limit: 1
+
+  FL_KFE:
+    name: FL_KFE
+    node_id: 2
+    offset: 0
+    position_limit: 1
+    velocity_limit: 1
+    torque_limit: 1
