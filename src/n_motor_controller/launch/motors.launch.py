@@ -59,7 +59,7 @@ def generate_launch_description():
     for motor_name, motor_config in motors_params.items():
         print(f"Motor name: {motor_name}")
         print(f"Motor config: {motor_config}")
-        # nodes.append(create_motor_node(motor_name, motor_config))
+        nodes.append(create_motor_node(motor_name, motor_config))
 
     motor_controller_node =  Node (
         package="n_motor_controller",
@@ -70,4 +70,4 @@ def generate_launch_description():
         parameters=[launch_args],
     )
 
-    return LaunchDescription([motor_controller_node])
+    return LaunchDescription([*nodes, motor_controller_node])
