@@ -27,55 +27,50 @@ cd newton-jetson-software
 ```
 2. Make the setup script executable and run it: 
 ```bash
-chmod +x install.sh
-./setup.sh
+$ chmod +x install.sh
+$ ./install.sh
+```
+Note: install.sh will write to .bashrc to make .venv the default python env of the shell. 
+To disable this feature you can remove these lines
+```
+echo "source $VENV_PATH/bin/activate" >> ~/.bashrc
+echo "source $VENV_PATH/bin/activate" >> ~/.zsh
 ```
 
-1. Make the setup script executable and run it:
+3. You can source the environment by yourself using 
 ```bash
-chmod +x setup.sh
-./setup.sh
+  source .venv/bin/activate
 ```
-
-This will:
-- Set up the newton command in `/usr/local/bin`
-- Make the newton script executable
-- Create necessary symbolic links
 
 ## Project Structure
-
-The project uses the following directory structure:
-- `/lib/ros_odrive/` - Contains ODrive ROS2 packages
-- `/lib/jetson-containers/` - Contains Jetson-specific container configurations
-- `/modules/motor/` - Contains motor control modules
 
 
 ## Usage 
 ### Building Packages
 Build ODrive CAN package:
 ```bash
-newton build odrive_can
+nt build odrive_can
 ```
 
 Build ODrive motor package:
 ```bash
-newton build odrive_motor
+nt build odrive_motor
 ```
 
 ### Running Containers
 
 Run the latest container:
 ```bash
-newton run latest
+nt run latest
 ```
 
 Run a specific container:
 ```bash
-newton run <container_name>
+nt run <container_name>
 ```
 
 To stop and exit the container:
-- Press `Ctrl + D` or type `newton stop` in the container shell
+- Press `Ctrl + D` or type `nt stop` in the container shell
 - This will safely stop and exit the container session
 
 Note: The containers are run with interactive mode (-it flag) which means:
