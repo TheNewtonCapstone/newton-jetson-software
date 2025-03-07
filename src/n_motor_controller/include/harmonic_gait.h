@@ -24,6 +24,9 @@ public:
     * @return result<void> indicating success or failure
    */
   result<void> init();  // initialize all the motors with the necessary runtime parameters
+  result<void> init_clients(); 
+  result<void> init_pubs();
+  result<void> init_subs(); 
   void start();
   void stop();
   void shutdown();
