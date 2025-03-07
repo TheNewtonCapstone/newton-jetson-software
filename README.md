@@ -1,4 +1,4 @@
-# jetson-firmware
+ # Overview
  This project creates a real-time control system that integrates machine learning with embedded processing for adaptive sensor and actuator control.
 
 ## Prerequisites
@@ -27,87 +27,85 @@ cd newton-jetson-software
 ```
 2. Make the setup script executable and run it: 
 ```bash
-$ chmod +x install.sh
-$ ./install.sh
-```
-Note: install.sh will write to .bashrc to make .venv the default python env of the shell. 
-To disable this feature you can remove these lines
-```
-echo "source $VENV_PATH/bin/activate" >> ~/.bashrc
-echo "source $VENV_PATH/bin/activate" >> ~/.zsh
+chmod +x install.sh
+./setup.sh
 ```
 
-3. You can source the environment by yourself using 
+1. Make the setup script executable and run it:
 ```bash
-  source .venv/bin/activate
+chmod +x setup.sh
+./setup.sh
 ```
 
-## Project Structure
-
+This will:
+- Set up the newton command in `/usr/local/bin`
+- Make the newton script executable
+- Create necessary symbolic links
 
 ## Usage 
-### Building Packages
-Build ODrive CAN package:
-```bash
-nt build odrive_can
-```
+Before running anything, make sure the can interface is working/
 
-Build ODrive motor package:
 ```bash
-nt build odrive_motor
+sudo ip link set can0 up type can bitrate 250000
 ```
 
 ### Running Containers
 
-Run the latest container:
-```bash
-nt run latest
-```
-
-Run a specific container:
-```bash
-nt run <container_name>
-```
-
-To stop and exit the container:
-- Press `Ctrl + D` or type `nt stop` in the container shell
-- This will safely stop and exit the container session
+Run the latest container by calling this command from the root directory. 
 
 Note: The containers are run with interactive mode (-it flag) which means:
 - You'll get an interactive terminal session
 - The container runs in the foreground
-- Container includes features like:
-  - Host network access for ROS2 communication
-  - Full device access for hardware communication
-  - Automatic volume mounting of your workspace
-
-### Sourcing Environments
-
-Source Python environment:
+- Automatic volume mounting of your workspace
 ```bash
-newton source python
+nt ctn run
+```
+Note: the command mounts the directory your are calling it from. 
+So if you call it from ~ then the whole ~/ directory is mounted on the container. 
+You want to run it from the root directory. 
+
+Once the container runs, make sure to run this command to make the nt(newton keyword accessible in the shell)
+```bash
+source setup.sh
 ```
 
-Source ROS2 environment:
+### Building Packages
+
 ```bash
-newton source ros
+nt pkg build
+```
+This command will build all ros packages.
+
+### Sourcing Packages
+Once packages are built, they need to be source  with 
+
+```bash
+source src/install/setup.bash
 ```
 
-Source ODrive CAN package:
+### Launching Packages
+When the packages are source you can run using 
+
 ```bash
-newton source odrive_can
+ros2 launch n_motor_controller motors.launch.py
+```
+This will initiliaze as many nodes they are in the `config/newton.yaml` file and start the motor controller. 
+### Clean Packages
+Within the container you can this command remove old build files. 
+
+```bash
+nt pkg clean
 ```
 
-## Build Dependencies
 
-When building packages:
-1. ODrive CAN package must be built before the motor package.
-2. The system will automatically check and build dependencies if needed
-3. ROS2 Humble environment will be sourced if not already done
+### Stoping the container
+To stop and exit the container:
+- Press `Ctrl + D` in the container shell
+
 
 ## Package Verification
 
-After building packages, verify installation with:
+After building and sourcing packages, you can verify installation with:
 ```bash
 ros2 pkg list | grep odrive_can
 ros2 pkg list | grep odrive_motor
