@@ -284,6 +284,25 @@ def build_package(
         except Exception as e:
             console.print(f"[red]Error building package: {str(e)}[/red]")
 
+@pkg_app.command("launch")
+def launch_package(
+    pkg_name: Annotated[
+        PkgName, typer.Argument(help="Name of the package to launch")
+    ] = PkgName.all,
+):
+    try:
+        if pkg_name == PkgName.n_motor:
+            cmd = ["ros2", "launch", "n_motor_controller", "motors.launch.py"]
+            os.execvp(cmd[0], cmd)
+    except Exception as e:
+        console.print(f"[red]Error launching package {pkg_name}: {str(e)}[/red]")
+
+    
+    
+
+
+
+
 
 @ctn_app.command("run")
 def run_container(
