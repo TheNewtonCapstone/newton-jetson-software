@@ -28,6 +28,12 @@ public:
   result<void> arm_odrives();
   result<void> init_pubs();
   result<void> init_subs(); 
+
+  result<void> init_offset(const std::array<float, 12> &positions);
+
+  result<void> arm(int joint_index); // change the state of the motor driver to control mode
+  result<void> disarm(int joint_index);
+
   void start();
   void stop();
   void shutdown();

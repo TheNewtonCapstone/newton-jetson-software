@@ -14,7 +14,7 @@ HarmonicGait::HarmonicGait(const rclcpp::NodeOptions& options)
   init_clients();
   init_subs();
 
-  timer_ = this->create_wall_timer(10ms, std::bind(&HarmonicGait::move, this));
+  timer_ = this->create_wall_timer(20ms, std::bind(&HarmonicGait::move, this));
   
 
 };
@@ -30,7 +30,7 @@ result<void> HarmonicGait::init_clients(){
   }
 
   for (size_t i = 0; i < NUM_JOINTS; i++){
-    if(request_axis_state(i, 1).has_error()){
+    if(disarm(i).has_error()){
       Logger::ERROR("Harmonic Gait", "Issues with init sequence exiting");
       std::this_thread::sleep_for(std::chrono::seconds(1));
       std::exit(1);
@@ -51,7 +51,7 @@ result<void> HarmonicGait::init_clients(){
 
   std::this_thread::sleep_for(std::chrono::seconds(1));
   for (size_t i = 0; i < NUM_JOINTS; i++){
-    if(request_axis_state(i, 8).has_error()){
+    if(arm(i).has_error()){
       Logger::ERROR("Harmonic Gait", "Issues with init sequence exiting");
       std::this_thread::sleep_for(std::chrono::seconds(1));
       std::exit(1);
@@ -188,13 +188,31 @@ result<void> HarmonicGait::request_axis_state(size_t joint_index, uint32_t reque
 }
 
 void HarmonicGait::move() {
+
+  const float DURATION_TIME = 60.0;
+  const float amplitude = 0.5;
+  const float frequency = 0.5;
+
   const float TWO_PI = 6.28318530718;
   const float PI = 3.14159265359;
   const float link_length = 0.16;
 
-  while(!offset_loaded){};
+  // while(!offset_loaded){};
   
-  const std::array <float, 12> positions = {
+  auto now = this->get_clock()->now();
+
+  if((this->get_clock()->now() - last_time).seconds() > DURATION_TIME){
+    RCLCPP_INFO(this->get_logger(), "Finished Harmonic Gait");
+    shutdown();
+  }
+  std::array<float, 12> offset = {
+    0,0,0,
+    0,0,0,
+    0,0,0,
+    0,0,0
+  };
+
+  const std::array <float, 12> standing_positions = {
     0.0 , 1, -2.0,
     0.0, - 4, 2.0, // fr    
     0.0,  - 1, -2.0, // hl
@@ -202,40 +220,60 @@ void HarmonicGait::move() {
   }; 
 
 
-  set_all_joint_positions(positions);
-  // determine the angle base on b
-  const std::array <float, 14> b = {
-    0.1, 0.12, 0.13, 0.14, 0.15, 0.16, 0.17, 0.18, 0.19, 0.2, 0.21, 0.22, 0.23, 0.24
-  };
-
-  for(int i = 0; i < 14; i++) {
-    float angle = acos((b[i] * b[i]) / (2.0f * link_length * b[i]));
-    float angle_deg = acos(b[i]);
-    
-    RCLCPP_INFO(this->get_logger(), "Link %f\tAngle %f\t", angle, b[i], angle_deg);
-  }
-
-  auto now = this->get_clock()->now();
   
+  // get the offsets 
+  float base_position = amplitude * sin(TWO_PI * frequency * now.nanoseconds());
+  float hfe_offset =  amplitude * - 1.0  * base_position;
+  float kfe_offset =  amplitude * 2.0 * base_position;
 
-    float amplitude = 0.5;
-    float frequency = 0.5;
-    float phase = 0.0;
 
-    float position = amplitude * sin(TWO_PI * frequency * now.nanoseconds() + phase);
+  std::array<float, 12> positions;
+  for(int i = 0; i < 12; i++){
+    if(i % 3 == 1){
+    positions[i] = standing_positions[i] + hfe_offset;
+    } else if(i % 3 == 2){
+    positions[i] = standing_positions[i] + kfe_offset;
+  }
+  }
 
 
   RCLCPP_INFO(this->get_logger(), "Harmonic motion %ld, Now", now.nanoseconds()); 
+  // print the positions
+  for(int i = 0; i < 12; i++){
+    RCLCPP_INFO(this->get_logger(), "Joint %d: %f", i, positions[i]);
+  }
+  // set_all_joint_positions(positions);
+
+
+
 last_time = now;
 }
 
 
-result<void> HarmonicGait::arm_odrives(){
-  for (int i = 0; i < NUM_JOINTS; i++) {
-    auto res = request_axis_state(i, 8);
-    if(res.has_error()){
-      return result<void>::error("Harmonic Gait", "Issues with init sequence exiting");
-    }
+result<void> HarmonicGait::arm(int joint_index){
+  auto res = request_axis_state(joint_index, 8);
+  if(res.has_error()){
+    return result<void>::error("Harmonic Gait", "Issues with init sequence exiting");
+  }
+
+  return result<void>::success();
+}
+
+result<void> HarmonicGait::disarm(int joint_index){
+  auto res = request_axis_state(joint_index, 1);
+  if(res.has_error()){
+    return result<void>::error("Harmonic Gait", "Issues with init sequence exiting");
   }
   return result<void>::success();
 }
+
+void HarmonicGait::shutdown(){
+  for (size_t i = 0; i < NUM_JOINTS; i++){
+    disarm(i);
+  }
+  rclcpp::shutdown();
+}
+
+
+
+
