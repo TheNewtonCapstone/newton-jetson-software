@@ -10,151 +10,63 @@ using namespace std::chrono_literals;
 
 HarmonicGait::HarmonicGait(const rclcpp::NodeOptions& options)
     : Node("motor_driver") {
-
-  // Declare parameters
-  for (auto joint_name : joint_names) {
-    this->declare_parameter(std::string("m_") + joint_name + "_node_id", "-1");
-  }
-
+  init_pubs();
   init_clients();
+  init_subs();
+
+  timer_ = this->create_wall_timer(10ms, std::bind(&HarmonicGait::move, this));
+  
 
 };
 
-result<void> HarmonicGait::init() {
-  RCLCPP_INFO(this->get_logger(), "Initializing HarmonicGait...");
-  
-  request_axis_state(0, 1);
-  request_axis_state(1, 1);
-  request_axis_state(2, 1);
-
-  std::this_thread::sleep_for(std::chrono::seconds(1));
-
-  // init 
-  for (size_t i = 0; i < NUM_JOINTS; i++) {
-    odrive_can::msg::ControlMessage msg;
-    msg.control_mode = 3;  
-    msg.input_mode = 1;    
-    msg.input_pos = 0.0;
-    msg.input_vel = 0.0;
-    msg.input_torque = 0.0;
-    
-    control_pubs[i]->publish(msg);
-  }
-
-  std::this_thread::sleep_for(std::chrono::seconds(1));
-  auto res= request_axis_state(0, 8);
-
-  auto res_1 = request_axis_state(1, 8);
-  auto res_2 = request_axis_state(2, 8);
-
-  if(res.has_error() || res_1.has_error() || res_2.has_error()){
-    Logger::ERROR("Harmonic Gait", "Issues with init sequence exiting");
-    std::exit(1);
-  }
-
-  std::this_thread::sleep_for(std::chrono::seconds(1));
-
-  /**
-    odrive_can::msg::ControlMessage msg;
-    msg.control_mode = 3;  
-    msg.input_mode = 1;    
-    msg.input_pos = 2;
-    msg.input_vel = 0.0;
-    msg.input_torque = 0.0;
-
-
-    control_pubs[0]->publish(msg);
-    control_pubs[1]->publish(msg);
-    control_pubs[2]->publish(msg);
-    
-    last_time = this->get_clock()->now();
-
-    */
-
-    return result<void>::success();
-}
-
-
 result<void> HarmonicGait::init_clients(){
-  for (int i = 0; i < joint_names.size(); ++i) {
-    auto node_id =
-        this->get_parameter(std::string("m_") + joint_names[i] + "_node_id")
-            .as_string();
 
-  auto name = joint_names[i];
+  for (int i = 0; i < NUM_JOINTS; ++i) {
+    auto name = joint_names[i];
 
-  clients[i] = this->create_client<odrive_can::srv::AxisState>(
+    clients[i] = this->create_client<odrive_can::srv::AxisState>(
                 name + "/request_axis_state"
   );
-  control_pubs[i] =
-  this->create_publisher<odrive_can::msg::ControlMessage>(
-          name + "/control_message", 10);
-  } 
+  }
 
-  request_axis_state(0, 1);
-  request_axis_state(1, 1);
-  request_axis_state(2, 1);
+  for (size_t i = 0; i < NUM_JOINTS; i++){
+    if(request_axis_state(i, 1).has_error()){
+      Logger::ERROR("Harmonic Gait", "Issues with init sequence exiting");
+      std::this_thread::sleep_for(std::chrono::seconds(1));
+      std::exit(1);
+    }
+  }
 
-  std::this_thread::sleep_for(std::chrono::seconds(1));
-
-  // init 
+  RCLCPP_INFO(this->get_logger(), "Initializing HarmonicGait...");
+  
   for (size_t i = 0; i < NUM_JOINTS; i++) {
     odrive_can::msg::ControlMessage msg;
     msg.control_mode = 3;  
-    msg.input_mode = 1;    
+    msg.input_mode = 5;    
     msg.input_pos = 0.0;
     msg.input_vel = 0.0;
     msg.input_torque = 0.0;
-    
     control_pubs[i]->publish(msg);
   }
 
   std::this_thread::sleep_for(std::chrono::seconds(1));
-  auto res= request_axis_state(0, 8);
-
-  auto res_1 = request_axis_state(1, 8);
-  auto res_2 = request_axis_state(2, 8);
-
-  if(res.has_error() || res_1.has_error() || res_2.has_error()){
-    Logger::ERROR("Harmonic Gait", "Issues with init sequence exiting");
-    std::exit(1);
+  for (size_t i = 0; i < NUM_JOINTS; i++){
+    if(request_axis_state(i, 8).has_error()){
+      Logger::ERROR("Harmonic Gait", "Issues with init sequence exiting");
+      std::this_thread::sleep_for(std::chrono::seconds(1));
+      std::exit(1);
+    }
   }
-
-  std::this_thread::sleep_for(std::chrono::seconds(1));
-
-  /**
-    odrive_can::msg::ControlMessage msg;
-    msg.control_mode = 3;  
-    msg.input_mode = 1;    
-    msg.input_pos = 2;
-    msg.input_vel = 0.0;
-    msg.input_torque = 0.0;
-
-
-    control_pubs[0]->publish(msg);
-    control_pubs[1]->publish(msg);
-    control_pubs[2]->publish(msg);
-    
-    last_time = this->get_clock()->now();
-
-    */
-
-    return result<void>::success();
+  return result<void>::success();
 }
 result<void> HarmonicGait::init_pubs(){
   for (int i = 0; i < joint_names.size(); ++i) {
-    auto node_id =
-        this->get_parameter(std::string("m_") + joint_names[i] + "_node_id")
-            .as_string();
-
   auto name = joint_names[i];
 
-
   control_pubs[i] =
-  this->create_publisher<odrive_can::msg::ControlMessage>(
-          name + "/control_message", 10);
+  this->create_publisher<odrive_can::msg::ControlMessage>(name + "/control_message", 10);
 
-  RCLCPP_INFO(this->get_logger(), "Subscribed to %s", name.c_str());
+  RCLCPP_INFO(this->get_logger(), "Created a publisher to to %s", name.c_str());
   } 
 
   return result<void>::success();
@@ -162,31 +74,25 @@ result<void> HarmonicGait::init_pubs(){
 
 result<void> HarmonicGait::init_subs(){
 
-  for (int i = 0; i < joint_names.size(); ++i) {
-    auto node_id =
-        this->get_parameter(std::string("m_") + joint_names[i] + "_node_id")
-            .as_string();
-
-  auto name = joint_names[i];
+  for (int i = 0; i < NUM_JOINTS; ++i) {
+    auto name = joint_names[i];
 
   
-  status_subs[i] =
-        this->create_subscription<odrive_can::msg::ODriveStatus>(
-            name + "/odrive_status", 10,
-            [=,this](const odrive_can::msg::ODriveStatus::SharedPtr msg) {
-              this->update_driver_status(msg, i);
-  });
+    status_subs[i] =
+          this->create_subscription<odrive_can::msg::ODriveStatus>(
+              name + "/odrive_status", 10,
+              [=,this](const odrive_can::msg::ODriveStatus::SharedPtr msg) {
+                this->update_driver_status(msg, i);
+    });
 
-  joint_state_subs[i] =
+    joint_state_subs[i] =
         this->create_subscription<odrive_can::msg::ControllerStatus>(
             name + "/controller_status", 10,
             [=,this](const odrive_can::msg::ControllerStatus::SharedPtr msg) {
               this->update_joint_state(msg, i);
-  });
-  
-  
-
+    });
   } 
+
   return result<void>::success();
 }
 
@@ -207,19 +113,29 @@ void HarmonicGait::update_joint_state(
            };
         joint_states[joint_index] = new_state;
 
-        RCLCPP_INFO(this->get_logger(),
-          "Updated joint state for %d: position=%f, velocity=%f, torque=%f",
-          joint_states[joint_index].index,
-          joint_states[joint_index].position,
-          joint_states[joint_index].velocity,
-          joint_states[joint_index].torque);
+        if(offset_loaded == false){
+          encoder_offsets[joint_index] = msg->pos_estimate;
+        }
+
+        // first time we get to the end of the loop, we have all the offsets
+        if(joint_index == NUM_JOINTS - 1){
+          offset_loaded = true;
+        }
+
+        // RCLCPP_INFO(this->get_logger(),
+        //   "Updated joint state for %d: position=%f, velocity=%f, torque=%f",
+        //   joint_states[joint_index].index,
+        //   joint_states[joint_index].position,
+        //   joint_states[joint_index].velocity,
+        //   joint_states[joint_index].torque);
+
 }
 
 void HarmonicGait::set_joint_position(float position, int index) {
       odrive_can::msg::ControlMessage msg;
       msg.control_mode = 3; 
       msg.input_mode = 1;  
-      msg.input_pos = position; 
+      msg.input_pos = position + encoder_offsets[index]; 
       msg.input_vel = 0.0;  
       msg.input_torque = 0.0; 
       control_pubs[index]->publish(msg);
@@ -228,19 +144,7 @@ void HarmonicGait::set_joint_position(float position, int index) {
 
 void HarmonicGait::set_all_joint_positions(const std::array<float, 12> &positions) {
       for (int i = 0; i < NUM_JOINTS; i++) {
-        if (!control_pubs[i]) {
-        RCLCPP_WARN
-          (this->get_logger(), "Control publisher for joint %d is not initialized", i);
-          continue;
-      }
-
-        odrive_can::msg::ControlMessage msg;
-        msg.control_mode = 2; 
-        msg.input_mode = 1;  
-        msg.input_pos = positions[i]; 
-        msg.input_vel = 0.0;  
-        msg.input_torque = 0.0; 
-        control_pubs[i]->publish(msg);
+        set_joint_position(positions[i], i);
       }
 }
 
@@ -279,7 +183,7 @@ result<void> HarmonicGait::request_axis_state(size_t joint_index, uint32_t reque
       return result<void>::error("Motor Driver", "Failed to set state for joint %s", joint_name.c_str());
   } 
     
-  Logger::WARN("HarmonicGait", "Success");
+  Logger::INFO("HarmonicGait", "Success");
     return result<void>::success();
 }
 
@@ -288,6 +192,17 @@ void HarmonicGait::move() {
   const float PI = 3.14159265359;
   const float link_length = 0.16;
 
+  while(!offset_loaded){};
+  
+  const std::array <float, 12> positions = {
+    0.0 , 1, -2.0,
+    0.0, - 4, 2.0, // fr    
+    0.0,  - 1, -2.0, // hl
+    0.0, 4, 2.0
+  }; 
+
+
+  set_all_joint_positions(positions);
   // determine the angle base on b
   const std::array <float, 14> b = {
     0.1, 0.12, 0.13, 0.14, 0.15, 0.16, 0.17, 0.18, 0.19, 0.2, 0.21, 0.22, 0.23, 0.24
@@ -312,4 +227,15 @@ void HarmonicGait::move() {
 
   RCLCPP_INFO(this->get_logger(), "Harmonic motion %ld, Now", now.nanoseconds()); 
 last_time = now;
+}
+
+
+result<void> HarmonicGait::arm_odrives(){
+  for (int i = 0; i < NUM_JOINTS; i++) {
+    auto res = request_axis_state(i, 8);
+    if(res.has_error()){
+      return result<void>::error("Harmonic Gait", "Issues with init sequence exiting");
+    }
+  }
+  return result<void>::success();
 }

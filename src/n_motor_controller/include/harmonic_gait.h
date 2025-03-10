@@ -25,6 +25,7 @@ public:
    */
   result<void> init();  // initialize all the motors with the necessary runtime parameters
   result<void> init_clients(); 
+  result<void> arm_odrives();
   result<void> init_pubs();
   result<void> init_subs(); 
   void start();
@@ -52,6 +53,7 @@ private:
 
   rclcpp::Subscription<odrive_can::msg::ControllerStatus>::SharedPtr state_sub;
   void load_configs();
+  void get_encoder_offsets();
 
   // safety checks
   bool check_limits();
@@ -62,18 +64,15 @@ private:
   void move();
 
 private:
-  static constexpr uint8_t NUM_LEGS = 4;
-  static constexpr uint8_t NUM_JOINTS_PER_LEG = 3;
-  static constexpr uint8_t NUM_JOINTS =
-      NUM_LEGS * NUM_JOINTS_PER_LEG; // 12 joints used interchangeably with
-                                     // motors with motors
+  static constexpr uint8_t NUM_JOINTS = 12;
   std::array<std::string, NUM_JOINTS> joint_names = {
       "fl_haa", "fl_hfe", "fl_kfe", "fr_haa", "fr_hfe", "fr_kfe",
       "hl_haa", "hl_hfe", "hl_kfe", "hr_haa", "hr_hfe", "hr_kfe"};
 
   std::array<newton::joint::config, NUM_JOINTS> joints_configs;
   std::array<newton::joint::state, NUM_JOINTS> joint_states;
-  std::array<newton::leg::state, NUM_LEGS> leg_states;
+  std::array<float, NUM_JOINTS> encoder_offsets; 
+  bool offset_loaded = false;
 
   rclcpp::TimerBase::SharedPtr timer_;
 
@@ -90,6 +89,9 @@ private:
              NUM_JOINTS>
       control_pubs;
 rclcpp::Time last_time;
+
+
+
 
 };
 } // namespace newton
