@@ -23,9 +23,7 @@ public:
 
     * @return result<void> indicating success or failure
    */
-  result<void> init();  // initialize all the motors with the necessary runtime parameters
-  result<void> init_clients(); 
-  result<void> arm_odrives();
+  result<void> init_clients();
   result<void> init_pubs();
   result<void> init_subs(); 
 
@@ -47,6 +45,8 @@ public:
   * @param joint_index: the index of the joint to set the mode for
  */
   result<void> request_axis_state(size_t joint_index, uint32_t requested_state);
+  result<void> clear_error(int joint_index);
+
   void set_joints_positions(const std::vector<float> positions);
 
 private:

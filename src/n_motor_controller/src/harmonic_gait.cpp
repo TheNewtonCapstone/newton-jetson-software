@@ -186,7 +186,48 @@ result<void> HarmonicGait::request_axis_state(size_t joint_index, uint32_t reque
   } 
     
   Logger::INFO("HarmonicGait", "Success");
-    return result<void>::success();
+
+  return result<void>::success();
+}
+
+result<void> HarmonicGait::clear_error(int joint_index)
+{
+  auto client = clients[joint_index];
+  const auto& joint_name = joint_names[joint_index];
+
+  while(!client->wait_for_service(std::chrono::seconds(1))) {
+    if(!rclcpp::ok()){
+      return result<void>::error("HarmonicGait", "Interrupted while waiting for service for joint %s", joint_name.c_str());
+    }
+    Logger::WARN("HarmonicGait", "Waiting for clear error service for joint %s", joint_name.c_str());
+  }
+
+  auto request = std::make_shared<odrive_can::srv::AxisState::Request>();
+  request->axis_requested_state = requested_state;
+
+  Logger::INFO("HarmonicGait", "Requesting state %u for joint %s", requested_state, joint_name.c_str());
+
+  auto future = client->async_send_request(request);
+  auto timeout = std::chrono::seconds(20);
+  auto future_status = rclcpp::spin_until_future_complete(this->get_node_base_interface(), future, timeout);
+
+
+  // future status has 3 possible values: SUCCESS, TIMEOUT, INTERRUPTED
+  if (future_status == rclcpp::FutureReturnCode::TIMEOUT){
+    return result<void>::error("Motor Driver", "Timeout while waiting for response for joint %s, request timedout", joint_name.c_str());
+  }
+
+  if (future_status == rclcpp::FutureReturnCode::INTERRUPTED) {
+    return result<void>::error("Motor Driver", "Interrupted while waiting for response for joint %s", joint_name.c_str());
+  }
+
+
+  if(future_status == rclcpp::FutureReturnCode::SUCCESS && future.get()->procedure_result != 0) {
+    return result<void>::error("Motor Driver", "Failed to set state for joint %s", joint_name.c_str());
+  }
+
+  Logger::INFO("HarmonicGait", "Success");
+  return result<void>::success();
 }
 
 void HarmonicGait::move() {
@@ -282,9 +323,12 @@ result<void> HarmonicGait::disarm(int joint_index){
 
 result<void> HarmonicGait::clear_errors(){
   for(int i = 0; i < NUM_JOINTS -1 ; i++){
-    request_axis_state(i, 0);
+    clear_error(i);
   }
+
+  return result<void>::success();
 }
+
 void HarmonicGait::shutdown(){
   for (size_t i = 0; i < NUM_JOINTS -1 ; i++){
     request_axis_state(i, 1);
