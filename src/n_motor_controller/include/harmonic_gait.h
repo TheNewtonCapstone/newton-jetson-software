@@ -39,7 +39,6 @@ public:
   void shutdown();
   void set_joint_mode(const joint::mode mode, int joint_index);
   void set_joint_position(float, int);
-  void set_all_joint_positions(const std::array<float, 12> &positions);
 
 /**
   * @brief Send a request to the motor driver node to set the joint mode. 
@@ -66,7 +65,7 @@ private:
   bool check_watchdog();
   bool check_errors();
 
-  void clear_errors();
+  result<void> clear_errors();
   void move();
 
 private:
@@ -95,9 +94,5 @@ private:
              NUM_JOINTS>
       control_pubs;
 rclcpp::Time last_time;
-
-
-
-
 };
 } // namespace newton
