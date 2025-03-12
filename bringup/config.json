@@ -1,0 +1,58 @@
+{
+  "config.dc_bus_overvoltage_trip_level": 50.0,
+  "config.dc_bus_undervoltage_trip_level": 10.5,
+  "config.dc_max_positive_current": "3.4028235e+38",
+  "config.dc_max_negative_current": "-3.4028235e+38",
+  "config.brake_resistor0.enable": false,
+  "config.gpio10_mode": "DIGITAL",
+  "config.enable_uart_a": false,
+
+  "axis0.config.motor.motor_type": "HIGH_CURRENT",
+  "axis0.config.motor.pole_pairs": 7,
+  "axis0.config.motor.torque_constant": 0.024323529411764706,
+  "axis0.config.motor.current_soft_max": 12.5,
+  "axis0.config.motor.current_hard_max": 26.25,
+  "axis0.config.motor.calibration_current": 10.0,
+  "axis0.config.motor.resistance_calib_max_voltage": 2.0,
+
+  "axis0.config.calibration_lockin.current": 10.0,
+  "axis0.config.torque_soft_min": "-3.4028235e+38",
+  "axis0.config.torque_soft_max": "3.4028235e+38",
+  "axis0.config.enable_watchdog": false,
+  "axis0.config.load_encoder": "INC_ENCODER0",
+  "axis0.config.commutation_encoder": "INC_ENCODER0",
+
+  "axis0.config.can.heartbeat_msg_rate_ms": 10,
+  "axis0.config.can.encoder_msg_rate_ms": 10,
+  "axis0.config.can.iq_msg_rate_ms": 10,
+  "axis0.config.can.torques_msg_rate_ms": 10,
+  "axis0.config.can.error_msg_rate_ms": 10,
+  "axis0.config.can.temperature_msg_rate_ms": 10,
+  "axis0.config.can.bus_voltage_msg_rate_ms": 10,
+
+  "axis0.motor.motor_thermistor.config.enabled": false,
+
+  "axis0.controller.config.control_mode": "POSITION_CONTROL",
+  "axis0.controller.config.input_mode": "TRAP_TRAJ",
+  "axis0.controller.config.vel_limit": 10.0,
+  "axis0.controller.config.vel_limit_tolerance": 1.2,
+  "axis0.controller.config.vel_ramp_rate": 10.0,
+
+  "axis0.trap_traj.config.accel_limit": 10.0,
+  "axis0.trap_traj.config.vel_limit": 8.0,
+  "axis0.trap_traj.config.decel_limit": 10.0,
+
+  "axis0.pos_vel_mapper.config.use_index_gpio": true,
+  "axis0.pos_vel_mapper.config.index_gpio": 10,
+  "axis0.pos_vel_mapper.config.index_offset": 0,
+  "axis0.pos_vel_mapper.config.index_offset_valid": true,
+
+  "axis0.commutation_mapper.config.use_index_gpio": true,
+  "axis0.commutation_mapper.config.index_gpio": 10,
+
+  "inc_encoder0.config.enabled": true,
+  "inc_encoder0.config.cpr": 8192,
+
+  "can.config.protocol": "SIMPLE",
+  "can.config.baud_rate": 1000000
+}

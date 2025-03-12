@@ -560,7 +560,6 @@ def info(
     except Exception as e:
         console.print(f"[red]Error getting package info: {str(e)}[/red]")
 
-
 if __name__ == "__main__":
     ROOT_DIR = get_workspace_root()
     app()
