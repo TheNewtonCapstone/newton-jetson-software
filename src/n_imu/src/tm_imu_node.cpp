@@ -12,7 +12,7 @@ TMSerial::TMSerial() : rclcpp::Node("tm_imu")
     // Declare node's parameters default value 
     // [NOT NECESSARY TO CHANGE THE FOLLOWING, USE ../config/params.yaml INSTEAD !]
     this->declare_parameter("imu_baudrate",    115200);
-    this->declare_parameter("imu_port",        "/dev/ttyUSB0");
+    this->declare_parameter("imu_port",        "/dev/ttyACM0");
     this->declare_parameter("imu_frame_id",    "imu");
     this->declare_parameter("parent_frame_id", "base_link");
     this->declare_parameter("timer_period",     50);            // Unit: ms

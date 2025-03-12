@@ -9,15 +9,15 @@ from launch_ros.actions import Node
 def generate_launch_description():
     
     config = os.path.join(
-        get_package_share_directory('tm_imu'),
+        get_package_share_directory('n_imu'),
         'config',
         'params.yaml'
     )
 
     imu_node = Node(
-        package="tm_imu",
+        package="n_imu",
         executable="transducer_m_imu",
-        name="tm_imu",
+        name="n_imu",
         output="screen",
         parameters=[config],
     )
