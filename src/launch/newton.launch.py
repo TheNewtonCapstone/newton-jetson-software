@@ -33,6 +33,7 @@ def create_motor_node(motor_name, motor_config):
 
 
 def generate_launch_description():
+    
     # get root path of the package
     use_imu = DeclareLaunchArgument(
         "imu",

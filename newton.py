@@ -121,7 +121,6 @@ def build_package(
 ):
     """Build newton packages"""
     if name == PkgName.all:
-        build_package(PkgName.n_utils)
         try:
             build_package(PkgName.n_utils)
             src_path = Path(ROOT_DIR, "src")

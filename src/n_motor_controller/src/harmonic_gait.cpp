@@ -1,5 +1,4 @@
 #include "harmonic_gait.h"
-
 #include "logger.h"
 
 #include <rclcpp/rclcpp.hpp>
@@ -8,14 +7,26 @@ using namespace newton;
 using namespace std::chrono_literals;
 
 HarmonicGait::HarmonicGait(const rclcpp::NodeOptions &options)
-    : Node("motor_driver")
-{
+    : Node("motor_driver"){
+  // declare the parameters for the joints
+
+  for(int i=0; i < NUM_JOINTS; i++){
+    auto name = joints[i].name = joint_names[i];
+    double default_pos_limit = 3.14f; 
+    double default_direction = 1.f;
+    this->declare_parameter(name + "_position_limit", default_pos_limit);
+    this->declare_parameter(name + "_direction", default_direction);
+  }
+
+  
+  load_joint_configs();
   init_pubs();
   init_clients();
   init_subs();
 
   timer_ = this->create_wall_timer(20ms, std::bind(&HarmonicGait::move, this));
   last_time = this->get_clock()->now();
+  rclcpp::shutdown();
 };
 
 result<void> HarmonicGait::init_clients()
@@ -37,14 +48,14 @@ result<void> HarmonicGait::init_clients()
         name + "/clear_errors");
   }
 
-  for (size_t i = 0; i < NUM_JOINTS; i++)
-  {
-    if (disarm(i).has_error())
-    {
-      Logger::ERROR("Harmonic Gait", "Error: request to disarm failed for %s", joint_names[i].c_str());
-      shutdown();
-    }
-  }
+  // for (size_t i = 0; i < NUM_JOINTS; i++)
+  // {
+  //   if (disarm(i).has_error())
+  //   {
+  //     Logger::ERROR("Harmonic Gait", "Error: request to disarm failed for %s", joint_names[i].c_str());
+  //     shutdown();
+  //   }
+  // }
 
   std::this_thread::sleep_for(std::chrono::seconds(5));
 
@@ -66,24 +77,19 @@ result<void> HarmonicGait::init_clients()
   {
     if (arm(i).has_error())
     {
-      // clear the error
-      if (request_axis_state(i, 1).has_error())
-      {
-        Logger::ERROR("Harmonic Gait", "Error request to clear error failed for %s", joint_names[i].c_str());
-        shutdown();
-      }
-      // try to calibrate again if it fails exit
-      if (request_axis_state(i, 3).has_error())
-      {
-        Logger::ERROR("Harmonic Gait", "Error request to arm failed for %s", joint_names[i].c_str());
-        shutdown();
-      }
+      Logger::ERROR("Harmonic Gait", "Error: request to arm failed for %s", joint_names[i].c_str());
+      shutdown();
+      // if (request_axis_state(i, 3).has_error())
+      // {
+      //   Logger::ERROR("Harmonic Gait", "Error request to arm failed for %s", joint_names[i].c_str());
+      //   shutdown();
+      // }
 
-      if (request_axis_state(i, 8).has_error())
-      {
-        Logger::ERROR("Harmonic Gait", "Error request to arm failed for %s", joint_names[i].c_str());
-        shutdown();
-      }
+      // if (request_axis_state(i, 8).has_error())
+      // {
+      //   Logger::ERROR("Harmonic Gait", "Error request to arm failed for %s", joint_names[i].c_str());
+      //   shutdown();
+      // }
     }
   }
   return result<void>::success();
@@ -133,27 +139,18 @@ void HarmonicGait::update_driver_status(
 {
 }
 
-void HarmonicGait::update_joint_state(
+result<void> HarmonicGait::update_joint_state(
     const odrive_can::msg::ControllerStatus::SharedPtr msg, int joint_index) {
+        // todo: add checks for the limits and shutdown if the limits are exceeded
         // convert from turns to rad
-
-        float pos_rad = msg->pos_estimate * MOTOR_TURNS_TO_OUTPUT_TURNS_RAD;
-        float vel_rad = msg->vel_estimate * MOTOR_TURNS_TO_OUTPUT_TURNS_RAD;
-
-        newton::joint::state new_state = 
-        {
-            .index = joint_index,
-            .position = pos_rad,
-           .velocity = vel_rad,
-           .torque = msg->torque_estimate,
-           .torque_target = msg->torque_estimate,
-           };
-        joint_states[joint_index] = new_state;
+      joints[joint_index].cur_pos = rad_to_turns(msg->pos_estimate, joints[joint_index]);
+      joints[joint_index].curr_vel = rad_to_turns(msg->vel_estimate, joints[joint_index]);
 
   if (!offset_loaded)
   {
     Logger::INFO("HarmonicGait", "Updating joint state for %d", joint_index);
-    encoder_offsets[joint_index] = msg->pos_estimate;
+    // encoder_offsets[joint_index] = msg->pos_estimate;
+    joints[joint_index].offset = msg->pos_estimate;
   }
 
   // first time we get to the end of the loop, we have all the offsets
@@ -161,13 +158,17 @@ void HarmonicGait::update_joint_state(
   {
     offset_loaded = true;
   }
+  return result<void>::success();
 }
 
-void HarmonicGait::set_joint_position(float position, int index) {
+result<void> HarmonicGait::set_joint_position(float position, int index) {
 
   // takes in the position in rad/ and apply
   // the gear ratio to get the motor turns 
-      float motor_turns = (position * OUTPUT_TURNS_RAD_TO_MOTOR_TURNS) + encoder_offsets[index];
+      if(!is_within_limits(position, joints[index])){
+        return result<void>::error("HarmonicGait", "Position out of limits for joint %d", index);
+      }
+      float motor_turns = rad_to_turns(position, joints[index]);
 
        
       odrive_can::msg::ControlMessage msg;
@@ -299,11 +300,17 @@ void HarmonicGait::move()
       1, 1, -1,
       1, -1.0, 1.0};
 
-  std::array<float, NUM_JOINTS> standing_positions = {
-      0.0, 1, -2.0,   // fl
-      0.0, -1.0, 2.0, // fr
-      0.0, -3, -2,    // hl
-      0.0, 3.0, 2,    // hr
+  // std::array<float, NUM_JOINTS> standing_positions = {
+  //     0.0, 1, -2.0,   // fl
+  //     0.0, -1.0, 2.0, // fr
+  //     0.0, -3, -2,    // hl
+  //     0.0, 3.0, 2,    // hr
+  // };
+  std::array<float, NUM_JOINTS> standing_positions ={
+    0.0, 0.5, -1.0,   // fl
+    0.0, 0.5, 1.0, // fr
+    0.0, 0.5, 1.0,    // hl
+    0.0, 0.5, 1.0,    // hr
   };
 
   // get the offsets
@@ -334,7 +341,7 @@ void HarmonicGait::move()
   RCLCPP_INFO(this->get_logger(), "Duration: %f", duration);
   for (int i = 0; i < NUM_JOINTS; i++)
   {
-    set_joint_position(positions[i], i);
+    set_joint_position(standing_positions[i], i);
   }
 }
 
@@ -343,7 +350,7 @@ result<void> HarmonicGait::arm(int joint_index)
   auto res = request_axis_state(joint_index, 8);
   if (res.has_error())
   {
-    return result<void>::error("Harmonic Gait", "Error: request to arm failed");
+    return result<void>::error("Harmonic Gait", "Error: request to arm failed for %s", joints[joint_index].name.c_str());
   }
 
   return result<void>::success();
@@ -367,11 +374,27 @@ result<void> HarmonicGait::disarm(int joint_index)
 //   return result<void>::success();
 // }
 
-void HarmonicGait::shutdown()
+result<void> HarmonicGait::shutdown()
 {
   for (size_t i = 0; i < NUM_JOINTS - 1; i++)
   {
     request_axis_state(i, 1);
   }
   rclcpp::shutdown();
+  return result<void>::success();
+}
+
+result<void> HarmonicGait::load_joint_configs(){
+  for(int i = 0; i <  NUM_JOINTS; i++){
+    auto name = joints[i].name;
+
+    auto pos_limit = this->get_parameter(name + "_position_limit").as_double();
+    joints[i].min_pos = -pos_limit;
+    joints[i].max_pos = pos_limit;
+
+    int direction =  this->get_parameter(name + "_direction").as_double();
+    joints[i].direction = direction;
+    Logger::INFO("HarmonicGait", "Loaded joint config for %s Position is between %f and %f, direction is %f", name.c_str(), joints[i].min_pos, joints[i].max_pos, joints[i].direction);
+  } 
+  return result<void>::success();
 }

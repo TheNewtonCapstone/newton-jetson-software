@@ -1,5 +1,4 @@
 #include <rclcpp/rclcpp.hpp>
-#include "motor.h"
 #include "harmonic_gait.h"
 #include <iostream>
 #include "result.h"

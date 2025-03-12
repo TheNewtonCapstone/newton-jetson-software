@@ -52,7 +52,11 @@ def generate_launch_description():
     launch_args = {}
     for motor_name, motor_config in motors_params.items():
         for key, value in motor_config.items():
-            launch_args[f"m_{motor_name.lower()}_{key}"] = f"{str(value).lower()}"
+            param_name = f"{motor_name.lower()}_{key}"
+            if isinstance(value, (int, float)):
+                launch_args[param_name] = float(value)
+            else:
+                launch_args[param_name] = str(value)
 
     nodes = []
 

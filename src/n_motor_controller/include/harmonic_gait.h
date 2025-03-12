@@ -7,7 +7,7 @@
 #include "odrive_can/srv/axis_state.hpp"
 #include "std_srvs/srv/empty.hpp"
 #include "rclcpp/rclcpp.hpp"
-#include "types.h"
+#include "joint.h"
 #include "result.h"
 #include "unit.h"
 
@@ -30,17 +30,12 @@ namespace newton
     result<void> init_clients();
     result<void> init_pubs();
     result<void> init_subs();
-
-    result<void> init_offset(const std::array<float, 12> &positions);
-
     result<void> arm(int joint_index); // change the state of the motor driver to control mode
     result<void> disarm(int joint_index);
+    result<void> load_joint_configs();
 
-    void start();
-    void stop();
-    void shutdown();
-    void set_joint_mode(const joint::mode mode, int joint_index);
-    void set_joint_position(float, int);
+    result<void> shutdown();
+    result<void> set_joint_position(float, int);
 
     /**
      * @brief Send a request to the motor driver node to set the joint mode.
@@ -56,8 +51,7 @@ namespace newton
   private:
     void update_driver_status(const odrive_can::msg::ODriveStatus::SharedPtr msg,
                               int joint_index);
-    void
-    update_joint_state(const odrive_can::msg::ControllerStatus::SharedPtr msg,
+    result<void> update_joint_state(const odrive_can::msg::ControllerStatus::SharedPtr msg,
                        int joint_index);
 
     rclcpp::Subscription<odrive_can::msg::ControllerStatus>::SharedPtr state_sub;
@@ -78,8 +72,7 @@ namespace newton
         "fl_haa", "fl_hfe", "fl_kfe", "fr_haa", "fr_hfe", "fr_kfe",
         "hl_haa", "hl_hfe", "hl_kfe", "hr_haa", "hr_hfe", "hr_kfe"};
 
-    std::array<newton::joint::config, NUM_JOINTS> joints_configs;
-    std::array<newton::joint::state, NUM_JOINTS> joint_states;
+    std::array<newton::joint, NUM_JOINTS> joints;
     std::array<float, NUM_JOINTS> encoder_offsets;
     bool offset_loaded = false;
 
