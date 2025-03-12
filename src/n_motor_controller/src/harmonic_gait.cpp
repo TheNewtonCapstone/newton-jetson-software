@@ -73,7 +73,7 @@ result<void> HarmonicGait::init_clients(){
   return result<void>::success();
 }
 result<void> HarmonicGait::init_pubs(){
-  for (int i = 0; i < joint_names.size(); ++i) {
+  for (int i = 0; i < NUM_JOINTS; ++i) {
   auto name = joint_names[i];
 
   control_pubs[i] =
@@ -116,11 +116,16 @@ void HarmonicGait::update_driver_status(
 
 void HarmonicGait::update_joint_state(
     const odrive_can::msg::ControllerStatus::SharedPtr msg, int joint_index) {
+        // convert from turns to rad
+
+        float pos_rad = msg->pos_estimate * MOTOR_TURNS_TO_OUTPUT_TURNS_RAD;
+        float vel_rad = msg->vel_estimate * MOTOR_TURNS_TO_OUTPUT_TURNS_RAD;
+
         newton::joint::state new_state = 
-          {
+        {
             .index = joint_index,
-            .position = msg->pos_estimate,
-           .velocity = msg->vel_estimate,
+            .position = pos_rad,
+           .velocity = vel_rad,
            .torque = msg->torque_estimate,
            .torque_target = msg->torque_estimate,
            };
@@ -140,10 +145,16 @@ void HarmonicGait::update_joint_state(
 }
 
 void HarmonicGait::set_joint_position(float position, int index) {
+
+  // takes in the position in rad/ and apply
+  // the gear ratio to get the motor turns 
+      float motor_turns = (position * OUTPUT_TURNS_RAD_TO_MOTOR_TURNS) + encoder_offsets[index];
+
+       
       odrive_can::msg::ControlMessage msg;
       msg.control_mode = 3; 
       msg.input_mode = 5;  
-      msg.input_pos = position + encoder_offsets[index]; 
+      msg.input_pos = motor_turns;
       msg.input_vel = 0.0;  
       msg.input_torque = 0.0; 
       control_pubs[index]->publish(msg);
@@ -190,45 +201,45 @@ result<void> HarmonicGait::request_axis_state(size_t joint_index, uint32_t reque
   return result<void>::success();
 }
 
-result<void> HarmonicGait::clear_error(int joint_index)
-{
-  auto client = clients[joint_index];
-  const auto& joint_name = joint_names[joint_index];
+// result<void> HarmonicGait::clear_error(int joint_index)
+// {
+//   auto client = clients[joint_index];
+//   const auto& joint_name = joint_names[joint_index];
 
-  while(!client->wait_for_service(std::chrono::seconds(1))) {
-    if(!rclcpp::ok()){
-      return result<void>::error("HarmonicGait", "Interrupted while waiting for service for joint %s", joint_name.c_str());
-    }
-    Logger::WARN("HarmonicGait", "Waiting for clear error service for joint %s", joint_name.c_str());
-  }
+//   while(!client->wait_for_service(std::chrono::seconds(1))) {
+//     if(!rclcpp::ok()){
+//       return result<void>::error("HarmonicGait", "Interrupted while waiting for service for joint %s", joint_name.c_str());
+//     }
+//     Logger::WARN("HarmonicGait", "Waiting for clear error service for joint %s", joint_name.c_str());
+//   }
 
-  auto request = std::make_shared<odrive_can::srv::AxisState::Request>();
-  request->axis_requested_state = requested_state;
+//   auto request = std::make_shared<odrive_can::srv::AxisState::Request>();
+//   // request->axis_requested_state = requested_state;
 
-  Logger::INFO("HarmonicGait", "Requesting state %u for joint %s", requested_state, joint_name.c_str());
+//   Logger::INFO("HarmonicGait", "Requesting state %u for joint %s", requested_state, joint_name.c_str());
 
-  auto future = client->async_send_request(request);
-  auto timeout = std::chrono::seconds(20);
-  auto future_status = rclcpp::spin_until_future_complete(this->get_node_base_interface(), future, timeout);
-
-
-  // future status has 3 possible values: SUCCESS, TIMEOUT, INTERRUPTED
-  if (future_status == rclcpp::FutureReturnCode::TIMEOUT){
-    return result<void>::error("Motor Driver", "Timeout while waiting for response for joint %s, request timedout", joint_name.c_str());
-  }
-
-  if (future_status == rclcpp::FutureReturnCode::INTERRUPTED) {
-    return result<void>::error("Motor Driver", "Interrupted while waiting for response for joint %s", joint_name.c_str());
-  }
+//   auto future = client->async_send_request(request);
+//   auto timeout = std::chrono::seconds(20);
+//   auto future_status = rclcpp::spin_until_future_complete(this->get_node_base_interface(), future, timeout);
 
 
-  if(future_status == rclcpp::FutureReturnCode::SUCCESS && future.get()->procedure_result != 0) {
-    return result<void>::error("Motor Driver", "Failed to set state for joint %s", joint_name.c_str());
-  }
+//   // future status has 3 possible values: SUCCESS, TIMEOUT, INTERRUPTED
+//   if (future_status == rclcpp::FutureReturnCode::TIMEOUT){
+//     return result<void>::error("Motor Driver", "Timeout while waiting for response for joint %s, request timedout", joint_name.c_str());
+//   }
 
-  Logger::INFO("HarmonicGait", "Success");
-  return result<void>::success();
-}
+//   if (future_status == rclcpp::FutureReturnCode::INTERRUPTED) {
+//     return result<void>::error("Motor Driver", "Interrupted while waiting for response for joint %s", joint_name.c_str());
+//   }
+
+
+//   if(future_status == rclcpp::FutureReturnCode::SUCCESS && future.get()->procedure_result != 0) {
+//     return result<void>::error("Motor Driver", "Failed to set state for joint %s", joint_name.c_str());
+//   }
+
+//   Logger::INFO("HarmonicGait", "Success");
+//   return result<void>::success();
+// }
 
 void HarmonicGait::move() {
 
@@ -321,13 +332,13 @@ result<void> HarmonicGait::disarm(int joint_index){
   return result<void>::success();
 }
 
-result<void> HarmonicGait::clear_errors(){
-  for(int i = 0; i < NUM_JOINTS -1 ; i++){
-    clear_error(i);
-  }
+// result<void> HarmonicGait::clear_errors(){
+//   for(int i = 0; i < NUM_JOINTS -1 ; i++){
+//     clear_error(i);
+//   }
 
-  return result<void>::success();
-}
+//   return result<void>::success();
+// }
 
 void HarmonicGait::shutdown(){
   for (size_t i = 0; i < NUM_JOINTS -1 ; i++){

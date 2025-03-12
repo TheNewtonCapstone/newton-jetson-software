@@ -32,9 +32,9 @@ namespace newton { namespace joint{
     };
     
     struct state{
-      int index;
-      float position;
-      float velocity;
+      int index; // same as id
+      float position; //in radians
+      float velocity; // in rad/s
       float torque;
       float torque_target;
     };

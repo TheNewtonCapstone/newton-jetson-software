@@ -8,6 +8,7 @@
 #include "rclcpp/rclcpp.hpp"
 #include "types.h"
 #include "result.h"
+#include "unit.h"
 
 namespace newton {
 
@@ -65,7 +66,7 @@ private:
   bool check_watchdog();
   bool check_errors();
 
-  result<void> clear_errors();
+  // result<void> clear_errors();
   void move();
 
 private:
