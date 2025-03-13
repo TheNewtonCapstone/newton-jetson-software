@@ -1,12 +1,10 @@
 #include <rclcpp/rclcpp.hpp>
-#include "harmonic_gait.h"
+#include "gaits/harmonic_gait.h"
 #include <iostream>
-#include "result.h"
 
 
 int main(int argc, char* argv[]) {
     std::cout << "Program starting..." << std::endl;
-    
     
     try {
         rclcpp::init(argc, argv);
@@ -19,7 +17,6 @@ int main(int argc, char* argv[]) {
         auto node = std::make_shared<newton::HarmonicGait>();
         //auto node = std::make_shared<newton::MotorDriver>();
         RCLCPP_INFO(logger, "MotorDriver node created, starting spin...");
-
         
         rclcpp::spin(node);
         RCLCPP_INFO(logger, "Spin completed");

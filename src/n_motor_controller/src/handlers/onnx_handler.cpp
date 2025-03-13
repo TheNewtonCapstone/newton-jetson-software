@@ -1,4 +1,7 @@
-#include "brains/onnx.h"
+#include "handlers/onnx_handler.h"
+#include <iostream>
+
+using namespace newton;
 
 OnnxHandler::OnnxHandler(const std::string _path, const int _num_inputs, const int _num_ouputs)
     : path(_path), num_inputs(_num_inputs), num_outputs(_num_ouputs)
@@ -34,7 +37,6 @@ OnnxHandler::OnnxHandler(const std::string _path, const int _num_inputs, const i
 
 void OnnxHandler::init_onnx_session()
 {
-
   // onnx runtime sessions options
   Ort::SessionOptions options;
   OrtCUDAProviderOptions cuda_options;
