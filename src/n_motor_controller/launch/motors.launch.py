@@ -74,4 +74,4 @@ def generate_launch_description():
         parameters=[launch_args],
     )
 
-    return LaunchDescription([*nodes, motor_controller_node])
+    return LaunchDescription([*nodes])
