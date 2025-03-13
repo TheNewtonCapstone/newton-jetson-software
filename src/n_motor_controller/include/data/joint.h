@@ -6,7 +6,7 @@
 #include "unit.h"
 
 namespace newton { 
-  struct joint{
+  struct Joint{
     int id; // node id, used by can
     std::string name;
     float min_pos;
@@ -46,23 +46,23 @@ namespace newton {
     return current + diff;
   }
 
-  inline float rad_to_turns(float angle, const joint& j){
+  inline float rad_to_turns(float angle, const Joint& j){
     // adjust the position to the direction of the joint
     float adjusted_pos = angle * j.direction;
      // convert to motor turns
     return adjusted_pos * RAD_TO_MOTOR_TURNS + j.offset;
   }
 
-  inline float turns_to_rad(float motor_turns, const joint& j){
+  inline float turns_to_rad(float motor_turns, const Joint& j){
     // convert to rad
     return (motor_turns - j.offset) * MOTOR_TURNS_TO_RAD;
   }
 
-  inline bool is_within_limits(float pos, const joint& j){
+  inline bool is_within_limits(float pos, const Joint& j){
     return pos >= j.min_pos && pos <= j.max_pos;
   }
 
-  inline float clamp_to_limits(float pos, const joint& j){
+  inline float clamp_to_limits(float pos, const Joint& j){
     return std::min(std::max(pos, j.min_pos), j.max_pos);
   }
 

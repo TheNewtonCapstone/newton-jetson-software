@@ -6,16 +6,18 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
-
-
 # find dependencies
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclcpp_components REQUIRED)
 find_package(std_srvs REQUIRED)
+find_package(sensor_msgs REQUIRED)
 
-include_directories(${UTILS_DIR}/build)
+set(ONNXRUNTIME_INCLUDE_DIR /usr/local/include/onnxruntime)
+set(ONNXRUNTIME_BIN_DIR /usr/local/lib/onnxruntime)
 
+# Onnxruntime
+include_directories(include "${ONNXRUNTIME_INCLUDE_DIR}/")
 
 # Try to find odrive_can package
 find_package(odrive_can QUIET)
@@ -27,38 +29,38 @@ if(NOT odrive_can_FOUND)
 endif()
 
 # get the utils directory
-set(MY_PROJECT_DIR ${CMAKE_CURRENT_SOURCE_DIR})
-cmake_path(GET MY_PROJECT_DIR PARENT_PATH level1)
-cmake_path(GET level1 PARENT_PATH level2)
-set(ROOT_PATH ${level2})
-set(UTILS_DIR ${level2}/utils)
+set(PROJECT_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+cmake_path(GET PROJECT_DIR PARENT_PATH GRANDPARENT_DIR)
+cmake_path(GET GRANDPARENT_DIR PARENT_PATH PARENT_DIR)
+set(ROOT_PATH ${PARENT_DIR})
+set(UTILS_DIR ${PARENT_DIR}/utils)
 
 # Add include directories
 include_directories(include)
-include_directories(($UTILS_DIR)/include)
-
+include_directories(${UTILS_DIR}/include)
+include_directories(${UTILS_DIR}/build)
 
 # Define executable target
 add_executable(motor_driver_node
-src/main.cpp
-src/harmonic_gait.cpp
-src/motor_driver.cpp
-src/onnx.cpp
+  src/main.cpp
+  src/gaits/base_gait.cpp
+  src/gaits/harmonic_gait.cpp
+  src/gaits/machine_gait.cpp
+  src/handlers/onnx_handler.cpp
 )
 
+message("Grandparent Dir: ${PARENT_DIR}")
+message("Parent Dir: ${GRANDPARENT_DIR}")
+message("Current Dir: ${PROJECT_DIR}")
+message("Utils Include Dir: ${UTILS_DIR}")
 
-
-message(WARNING "grandparent dir: ${level2}")
-message(WARNING "parent dir: ${level1}")
-message(WARNING "current dir: ${MY_PROJECT_DIR}")
-message(WARNING "utils include dir: ${UTILS_DIR}")
-
-# Add dependencies
+# Add ROS dependencies
 ament_target_dependencies(motor_driver_node
   rclcpp
   rclcpp_components
   odrive_can
   std_srvs
+  sensor_msgs
 )
 
 target_include_directories(motor_driver_node
@@ -66,12 +68,11 @@ target_include_directories(motor_driver_node
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>
     ${UTILS_DIR}/include  
-
 )
 
 target_link_libraries(motor_driver_node
-  # ${ROOT_PATH}/build/libutils.so 
   ${UTILS_DIR}/build/libutils.so
+  onnxruntime
 )
 
 # Set compile features
@@ -82,11 +83,9 @@ install(
   DESTINATION lib/${PROJECT_NAME}
 )
 
-
 install(DIRECTORY
   launch
   DESTINATION share/${PROJECT_NAME}/
 )
-
 
 ament_package()
