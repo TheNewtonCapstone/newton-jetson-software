@@ -1,4 +1,3 @@
-// motor_control/include/harmonic_gait.h
 #pragma once
 
 #include "odrive_can/msg/control_message.hpp"
@@ -52,7 +51,7 @@ namespace newton
     void update_driver_status(const odrive_can::msg::ODriveStatus::SharedPtr msg,
                               int joint_index);
     result<void> update_joint_state(const odrive_can::msg::ControllerStatus::SharedPtr msg,
-                       int joint_index);
+                                    int joint_index);
 
     rclcpp::Subscription<odrive_can::msg::ControllerStatus>::SharedPtr state_sub;
     void load_configs();
@@ -63,8 +62,8 @@ namespace newton
     bool check_watchdog();
     bool check_errors();
 
-  // result<void> clear_errors();
-  void move();
+    // result<void> clear_errors();
+    void move();
 
   private:
     static constexpr uint8_t NUM_JOINTS = 12;
