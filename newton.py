@@ -329,6 +329,8 @@ def run_container(
             "-v",
             "/dev:/dev",
             "--device-cgroup-rule=c *:* rmw",
+            "--device=/dev/ttyACM0:/dev/ttyACM0",  
+            "--group-add=dialout",  
             "--device=/dev",
             "-e",
             "WORKSPACE_ROOT=/home/newton/workspace",

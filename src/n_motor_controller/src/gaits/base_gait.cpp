@@ -56,14 +56,13 @@ result<void> BaseGait::init_clients()
             name + "/clear_errors");
     }
 
-    // for (size_t i = 0; i < NUM_JOINTS; i++)
-    // {
-    //   if (disarm(i).has_error())
-    //   {
-    //     Logger::ERROR("Harmonic Gait", "Error: request to disarm failed for %s", joint_names[i].c_str());
-    //     shutdown();
-    //   }
-    // }
+    for (size_t i = 0; i < NUM_JOINTS; i++)
+    {
+      if (disarm(i).has_error())
+      {
+        Logger::ERROR("Harmonic Gait", "Error: request to disarm failed for %s", joint_names[i].c_str());
+      }
+    }
 
     std::this_thread::sleep_for(std::chrono::seconds(5));
 
@@ -86,7 +85,6 @@ result<void> BaseGait::init_clients()
         if (arm(i).has_error())
         {
             Logger::ERROR("Harmonic Gait", "Error: request to arm failed for %s", joint_names[i].c_str());
-            shutdown();
             // if (request_axis_state(i, 3).has_error())
             // {
             //   Logger::ERROR("Harmonic Gait", "Error request to arm failed for %s", joint_names[i].c_str());
@@ -100,6 +98,7 @@ result<void> BaseGait::init_clients()
             // }
         }
     }
+
     return result<void>::success();
 }
 
