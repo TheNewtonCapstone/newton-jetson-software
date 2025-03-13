@@ -31,13 +31,13 @@ motors_params:
     name: FR_HFE
     node_id: 4
     position_limit: 0.85
-    direction: 1
+    direction: -1
   
   FR_KFE:
     name: FR_KFE
     node_id: 5
     position_limit: 3
-    direction: 1
+    direction: -1
 
   HL_HAA:
     name: HL_HAA
@@ -66,10 +66,10 @@ motors_params:
     name: HR_HFE
     node_id: 10
     position_limit: 0.85
-    direction: 1
+    direction: -1
 
   HR_KFE:
     name: HR_KFE
     node_id: 11
     position_limit: 3
-    direction: 1.0
+    direction: -1 

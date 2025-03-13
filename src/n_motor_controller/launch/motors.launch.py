@@ -50,6 +50,10 @@ def generate_launch_description():
     motors_params = configs["motors_params"]
     # Declare all launch arguments
     launch_args = {}
+    launch_args["robot_name"] = configs["robot_name"]
+    launch_args["num_joints"] = len(motors_params)
+    print(f"Number of joints: {launch_args['num_joints']}")
+
     for motor_name, motor_config in motors_params.items():
         for key, value in motor_config.items():
             param_name = f"{motor_name.lower()}_{key}"
