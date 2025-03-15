@@ -1,4 +1,8 @@
 import can 
+from typing import List, Dict
+import asyncio
+from .discoverer import Discoverer
+from enum import IntEnum, unique
 
 ADDRESS_CMD = 0x06 
 REBOOT_CMD = 0x16
@@ -13,7 +17,74 @@ TIMEOUT =  3.0
 REBOOT_ACTION_REBOOT = 0
 REBOOT_ACTION_SAVE = 1 
 REBOOT_ACTION_ERASE = 2 
+NODE_ID_SIZE = 5
 
+@unique
+class Arbitration(IntEnum):
+    NODE_SIZE = 5
+
+@unique
+class OdriveCANCommands(IntEnum):
+    """
+        Enum class that contains the ODrive CAN commands. 
+        See https://docs.odriverobotics.com/v/latest/manual/can-protocol.html
+        for more information.
+    """
+    GET_VERSION = 0x00
+    GET_HEARTBEAT = 0x01
+    ESTOP = 0x02
+    GET_ERROR = 0x03
+    RXS_DO= 0x04
+    TXS_DO = 0x05
+    GET_ADDRESS = 0x06
+    SET_AXIS_STATE = 0x07
+    GET_ENCODER_ESTIMATES = 0x09
+
+    SET_CONTROLLER_MODE = 0x00b
+    SET_INPUT_POS = 0x0c
+    SET_INPUT_VEL = 0x0d
+    SET_INPUT_TORQUE = 0x0e
+    SET_LIMITS = 0x0f
+    SET_ABSOLUTE_POSITION = 0x19
+
+    SET_TRAJ_VEL_LIMIT = 0x11
+    SET_TRAJ_ACCEL_LIMIT = 0x12
+    SET_TRAJ_INERTIA = 0x13
+    
+    GET_IQ = 0x14
+    GET_TEMPERATURE = 0x15
+
+    REBOOT = 0x16
+    GET_BUS_VOLTAGE = 0x17
+    CLEAR_ERRORS = 0x18
+    SET_POS_GAINS = 0x1a
+    SET_VEL_GAINS = 0x1b
+    GET_TORQUE = 0x1c
+    GET_POWERS = 0x1d
+    ENTER_DFU_MODE = 0x1e
+
+
+@unique
+class ControlMode(IntEnum):
+    """
+        Enum class that contains the control modes of the ODrive. 
+    """
+    VOLTAGE_CONTROL = 0
+    TORQUE_CONTROL = 1
+    VELOCITY_CONTROL = 2
+    POSITION_CONTROL = 3
+
+@unique
+class InputMode(IntEnum):
+    """
+        Enum class that contains the input modes of the ODrive. 
+    """
+    INACTIVE = 0
+    PASSTHROUGH = 1
+    VEL_RAMP = 2
+    POS_FILTER = 3
+    MIX_CHANNELS = 4
+    TRAP_TRAJ = 5
 
 
 async def scan_for_devices(bus):
@@ -29,7 +100,6 @@ def get_address_msg(bus: can.Bus):
     msg = can.Message(
         arbitration_id=(BROADCAST_NODE_ID << 5) | ADDRESS_CMD,
         is_extended_id=False
-        is_remote_frame=True
     )
     bus.send(msg)
 
