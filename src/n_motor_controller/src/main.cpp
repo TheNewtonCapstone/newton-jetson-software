@@ -15,7 +15,7 @@ int main(int argc, char* argv[]) {
         RCLCPP_INFO(logger, "Creating MotorDriver node...");
         
         std::this_thread::sleep_for(std::chrono::seconds(5));
-        auto node = std::make_shared<newton::MachineGait>();
+        auto node = std::make_shared<newton::HarmonicGait>();
         //auto node = std::make_shared<newton::MotorDriver>();
         RCLCPP_INFO(logger, "MotorDriver node created, starting spin...");
         

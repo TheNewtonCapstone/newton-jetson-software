@@ -37,19 +37,21 @@ namespace newton
         result<void> disarm(int joint_index);
         result<void> load_joint_configs();
         result<void> shutdown();
-        
+
         /**
-        * @brief Send a request to the motor driver node to set the joint mode.
-        *  See https://docs.odriverobotics.com/v/latest/manual/can-protocol.html#can-msg-set-axis-state for more details
-        * @param mode: the mode to set the joint to
-        * @param joint_index: the index of the joint to set the mode for
-        */
+         * @brief Send a request to the motor driver node to set the joint mode.
+         *  See https://docs.odriverobotics.com/v/latest/manual/can-protocol.html#can-msg-set-axis-state for more details
+         * @param mode: the mode to set the joint to
+         * @param joint_index: the index of the joint to set the mode for
+         */
         result<void> request_axis_state(size_t joint_index, uint32_t requested_state);
         result<void> clear_error(int joint_index);
         result<void> set_joint_position(int joint_index, float position);
 
+        result<void> clear_all_errors();
+
     protected:
-        static constexpr uint8_t NUM_JOINTS = 12; 
+        static constexpr uint8_t NUM_JOINTS = 12;
         bool offset_loaded = false;
 
         std::array<std::string, NUM_JOINTS> joint_names = {
@@ -99,5 +101,5 @@ namespace newton
         // result<void> clear_errors();
 
         virtual void move() = 0;
-   };
+    };
 } // namespace newton

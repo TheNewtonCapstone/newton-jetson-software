@@ -112,6 +112,7 @@ def build_package(
     name: Annotated[
         PkgName, typer.Argument(help="Name of the package to build")
     ] = PkgName.all,
+
     compile_commands: Annotated[
         bool,
         typer.Option(
@@ -314,6 +315,14 @@ def run_container(
             help="Run a dev container with additional tools",
         ),
     ] = True,
+
+    add_serial: Annotated[
+        bool,
+        typer.Option(
+            help="Add serial devices to the container",
+        ),
+    ] = False,
+
 ):
     """Run a container with hardware access and proper ROS2 environment setup"""
     try:
@@ -329,7 +338,7 @@ def run_container(
             "-v",
             "/dev:/dev",
             "--device-cgroup-rule=c *:* rmw",
-            "--device=/dev/ttyACM0:/dev/ttyACM0",  
+            # "--device=/dev/ttyACM0:/dev/ttyACM0",  
             "--group-add=dialout",  
             "--device=/dev",
             "-e",

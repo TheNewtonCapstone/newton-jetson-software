@@ -8,9 +8,8 @@ using namespace newton;
 using namespace std::chrono_literals;
 
 BaseGait::BaseGait(const std::string node_name, const rclcpp::NodeOptions &options)
-    : Node(node_name)
-{
-};
+    : Node(node_name) {
+      };
 
 result<void> BaseGait::init()
 {
@@ -29,12 +28,12 @@ result<void> BaseGait::init()
     init_pubs();
     init_clients();
     init_subs();
+    clear_all_errors();
 
     imu = std::make_unique<Imu>();
 
     move_timer = this->create_wall_timer(20ms, std::bind(&BaseGait::move, this));
     last_time = this->get_clock()->now();
-    rclcpp::shutdown();
 }
 
 result<void> BaseGait::init_clients()
@@ -58,10 +57,10 @@ result<void> BaseGait::init_clients()
 
     for (size_t i = 0; i < NUM_JOINTS; i++)
     {
-      if (disarm(i).has_error())
-      {
-        Logger::ERROR("Harmonic Gait", "Error: request to disarm failed for %s", joint_names[i].c_str());
-      }
+        if (disarm(i).has_error())
+        {
+            Logger::ERROR("BaseGait", "Error: request to disarm failed for %s", joint_names[i].c_str());
+        }
     }
 
     std::this_thread::sleep_for(std::chrono::seconds(5));
@@ -84,7 +83,7 @@ result<void> BaseGait::init_clients()
     {
         if (arm(i).has_error())
         {
-            Logger::ERROR("Harmonic Gait", "Error: request to arm failed for %s", joint_names[i].c_str());
+            Logger::ERROR("BaseGait", "Error: request to arm failed for %s", joint_names[i].c_str());
             // if (request_axis_state(i, 3).has_error())
             // {
             //   Logger::ERROR("Harmonic Gait", "Error request to arm failed for %s", joint_names[i].c_str());
@@ -165,7 +164,7 @@ result<void> BaseGait::update_joint_state(
 
     if (!offset_loaded)
     {
-        Logger::INFO("HarmonicGait", "Updating joint state for %d", joint_index);
+        Logger::INFO("BaseGait", "Updating joint state for %d", joint_index);
         // encoder_offsets[joint_index] = msg->pos_estimate;
         joints[joint_index].offset = msg->pos_estimate;
     }
@@ -181,7 +180,7 @@ result<void> BaseGait::update_joint_state(
 result<void> BaseGait::update_imu(const sensor_msgs::msg::Imu::SharedPtr msg)
 {
     const auto dt = static_cast<double>(msg->header.stamp.nanosec - imu->timestamp) / 1e9;
-    
+
     imu->timestamp = msg->header.stamp.nanosec;
     imu->linear_acceleration = Vector3(msg->linear_acceleration.x, msg->linear_acceleration.y, msg->linear_acceleration.z);
     imu->linear_velocity += imu->linear_acceleration * dt;
@@ -198,7 +197,7 @@ result<void> BaseGait::set_joint_position(int joint_index, float position)
     // the gear ratio to get the motor turns
     if (!is_within_limits(position, joints[joint_index]))
     {
-        return result<void>::error("HarmonicGait", "Position out of limits for joint %d", joint_index);
+        return result<void>::error("BaseGait", "Position out of limits for joint %d", joint_index);
     }
     float motor_turns = rad_to_turns(position, joints[joint_index]);
 
@@ -221,15 +220,15 @@ result<void> BaseGait::request_axis_state(size_t joint_index, uint32_t requested
     {
         if (!rclcpp::ok())
         {
-            return result<void>::error("HarmonicGait", "Interrupted while waiting for service for joint %s", joint_name.c_str());
+            return result<void>::error("BaseGait", "Interrupted while waiting for service for joint %s", joint_name.c_str());
         }
-        Logger::WARN("HarmonicGait", "Waiting for axis state service for joint %s", joint_name.c_str());
+        Logger::WARN("BaseGait", "Waiting for axis state service for joint %s", joint_name.c_str());
     }
 
     auto request = std::make_shared<odrive_can::srv::AxisState::Request>();
     request->axis_requested_state = requested_state;
 
-    Logger::INFO("HarmonicGait", "Requesting state %u for joint %s", requested_state, joint_name.c_str());
+    Logger::INFO("BaseGait", "Requesting state %u for joint %s", requested_state, joint_name.c_str());
 
     auto future = client->async_send_request(request);
     auto timeout = std::chrono::seconds(20);
@@ -238,20 +237,35 @@ result<void> BaseGait::request_axis_state(size_t joint_index, uint32_t requested
     // future status has 3 possible values: SUCCESS, TIMEOUT, INTERRUPTED
     if (future_status == rclcpp::FutureReturnCode::TIMEOUT)
     {
-        return result<void>::error("Motor Driver", "Timeout while waiting for response for joint %s, request timedout", joint_name.c_str());
+        return result<void>::error("BaseGait", "Timeout while waiting for response for joint %s, request timedout", joint_name.c_str());
     }
 
     if (future_status == rclcpp::FutureReturnCode::INTERRUPTED)
     {
-        return result<void>::error("Motor Driver", "Interrupted while waiting for response for joint %s", joint_name.c_str());
+        return result<void>::error("BaseGait", "Interrupted while waiting for response for joint %s", joint_name.c_str());
     }
 
     if (future_status == rclcpp::FutureReturnCode::SUCCESS && future.get()->procedure_result != 0)
     {
-        return result<void>::error("Motor Driver", "Failed to set state for joint %s", joint_name.c_str());
+        return result<void>::error("BaseGait", "Failed to set state for joint %s", joint_name.c_str());
     }
 
-    Logger::INFO("HarmonicGait", "Success");
+    Logger::INFO("BaseGait", "Success");
+
+    return result<void>::success();
+}
+
+result<void> BaseGait::clear_all_errors()
+{
+    for (int i = 0; i < NUM_JOINTS - 1; i++)
+    {
+        const auto &res = clear_error(i);
+
+        if (res.has_error())
+        {
+            return res;
+        }
+    }
 
     return result<void>::success();
 }
@@ -265,14 +279,14 @@ result<void> BaseGait::clear_error(int joint_index)
     {
         if (!rclcpp::ok())
         {
-            return result<void>::error("HarmonicGait", "Interrupted while waiting for service for joint %s", joint_name.c_str());
+            return result<void>::error("BaseGait", "Interrupted while waiting for service for joint %s", joint_name.c_str());
         }
-        Logger::WARN("HarmonicGait", "Waiting for clear error service for joint %s", joint_name.c_str());
+        Logger::WARN("BaseGait", "Waiting for clear error service for joint %s", joint_name.c_str());
     }
 
     auto request = std::make_shared<std_srvs::srv::Empty::Request>();
 
-    Logger::INFO("HarmonicGait", "Clearing errors for joint %s", joint_name.c_str());
+    Logger::INFO("BaseGait", "Clearing errors for joint %s", joint_name.c_str());
 
     auto future = client->async_send_request(request);
     auto timeout = std::chrono::seconds(20);
@@ -281,15 +295,15 @@ result<void> BaseGait::clear_error(int joint_index)
     // future status has 3 possible values: SUCCESS, TIMEOUT, INTERRUPTED
     if (future_status == rclcpp::FutureReturnCode::TIMEOUT)
     {
-        return result<void>::error("Motor Driver", "Timeout while waiting for response for joint %s, request timedout", joint_name.c_str());
+        return result<void>::error("BaseGait", "Timeout while waiting for response for joint %s, request timedout", joint_name.c_str());
     }
 
     if (future_status == rclcpp::FutureReturnCode::INTERRUPTED)
     {
-        return result<void>::error("Motor Driver", "Interrupted while waiting for response for joint %s", joint_name.c_str());
+        return result<void>::error("BaseGait", "Interrupted while waiting for response for joint %s", joint_name.c_str());
     }
 
-    Logger::INFO("HarmonicGait", "Success: cleared error for joint %s", joint_name.c_str());
+    Logger::INFO("BaseGait", "Success: cleared error for joint %s", joint_name.c_str());
 
     return result<void>::success();
 }
@@ -299,7 +313,7 @@ result<void> BaseGait::arm(int joint_index)
     auto res = request_axis_state(joint_index, 8);
     if (res.has_error())
     {
-        return result<void>::error("Harmonic Gait", "Error: request to arm failed for %s", joints[joint_index].name.c_str());
+        return result<void>::error("BaseGait", "Error: request to arm failed for %s", joints[joint_index].name.c_str());
     }
 
     return result<void>::success();
@@ -310,18 +324,10 @@ result<void> BaseGait::disarm(int joint_index)
     auto res = request_axis_state(joint_index, 1);
     if (res.has_error())
     {
-        return result<void>::error("Harmonic Gait", "Issues with init sequence exiting");
+        return result<void>::error("BaseGait", "Issues with init sequence exiting");
     }
     return result<void>::success();
 }
-
-// result<void> HarmonicGait::clear_errors(){
-//   for(int i = 0; i < NUM_JOINTS -1 ; i++){
-//     clear_error(i);
-//   }
-
-//   return result<void>::success();
-// }
 
 result<void> BaseGait::shutdown()
 {
@@ -345,7 +351,7 @@ result<void> BaseGait::load_joint_configs()
 
         int direction = this->get_parameter(name + "_direction").as_double();
         joints[i].direction = direction;
-        Logger::INFO("HarmonicGait", "Loaded joint config for %s Position is between %f and %f, direction is %f", name.c_str(), joints[i].min_pos, joints[i].max_pos, joints[i].direction);
+        Logger::INFO("BaseGait", "Loaded joint config for %s Position is between %f and %f, direction is %f", name.c_str(), joints[i].min_pos, joints[i].max_pos, joints[i].direction);
     }
     return result<void>::success();
 }
