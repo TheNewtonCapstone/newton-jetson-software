@@ -81,6 +81,7 @@ RUN groupadd -g $GID $USERNAME \
     && echo "$USERNAME ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 
 COPY scripts/bashrc /home/$USERNAME/.bashrc
+COPY scripts/inputrc /home/$USERNAME/.inputrc
 COPY scripts/vimrc /home/$USERNAME/.vimrc
 COPY scripts/newton_entrypoint.sh /newton_entrypoint.sh
 
