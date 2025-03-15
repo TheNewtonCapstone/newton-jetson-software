@@ -1,28 +1,34 @@
-
 import rclpy
 from rclpy.executors import ExternalShutdownException
 from rclpy.node import Node
 
-class MinimalService(Node):
 
+class ODriveNode(Node):
     def __init__(self):
-        super().__init__('minimal_service')
-        self.srv = self.create_service(AddTwoInts, 'add_two_ints', self.add_two_ints_callback)
+        """Initialize the ODrive CAN controller node"""
 
-    def add_two_ints_callback(self, request, response):
-        response.sum = request.a + request.b
-        self.get_logger().info('Incoming request\na: %d b: %d' % (request.a, request.b))
+        super().__init__("odrive_node")
+        ## Declare parameters
+        ## get parameters
+        # validate paarametes
+        # configure devices
+        # create pub
+        # create sub
+        # setup timers
+        # start can interface
 
-        return response
-
-def main():
-    try:
-        with rclpy.init(args=args):
-            minimal_service = MinimalService()
-
-            rclpy.spin(minimal_service)
-    except (KeyboardInterrupt, ExternalShutdownException):
+    def position_callback(self, msg):
+        # command for position command messages
         pass
 
-if __name__ == '__main__':
+    def shutdown_callback(self):
+        # shutdown callback
+        pass
+
+
+def main():
+    pass
+
+
+if __name__ == "__main__":
     main()

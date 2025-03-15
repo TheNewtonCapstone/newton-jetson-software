@@ -1,90 +1,93 @@
 import can 
-from typing import List, Dict
+import threading
+import time 
+from typing import List, Dict, Callable, Optional, List,Tuple
 import asyncio
-from .discoverer import Discoverer
 from enum import IntEnum, unique
+import rclpy
+import rclpy.logging
 
-ADDRESS_CMD = 0x06 
-REBOOT_CMD = 0x16
-CLEAR_ERRORS_CMD = 0x18
-
-BROADCAST_NODE_ID = 0x3f
-MAX_NODE_ID = 0x3e
-
-DISCOVERY_MESSAGE_INTERVAL = 0.6 
-TIMEOUT =  3.0 
-
-REBOOT_ACTION_REBOOT = 0
-REBOOT_ACTION_SAVE = 1 
-REBOOT_ACTION_ERASE = 2 
-NODE_ID_SIZE = 5
-
-@unique
-class Arbitration(IntEnum):
-    NODE_SIZE = 5
-
-@unique
-class OdriveCANCommands(IntEnum):
+class CanInterface:
     """
-        Enum class that contains the ODrive CAN commands. 
-        See https://docs.odriverobotics.com/v/latest/manual/can-protocol.html
-        for more information.
+        Interface for communicating with ODrives over CAN bus
     """
-    GET_VERSION = 0x00
-    GET_HEARTBEAT = 0x01
-    ESTOP = 0x02
-    GET_ERROR = 0x03
-    RXS_DO= 0x04
-    TXS_DO = 0x05
-    GET_ADDRESS = 0x06
-    SET_AXIS_STATE = 0x07
-    GET_ENCODER_ESTIMATES = 0x09
+    def __init__(self, interface:str = "can0", bitrate:int = 1000000):
+        pass
+        
+    def start(self, callback: Callable[[int,int, bytes], None])-> bool:
+        """
+            Start CAN interface 
+            Args:
+                callback: Function to call for each received message with 
+                (node_id, cmd_id, data) parameters
+            Returns:
+                bool: True if successfully started, False otherwise
+        """
+        pass
 
-    SET_CONTROLLER_MODE = 0x00b
-    SET_INPUT_POS = 0x0c
-    SET_INPUT_VEL = 0x0d
-    SET_INPUT_TORQUE = 0x0e
-    SET_LIMITS = 0x0f
-    SET_ABSOLUTE_POSITION = 0x19
+    def stop(self) -> None:
+        """
+            Stop CAN interface
+        """
+        pass 
 
-    SET_TRAJ_VEL_LIMIT = 0x11
-    SET_TRAJ_ACCEL_LIMIT = 0x12
-    SET_TRAJ_INERTIA = 0x13
+    def send(self, arbitration_id: int, data:bytes)->bool:
+        """
+            Send a CAN message
+            Args:
+                arbitration_id: CAN arbitration ID
+                data: Data to send
+            Returns:
+                bool: True if successfully sent, False otherwise
+        """
+        pass
     
-    GET_IQ = 0x14
-    GET_TEMPERATURE = 0x15
-
-    REBOOT = 0x16
-    GET_BUS_VOLTAGE = 0x17
-    CLEAR_ERRORS = 0x18
-    SET_POS_GAINS = 0x1a
-    SET_VEL_GAINS = 0x1b
-    GET_TORQUE = 0x1c
-    GET_POWERS = 0x1d
-    ENTER_DFU_MODE = 0x1e
+    def _receive_loop(self):
+        """
+            Background thread to receive can messages
+        """
+        pass
 
 
-@unique
-class ControlMode(IntEnum):
-    """
-        Enum class that contains the control modes of the ODrive. 
-    """
-    VOLTAGE_CONTROL = 0
-    TORQUE_CONTROL = 1
-    VELOCITY_CONTROL = 2
-    POSITION_CONTROL = 3
 
-@unique
-class InputMode(IntEnum):
+class AsyncCanInterface:
+    """ 
+        Interface for communicating with ODrives over CAN bus using asyncio. This class is used to improve perfomance
     """
-        Enum class that contains the input modes of the ODrive. 
-    """
-    INACTIVE = 0
-    PASSTHROUGH = 1
-    VEL_RAMP = 2
-    POS_FILTER = 3
-    MIX_CHANNELS = 4
-    TRAP_TRAJ = 5
+    def __init__(self, interface:str = "can0", bitrate:int = 1000000):
+        pass
+    async def start(self, callback: Callable[[int, int, bytes], None]) -> bool:
+        """
+            Start CAN interface
+            Args:
+                callback: Function to call for each received message with 
+                (node_id, cmd_id, data) parameters
+            Returns:
+                bool: True if successfully started, False otherwise
+        """
+        pass
+    async def stop(self) -> None:
+        """
+            Stop async CAN interface
+        """
+        pass
+    def send_frame(self, arbitration_id:int, data:bytes)->bool:
+        """
+            Send a CAN message
+            Args:
+                arbitration_id: CAN arbitration ID
+                data: Data to send
+            Returns:
+                bool: True if successfully sent, False otherwise
+        """
+        pass
+
+    async def _receive_loop(self) -> None:
+        """
+            Async loop for receiving CAN messages
+        """
+        pass
+
 
 
 async def scan_for_devices(bus):
