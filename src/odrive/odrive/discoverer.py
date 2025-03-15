@@ -25,7 +25,7 @@ class Discoverer():
         if i not in self.discovered_devices:
             print(f"Error: {sn_str(serial_number)} is not connected")
             return
-        if next_free_ode_id 
+        if next_free_ode_id
         if next_free_node_id > MAX_NODE_ID:
             print(f"Error: Can't address {sn_str(serial)} becuase thre are too many devices connected")
             raise 
@@ -33,4 +33,22 @@ class Discoverer():
         print(f"Assigning node id {next_free_node_id} to {sn_str(serial_number)}")
         set_address_msg(self.bus, serial_number, next_free_node_id)
         self.discovered_devices[serial_number] = next_free_node_id
+    
+    def on_message_received(self, msg:can.Message)-> str: 
+        """
+            Callback function that is called when a message is received
+        """
+
+        cmd_id = msg.arbitration_id & 0x1F
+        node_id = msg.arbitration_id >> 5
+        data = msg.data 
+        # transform bytearray into string
+        data_str = ' '.join(f'{b:02x}' for b in data)
+
+        # to do: implement a smart way to store and publish the message received -- note publish 
+        return data_str
+
+
+
+        
 
