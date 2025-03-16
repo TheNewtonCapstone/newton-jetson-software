@@ -109,14 +109,15 @@ class CanInterface:
         """
             Background thread to receive can messages
         """
-        while self.running:
-            msg = self.bus.recv(timeout=0.1)
-            if msg and not msg.is_error_frame:
-                node_id = msg.arbitration_id >> Arbitration.NODE_SIZE
-                cmd_id = msg.arbitration_id & Arbitration.ARBITRATION_ID_SIZE
-               
-                if self.callback: :
-                    self.callback(node_id, cmd_id, msg.data)
+        try:
+            while self.running:
+                msg = self.bus.recv(timeout=0.1)
+                if msg and not msg.is_error_frame:
+                    node_id = msg.arbitration_id >> Arbitration.NODE_SIZE
+                    cmd_id = msg.arbitration_id & Arbitration.ARBITRATION_ID_SIZE
+                
+                    if self.callback:
+                        self.callback(node_id, cmd_id, msg.data)
         except Exception as e:
             console.print(f"Can intereface: Error receiving CAN message in receive loop: {e}")
             time.sleep(0.1)
