@@ -3,14 +3,14 @@ robot_name: newton
 motors_params:
   # HAA : Hip Abduction/Adduction
   FL_HAA:
-    active: True ## active on the can bus
+    enabled: False ## enabled on the can bus
     name: FL_HAA
     node_id: 0
     position_limit: 0.5
     direction: 1
   
   FL_HFE:
-    active: True
+    enabled: False
     name: FL_HFE
     node_id: 1
     position_limit: 0.85
@@ -18,69 +18,69 @@ motors_params:
 
 
   FL_KFE:
-    active: True
+    enabled: False
     name: FL_KFE
     node_id: 2
     position_limit: 3
     direction: 1
 
   FR_HAA:
-    active: True
+    enabled: False
     name: FR_HAA
     node_id: 3
     position_limit: 0.5
     direction: 1
 
   FR_HFE:
-    active: True
+    enabled: False
     name: FR_HFE
     node_id: 4
     position_limit: 0.85
     direction: -1
   
   FR_KFE:
-    active: True
+    enabled: False
     name: FR_KFE
     node_id: 5
     position_limit: 3
     direction: -1
 
   HL_HAA:
-    active: True
+    enabled: True
     name: HL_HAA
     node_id: 6
     position_limit: 0.5
     direction: 1
 
   HL_HFE:
-    active: True
+    enabled: True
     name: HL_HFE
     node_id: 7
     position_limit: 0.85
     direction: 1
   HL_KFE:
-    active: True
+    enabled: True
     name: HL_KFE
     node_id: 8
     position_limit: 3
     direction: 1
 
   HR_HAA:
-    active: True
+    enabled: True
     name: HR_HAA
     node_id: 9
     position_limit: 0.5
     direction: 1
   
   HR_HFE:
-    active: True
+    enabled: True
     name: HR_HFE
     node_id: 10
     position_limit: 0.85
     direction: -1
 
   HR_KFE:
-    active: True
+    enabled: True
     name: HR_KFE
     node_id: 11
     position_limit: 3
