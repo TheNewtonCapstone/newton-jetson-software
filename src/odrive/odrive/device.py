@@ -84,13 +84,6 @@ class InputMode(IntEnum):
     TRAP_TRAJ = 5
 
 
-class Arbitration:
-    """
-    Constants for CAN arbitration ID
-    """
-    NODE_SIZE = 5
-    ARBITRATION_ID_SIZE = 0x1F
-
 
 class ODriveDevice:
     """
@@ -404,7 +397,6 @@ class ODriveDevice:
             self.last_send_time = time.time()
         
         return success
-    
     def set_absolute_position(self, position: float) -> bool:
         """
         Sets the encoder position to a specified value
@@ -542,3 +534,10 @@ class ODriveDevice:
             self.last_send_time = time.time()
         
         return success
+    
+    def set_address_msg(self, sn: int, node_id: int) -> bool:
+        # to be implemented, setting addressees using odrive's serial number
+        pass 
+    def get_address_msg(self, sn: int) -> bool:
+        # to be implemented, getting addressees using odrive's serial number
+        pass

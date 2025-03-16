@@ -2,7 +2,8 @@ import time
 from typing import Dict, List, Optional, Callable
 from rich.console import Console
 
-from odrive_device import ODriveDevice, AxisState, ControlMode, InputMode, Arbitration, OdriveCANCommands
+from .device import ODriveDevice, AxisState, ControlMode, InputMode,OdriveCANCommands
+from .can_interface import CanInterface, Arbitration
 
 console = Console()
 
@@ -17,8 +18,7 @@ class ODriveManager:
         """
         self.can_interface = can_interface
         self.devices: Dict[int, ODriveDevice] = {}  # node_id -> device
-        
-        # Register callback for incoming CAN messages
+
         self.can_interface.start(self.process_can_message)
         
     def add_device(self, node_id: int) -> ODriveDevice:
@@ -52,7 +52,7 @@ class ODriveManager:
         """
         return self.can_interface.send_frame(arbitration_id, data)
     
-    def process_can_message(self, node_id: int, cmd_id: int, data: bytes) -> None:
+    def process_can_message(self) -> None:
         """
         Process an incoming CAN message
         

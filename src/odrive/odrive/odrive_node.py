@@ -2,6 +2,8 @@ import rclpy
 from rclpy.executors import ExternalShutdownException
 from rclpy.node import Node
 from rich.console import Console
+from .device_manager import ODriveManager
+from .can_interface import CanInterface
 
 class ODriveNode(Node):
     def __init__(self):
@@ -10,6 +12,12 @@ class ODriveNode(Node):
         super().__init__("odrive_node")
         self.console = Console()
         self.console.print("Initializing ODrive CAN controller node")
+        self.can_interface = CanInterface()
+        self.manager = ODriveManager(self.can_interface)
+        # manager.enumerate_devices()
+        
+
+
         ## Declare parameters
         ## get parameters
         # validate paarametes
@@ -37,7 +45,6 @@ def main():
         pass
     finally:
         node.destroy_node()
-        rclpy.shutdown()
 
 
 if __name__ == "__main__":
