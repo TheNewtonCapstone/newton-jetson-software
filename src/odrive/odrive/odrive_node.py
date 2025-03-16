@@ -21,11 +21,11 @@ class ODriveNode(Node):
         self.manager.enumerate_devices()
         # self.manager.initialize_all()
         self.manager.init_one(6)
-        self.manager.init_one(7)
-        self.manager.init_one(8)
-        self.manager.init_one(9)
-        self.manager.init_one(10)
-        self.manager.init_one(11)
+        # self.manager.init_one(7)
+        # self.manager.init_one(8)
+        # self.manager.init_one(9)
+        # self.manager.init_one(10)
+        # self.manager.init_one(11)
         
         # manager.enumerate_devices()
         
@@ -45,10 +45,7 @@ class ODriveNode(Node):
         pass
 
     def shutdown(self):
-        # shutdown callback
-        self.manage.clear_errors()
         
-        self.manager.estop_all()
         pass
 
 
