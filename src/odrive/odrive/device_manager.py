@@ -32,12 +32,12 @@ class ODriveManager:
             motor_params = config.get("motors_params", {})
             for motor_name, motor_params in config["motors_params"].items():
               if motor_params.get("enabled", True):
-                console.print(f"[green]Loading motor: {motor_name}[/green]")
                 node_id = motor_params["node_id"]
                 name = motor_params["name"].lower()
                 direction = motor_params["direction"]
                 position_limit = motor_params["position_limit"]
                 
+                console.print(f"[green]Loading motor: {motor_name} with id {node_id}[/green]")
                 self.add_device(
                   node_id=node_id,
                   name=name,
@@ -165,8 +165,9 @@ class ODriveManager:
     
     def initialize_all(self, 
                       control_mode: ControlMode = ControlMode.POSITION_CONTROL,
-                      input_mode: InputMode = InputMode.PASSTHROUGH,
-                      closed_loop: bool = True) -> None:
+                      input_mode: InputMode = InputMode.TRAP_TRAJ,
+                      closed_loop: bool = True
+                      ) -> None:
         """
         Initialize all devices with common settings
         
@@ -188,6 +189,38 @@ class ODriveManager:
                     continue
             
             console.print(f"[green]Initialized device {node_id}[/green]")
+    def init_one(
+                  self, 
+                  node_id: int,
+                  control_mode: ControlMode = ControlMode.POSITION_CONTROL,
+                  input_mode: InputMode = InputMode.TRAP_TRAJ,
+                  closed_loop: bool = True
+                  ) -> None:
+      """
+      Initialize all devices with common settings
+      
+      Args:
+          control_mode: Control mode to set
+          input_mode: Input mode to set
+          closed_loop: Whether to enter closed loop control
+      """
+      device = self.devices.get(node_id)
+      if not device:
+          console.print(f"[red]Device with node_id {node_id} not found[/red]")
+          return
+      
+      # Set control mode
+      if not device.set_controller_mode(control_mode, input_mode):
+          console.print(f"[red]Failed to set controller mode for device {node_id}[/red]")
+          return
+      
+      # Enter closed loop control if requested
+      if closed_loop:
+          if not device.set_axis_state(AxisState.CLOSED_LOOP_CONTROL):
+              console.print(f"[red]Failed to enter closed loop control for device {node_id}[/red]")
+              return
+      
+      console.print(f"[green]Initialized device {node_id}[/green]")
     
     def estop_all(self) -> None:
         """
@@ -200,7 +233,3 @@ class ODriveManager:
                 console.print(f"[green]E-stopped device {node_id}[/green]")
 
                 
-    def _load_config(self, path: str) -> Dict:
-            """
-            Load a YAML configuration file
-            """
