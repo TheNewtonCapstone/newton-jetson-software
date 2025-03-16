@@ -1,0 +1,315 @@
+import can
+import threading
+import time
+import asyncio
+from typing import List, Dict, Callable, Optional, Tuple
+import struct
+
+# Constants from can_enumerate.py
+ADDRESS_CMD = 0x06
+REBOOT_CMD = 0x16
+CLEAR_ERRORS_CMD = 0x18
+BROADCAST_NODE_ID = 0x3f
+DISCOVERY_MESSAGE_INTERVAL = 0.6
+
+class CanInterface:
+    """
+    Interface for communicating with ODrives over CAN bus
+    """
+    def __init__(self, interface: str = "can0", bitrate: int = 1000000):
+        """
+        Initialize CAN interface
+        
+        Args:
+            interface: CAN interface name (e.g. "can0")
+            bitrate: CAN bus bitrate
+        """
+        self.interface = interface
+        self.bitrate = bitrate
+        self.bus = None
+        self.callback = None
+        self.receive_thread = None
+        self.running = False
+        
+    def start(self, callback: Callable[[int, int, bytes], None]) -> bool:
+        """
+        Start CAN interface 
+        
+        Args:
+            callback: Function to call for each received message with 
+                     (node_id, cmd_id, data) parameters
+        
+        Returns:
+            bool: True if successfully started, False otherwise
+        """
+        if self.running:
+            return True
+            
+        try:
+            self.bus = can.interface.Bus(
+                channel=self.interface, 
+                bustype='socketcan', 
+                bitrate=self.bitrate
+            )
+            self.callback = callback
+            self.running = True
+            self.receive_thread = threading.Thread(target=self._receive_loop)
+            self.receive_thread.daemon = True
+            self.receive_thread.start()
+            return True
+        except Exception as e:
+            print(f"Error starting CAN interface: {e}")
+            if self.bus:
+                self.bus.shutdown()
+                self.bus = None
+            return False
+
+    def stop(self) -> None:
+        """
+        Stop CAN interface
+        """
+        self.running = False
+        if self.receive_thread and self.receive_thread.is_alive():
+            self.receive_thread.join(timeout=1.0)
+        if self.bus:
+            self.bus.shutdown()
+            self.bus = None
+    
+    def send(self, arbitration_id: int, data: bytes) -> bool:
+        """
+        Send a CAN message
+        
+        Args:
+            arbitration_id: CAN arbitration ID
+            data: Data to send
+        
+        Returns:
+            bool: True if successfully sent, False otherwise
+        """
+        if not self.bus or not self.running:
+            return False
+            
+        try:
+            msg = can.Message(
+                arbitration_id=arbitration_id,
+                data=data,
+                is_extended_id=False
+            )
+            self.bus.send(msg)
+            return True
+        except Exception as e:
+            print(f"Error sending CAN message: {e}")
+            return False
+    
+    def _receive_loop(self) -> None:
+        """
+        Background thread to receive CAN messages
+        """
+        while self.running:
+            try:
+                msg = self.bus.recv(timeout=0.1)
+                if msg and not msg.is_error_frame:
+                    # Extract node_id and cmd_id from arbitration_id
+                    node_id = msg.arbitration_id >> 5
+                    cmd_id = msg.arbitration_id & 0x1F
+                    
+                    if self.callback:
+                        self.callback(node_id, cmd_id, msg.data)
+            except Exception as e:
+                print(f"Error in CAN receive loop: {e}")
+                # Brief pause to avoid hammering the bus in case of errors
+                time.sleep(0.1)
+
+
+class AsyncCanInterface:
+    """
+    Interface for communicating with ODrives over CAN bus using asyncio.
+    This class is used to improve performance.
+    """
+    def __init__(self, interface: str = "can0", bitrate: int = 1000000):
+        """
+        Initialize async CAN interface
+        
+        Args:
+            interface: CAN interface name (e.g. "can0")
+            bitrate: CAN bus bitrate
+        """
+        self.interface = interface
+        self.bitrate = bitrate
+        self.bus = None
+        self.callback = None
+        self.running = False
+        self.reader = None
+        self.notifier = None
+        self.receive_task = None
+        
+    async def start(self, callback: Callable[[int, int, bytes], None]) -> bool:
+        """
+        Start CAN interface
+        
+        Args:
+            callback: Function to call for each received message with 
+                     (node_id, cmd_id, data) parameters
+        
+        Returns:
+            bool: True if successfully started, False otherwise
+        """
+        if self.running:
+            return True
+            
+        try:
+            self.bus = can.interface.Bus(
+                channel=self.interface, 
+                bustype='socketcan', 
+                bitrate=self.bitrate
+            )
+            
+            self.callback = callback
+            self.reader = can.AsyncBufferedReader()
+            self.notifier = can.Notifier(self.bus, [self.reader], loop=asyncio.get_running_loop())
+            
+            self.running = True
+            self.receive_task = asyncio.create_task(self._receive_loop())
+            return True
+        except Exception as e:
+            print(f"Error starting async CAN interface: {e}")
+            await self.stop()
+            return False
+    
+    async def stop(self) -> None:
+        """
+        Stop async CAN interface
+        """
+        self.running = False
+        
+        if self.receive_task:
+            self.receive_task.cancel()
+            try:
+                await self.receive_task
+            except asyncio.CancelledError:
+                pass
+            self.receive_task = None
+            
+        if self.notifier:
+            self.notifier.stop()
+            self.notifier = None
+            
+        if self.bus:
+            self.bus.shutdown()
+            self.bus = None
+
+    def send_frame(self, arbitration_id: int, data: bytes) -> bool:
+        """
+        Send a CAN message
+        
+        Args:
+            arbitration_id: CAN arbitration ID
+            data: Data to send
+        
+        Returns:
+            bool: True if successfully sent, False otherwise
+        """
+        if not self.bus or not self.running:
+            return False
+            
+        try:
+            msg = can.Message(
+                arbitration_id=arbitration_id,
+                data=data,
+                is_extended_id=False
+            )
+            self.bus.send(msg)
+            return True
+        except Exception as e:
+            print(f"Error sending async CAN message: {e}")
+            return False
+    
+    async def _receive_loop(self) -> None:
+        """
+        Async loop for receiving CAN messages
+        """
+        try:
+            while self.running:
+                msg = await self.reader.get_message()
+                if msg and not msg.is_error_frame:
+                    # Extract node_id and cmd_id from arbitration_id
+                    node_id = msg.arbitration_id >> 5
+                    cmd_id = msg.arbitration_id & 0x1F
+                    
+                    if self.callback:
+                        self.callback(node_id, cmd_id, msg.data)
+        except asyncio.CancelledError:
+            # Normal cancellation, no need to report
+            pass
+        except Exception as e:
+            print(f"Error in async CAN receive loop: {e}")
+
+
+# Helper functions for ODrive CAN communication
+
+def get_address_msg(bus: can.Bus) -> None:
+    """
+    Send a discovery message to find ODrives on the bus
+    """
+    msg = can.Message(
+        arbitration_id=(BROADCAST_NODE_ID << 5) | ADDRESS_CMD,
+        is_extended_id=False,
+        is_remote_frame=True
+    )
+    bus.send(msg)
+
+def set_address_msg(bus: can.Bus, sn: int, node_id: int) -> None:
+    """
+    Assign a node ID to an ODrive with the given serial number
+    """
+    msg = can.Message(
+        arbitration_id=(BROADCAST_NODE_ID << 5) | ADDRESS_CMD,
+        data=bytes([node_id]) + sn.to_bytes(6, byteorder='little'),
+        is_extended_id=False
+    )
+    bus.send(msg)
+
+def identify_msg(bus: can.Bus, node_id: int, enable: bool) -> None:
+    """
+    Make an ODrive's LED blink for identification
+    """
+    msg = can.Message(
+        arbitration_id=(node_id << 5) | CLEAR_ERRORS_CMD,
+        data=b'\x01' if enable else b'\x00',
+        is_extended_id=False
+    )
+    bus.send(msg)
+
+def reboot_msg(bus: can.Bus, node_id: int, action: int) -> None:
+    """
+    Reboot an ODrive with the specified action
+    """
+    msg = can.Message(
+        arbitration_id=(node_id << 5) | REBOOT_CMD,
+        data=[action],
+        is_extended_id=False
+    )
+    bus.send(msg)
+
+# Utility function to format serial numbers
+def sn_str(sn: int) -> str:
+    """
+    Format a serial number as a 12-digit hex string
+    """
+    return f"{sn:012x}"
+
+# Commonly used ODrive-specific constants
+class AxisState(IntEnum):
+    UNDEFINED = 0
+    IDLE = 1
+    STARTUP_SEQUENCE = 2
+    FULL_CALIBRATION_SEQUENCE = 3
+    MOTOR_CALIBRATION = 4
+    ENCODER_INDEX_SEARCH = 6
+    ENCODER_OFFSET_CALIBRATION = 7
+    CLOSED_LOOP_CONTROL = 8
+    LOCKIN_SPIN = 9
+    ENCODER_DIR_FIND = 10
+    HOMING = 11
+    ENCODER_HALL_POLARITY_CALIBRATION = 12
+    ENCODER_HALL_PHASE_CALIBRATION = 13
