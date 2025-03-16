@@ -168,6 +168,7 @@ class ODriveDevice:
             self.last_send_time = time.time()
         
         return success
+    
 
     def set_controller_mode(self, control_mode: ControlMode, input_mode: InputMode) -> bool:
         """
@@ -180,15 +181,21 @@ class ODriveDevice:
         Returns:
             bool: True if message was sent successfully
         """
-        cmd_id = OdriveCANCommands.SET_CONTROLLER_MODE
-        arb_id = self.make_arbitration_id(self.node_id, cmd_id)
-        data = struct.pack('<II', int(control_mode), int(input_mode))
-        success = self.send_can_frame(arb_id, data)
-        
-        if success:
+        try:
+            
+            cmd_id = OdriveCANCommands.SET_CONTROLLER_MODE
+            arb_id = self.make_arbitration_id(self.node_id, cmd_id)
+            data = struct.pack('<II', int(control_mode), int(input_mode))
+            success = self.send_can_frame(arb_id, data)
+            if not success:
+                raise Exception("Failed to set controller mode for node {self.name}")
+
             self.last_send_time = time.time()
-        
-        return success
+            return success
+        except Exception as e:
+            self.console.print(f"[red]{e}[/red]")
+            return False
+
 
     def set_position(self, pos: float, velocity_ff: float = 0.0, torque_ff: float = 0.0) -> bool:
         """
@@ -271,7 +278,7 @@ class ODriveDevice:
         """
         cmd_id = OdriveCANCommands.GET_ENCODER_ESTIMATES
         arb_id = self.make_arbitration_id(self.node_id, cmd_id)
-        # Send an RTR frame (Remote Transmission Request)
+        # Send an RTR frame (Remote Transmission Request) see https://github.com/odriverobotics/ODrive/blob/master/docs/can-protocol.rst
         # Using empty data with RTR bit would be better, but our interface doesn't expose RTR
         # so we'll send a regular frame with empty data
         success = self.send_can_frame(arb_id, b'')
@@ -367,7 +374,6 @@ class ODriveDevice:
             data: Data received from the ODrive
         """
         handler = self.message_handlers.get(cmd_id)
-        self.console.print(f"[red]Received message from {self.name} with cmd_id {cmd_id}[/red]")
         
         if handler:
             handler(data)
@@ -446,6 +452,7 @@ class ODriveDevice:
         
         if success:
             self.last_send_time = time.time()
+        
         
         return success
     
