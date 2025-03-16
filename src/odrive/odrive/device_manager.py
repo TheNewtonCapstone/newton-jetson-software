@@ -18,9 +18,12 @@ class ODriveManager:
         """
         self.can_interface = can_interface
         self.devices: Dict[int, ODriveDevice] = {}  # node_id -> device
-
-        self.can_interface.start(self.process_can_message)
         
+    def start(self) -> None:
+        """
+        Start the manager and all devices
+        """
+        self.can_interface.start(self.process_can_message)
     def add_device(self, node_id: int) -> ODriveDevice:
         if node_id in self.devices:
             console.print(f"[yellow]Warning: Device with node_id {node_id} already exists. Returning existing device.[/yellow]")

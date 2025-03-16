@@ -14,6 +14,8 @@ class ODriveNode(Node):
         self.console.print("Initializing ODrive CAN controller node")
         self.can_interface = CanInterface()
         self.manager = ODriveManager(self.can_interface)
+        self.manager.start()
+        self.manager.enumerate_devices()
         # manager.enumerate_devices()
         
 
