@@ -3,6 +3,7 @@ from enum import IntEnum, unique
 from typing import Callable, Dict, Optional, List, Tuple, Any
 import time
 from .can_interface import Arbitration
+from rich.console import Console
 
 class AxisState(IntEnum):
     UNDEFINED = 0
@@ -91,7 +92,12 @@ class ODriveDevice:
     This class represents a single ODrive device on the CAN bus.
     """
 
-    def __init__(self, node_id: int, send_can_frame: Callable[[int, bytes], bool]):
+    def __init__(self, 
+                 node_id: int, 
+                 name: str,
+                 direction: float,
+                 position_limit: float,
+                 send_can_frame: Callable[[int, bytes], bool]):
         """
         Initialize ODrive device.
         
@@ -99,9 +105,15 @@ class ODriveDevice:
             node_id: CAN node ID of the ODrive device
             send_can_frame: Function to send CAN frames (takes arbitration_id and data)
         """
+        self.name = name
         self.node_id = node_id
+        ## limits
+        self.position_limit = position_limit
+        # direction of the motor depending on which side the motor is mounted 
+        self.direction = direction
+
         self.send_can_frame = send_can_frame
-        
+
         # State tracking
         self.position = 0.0
         self.velocity = 0.0
@@ -122,6 +134,7 @@ class ODriveDevice:
         # Debug info
         self.last_send_time = 0
         self.last_receive_time = 0
+        self.console = Console()
 
     def make_arbitration_id(self, node_id: int, cmd_id: int) -> int:
         """
@@ -354,7 +367,7 @@ class ODriveDevice:
             data: Data received from the ODrive
         """
         handler = self.message_handlers.get(cmd_id)
-        print(f"[red]Received message from {self.node_id} with cmd_id {cmd_id}[/red]")
+        self.console.print(f"[red]Received message from {self.name} with cmd_id {cmd_id}[/red]")
         
         if handler:
             handler(data)

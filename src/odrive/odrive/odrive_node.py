@@ -1,4 +1,5 @@
 import rclpy
+import os
 from rclpy.executors import ExternalShutdownException
 from rclpy.node import Node
 from rich.console import Console
@@ -14,8 +15,11 @@ class ODriveNode(Node):
         self.console.print("Initializing ODrive CAN controller node")
         self.can_interface = CanInterface()
         self.manager = ODriveManager(self.can_interface)
-        self.manager.start()
+        config_file_path = "../../configs/newton.yaml"
+        print(f"current working directory: {os.getcwd()}")
+        self.manager.start(config_file_path)
         self.manager.enumerate_devices()
+
         # manager.enumerate_devices()
         
 

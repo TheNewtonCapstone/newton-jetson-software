@@ -19,17 +19,54 @@ class ODriveManager:
         self.can_interface = can_interface
         self.devices: Dict[int, ODriveDevice] = {}  # node_id -> device
         
-    def start(self) -> None:
+    def start(self, config_file_path: str) -> None:
         """
         Start the manager and all devices
         """
         self.can_interface.start(self.process_can_message)
-    def add_device(self, node_id: int) -> ODriveDevice:
+        import yaml
+        config = {}
+        try: 
+            with open(config_file_path, 'r') as file:
+                config = yaml.safe_load(file)
+            motor_params = config.get("motors_params", {})
+            for motor_name, motor_params in config["motors_params"].items():
+              if motor_params.get("enabled", True):
+                console.print(f"[green]Loading motor: {motor_name}[/green]")
+                node_id = motor_params["node_id"]
+                name = motor_params["name"].lower()
+                direction = motor_params["direction"]
+                position_limit = motor_params["position_limit"]
+                
+                self.add_device(
+                  node_id=node_id,
+                  name=name,
+                  direction=direction,
+                  position_limit=position_limit
+                  )
+                
+        except FileNotFoundError:
+            console.print(f"[red]Failed to load config file: {config_file_path}[/red]")
+            return
+              
+      
+    
+    def add_device(self, 
+                   node_id: int,
+                   name: str,
+                  direction: float, 
+                  position_limit: float,
+        ) -> ODriveDevice:
+
         if node_id in self.devices:
             console.print(f"[yellow]Warning: Device with node_id {node_id} already exists. Returning existing device.[/yellow]")
             return self.devices[node_id]
         
-        device = ODriveDevice(node_id, self.send_can_frame)
+        device = ODriveDevice(node_id, 
+                              name,
+                              direction,
+                              position_limit,
+                              self.send_can_frame)
         self.devices[node_id] = device
         return device
     
@@ -76,17 +113,15 @@ class ODriveManager:
         """
         Stop the manager and all devices
         """
-        # Optionally send estop to all devices
         for device in self.devices.values():
             device.estop()
         
-        # Stop the CAN interface
         self.can_interface.stop()
     
     def enumerate_devices(self, timeout: float = 3.0) -> List[int]:
         """
         Attempt to discover ODrive devices on the bus by requesting heartbeat
-        messages from all possible node IDs
+        messages from all possible node IDs from odrive can_enumerate.py
         
         Args:
             timeout: Time to wait for responses in seconds
@@ -163,3 +198,9 @@ class ODriveManager:
                 console.print(f"[red]Failed to estop device {node_id}[/red]")
             else:
                 console.print(f"[green]E-stopped device {node_id}[/green]")
+
+                
+    def _load_config(self, path: str) -> Dict:
+            """
+            Load a YAML configuration file
+            """
