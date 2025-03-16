@@ -8,6 +8,7 @@ motors_params:
     node_id: 0
     position_limit: 0.5
     direction: 1
+    gear_ratio: 9.0
   
   FL_HFE:
     enabled: False
@@ -15,6 +16,7 @@ motors_params:
     node_id: 1
     position_limit: 0.85
     direction: 1
+    gear_ratio: 9.0
 
 
   FL_KFE:
@@ -23,6 +25,7 @@ motors_params:
     node_id: 2
     position_limit: 3
     direction: 1
+    gear_ratio: 9.0
 
   FR_HAA:
     enabled: False
@@ -30,6 +33,7 @@ motors_params:
     node_id: 3
     position_limit: 0.5
     direction: 1
+    gear_ratio: 9.0
 
   FR_HFE:
     enabled: False
@@ -37,6 +41,7 @@ motors_params:
     node_id: 4
     position_limit: 0.85
     direction: -1
+    gear_ratio: 9.0
   
   FR_KFE:
     enabled: False
@@ -44,6 +49,7 @@ motors_params:
     node_id: 5
     position_limit: 3
     direction: -1
+    gear_ratio: 9.0
 
   HL_HAA:
     enabled: True
@@ -51,6 +57,7 @@ motors_params:
     node_id: 6
     position_limit: 0.5
     direction: 1
+    gear_ratio: 9.0
 
   HL_HFE:
     enabled: True
@@ -58,12 +65,15 @@ motors_params:
     node_id: 7
     position_limit: 0.85
     direction: 1
+    gear_ratio: 9.0
+
   HL_KFE:
     enabled: True
     name: HL_KFE
     node_id: 8
     position_limit: 3
     direction: 1
+    gear_ratio: 9.0
 
   HR_HAA:
     enabled: True
@@ -71,6 +81,7 @@ motors_params:
     node_id: 9
     position_limit: 0.5
     direction: 1
+    gear_ratio: 9.0
   
   HR_HFE:
     enabled: True
@@ -78,6 +89,7 @@ motors_params:
     node_id: 10
     position_limit: 0.85
     direction: -1
+    gear_ratio: 9.0
 
   HR_KFE:
     enabled: True
@@ -85,3 +97,4 @@ motors_params:
     node_id: 11
     position_limit: 3
     direction: -1 
+    gear_ratio: 9.0
