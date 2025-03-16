@@ -2,6 +2,7 @@ import struct
 from enum import IntEnum, unique
 from typing import Callable, Dict, Optional, List, Tuple, Any
 import time
+from .can_interface import Arbitration
 
 class AxisState(IntEnum):
     UNDEFINED = 0
@@ -15,7 +16,7 @@ class AxisState(IntEnum):
     LOCKIN_SPIN = 9
     ENCODER_DIR_FIND = 10
     HOMING = 11
-    ENCODER_HALL_PHASE_CALIBRATION = 12
+    ENCODER_HALL_PHASE_receive_thread = 12
     ENCODER_HALL_POLARITY_CALIBRATION = 13
 
 
@@ -133,7 +134,7 @@ class ODriveDevice:
         Returns:
             int: Arbitration ID
         """
-        return (node_id << Arbitration.NODE_SIZE) | cmd_id
+        return (node_id << Arbitration.NODE_ID_SIZE) | cmd_id
 
     def set_axis_state(self, state: AxisState) -> bool:
         """
@@ -346,13 +347,15 @@ class ODriveDevice:
 
     def process_can_message(self, cmd_id: int, data: bytes) -> None:
         """
-        Process CAN message from the ODrive
+            Process CAN message from the ODrive
         
         Args:
             cmd_id: Command ID of the message
             data: Data received from the ODrive
         """
         handler = self.message_handlers.get(cmd_id)
+        print(f"[red]Received message from {self.node_id} with cmd_id {cmd_id}[/red]")
+        
         if handler:
             handler(data)
             

@@ -52,7 +52,8 @@ class ODriveManager:
         """
         return self.can_interface.send_frame(arbitration_id, data)
     
-    def process_can_message(self) -> None:
+    def process_can_message(self,node_id: int, cmd_id: int, data: bytearray) -> None:
+       
         """
         Process an incoming CAN message
         
@@ -110,7 +111,7 @@ class ODriveManager:
             # Request heartbeat from all possible node IDs
             console.print("[blue]Enumerating ODrive devices...[/blue]")
             for node_id in range(max_node_id + 1):
-                arb_id = (node_id << Arbitration.NODE_SIZE) | OdriveCANCommands.GET_HEARTBEAT
+                arb_id = (node_id << Arbitration.NODE_ID_SIZE) | OdriveCANCommands.GET_HEARTBEAT
                 self.can_interface.send_frame(arb_id, b'')
             
             # Wait for responses
