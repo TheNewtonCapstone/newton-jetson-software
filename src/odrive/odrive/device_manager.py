@@ -53,9 +53,8 @@ class ODriveManager:
                         gear_ratio=gear_ratio,
                     )
 
+            # check if the devices in the config file match the discovered devices
             discovered_nodes = self.enumerate_devices()
-
-            # check if the devices in the config file mathc the discovered devices
             for node_id, device in self.devices.items():
                 if node_id not in discovered_nodes:
                     raise Exception(
@@ -189,6 +188,7 @@ class ODriveManager:
         control_mode: ControlMode = ControlMode.POSITION_CONTROL,
         input_mode: InputMode = InputMode.TRAP_TRAJ,
         closed_loop: bool = True,
+        set_zero_pos: bool = True,
     ) -> None:
         """
         Initialize all devices with common settings
@@ -198,30 +198,42 @@ class ODriveManager:
             input_mode: Input mode to set
             closed_loop: Whether to enter closed loop control
         """
+
+        # clear errors
         for node_id, device in self.devices.items():
-            # Set control mode
-            if not device.set_controller_mode(control_mode, input_mode):
+            if not device.clear_errors():
                 console.print(
-                    f"[red]Failed to set controller mode for device {node_id}[/red]"
+                    f"[yellow]Failed to clear errors for device {node_id}[/yellow]"
                 )
                 continue
 
-            # Enter closed loop control if requested
-            if closed_loop:
-                if not device.set_axis_state(AxisState.CLOSED_LOOP_CONTROL):
+        if set_zero_pos:
+            # set current position as zero
+            for node_id, device in self.devices.items():
+                if not device.set_zero_position():
                     console.print(
-                        f"[red]Failed to enter closed loop control for device {node_id}[/red]"
+                        f"[yellow]Failed to set zero position for device {node_id}[/yellow]"
                     )
                     continue
 
-            console.print(f"[green]Initialized device {node_id}[/green]")
+        # set control mode
+        if closed_loop:
+            for node_id, device in self.devices.items():
+                if not device.set_controller_mode(control_mode, input_mode):
+                    console.print(
+                        f"[red]Failed to set controller mode for device {node_id}[/red]"
+                    )
+                    continue
 
-    def init_one(
+                console.print(f"[green]Initialized device {node_id}[/green]")
+
+    def init_device(
         self,
         node_id: int,
         control_mode: ControlMode = ControlMode.POSITION_CONTROL,
         input_mode: InputMode = InputMode.TRAP_TRAJ,
         closed_loop: bool = True,
+        set_zero_pos: bool = True,
     ) -> None:
         """
         Initialize all devices with common settings
@@ -232,9 +244,25 @@ class ODriveManager:
             closed_loop: Whether to enter closed loop control
         """
         device = self.devices.get(node_id)
+
         if not device:
             console.print(f"[red]Device with node_id {node_id} not found[/red]")
             return
+
+        # Clear errors
+        if not device.clear_errors():
+            console.print(
+                f"[yellow]Failed to clear errors for device {node_id}[/yellow]"
+            )
+            return
+
+        # Set zero position
+        if set_zero_pos:
+            if not device.set_zero_position():
+                console.print(
+                    f"[yellow]Failed to set zero position for device {node_id}[/yellow]"
+                )
+                return
 
         # Set control mode
         if not device.set_controller_mode(control_mode, input_mode):

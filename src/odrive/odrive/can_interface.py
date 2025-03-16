@@ -8,7 +8,6 @@ import rclpy
 import rclpy.logging
 from rich import print
 from rich.console import Console
-import pprint
 
 console = Console()
 
@@ -64,7 +63,9 @@ class CanInterface:
             self.receive_thread.start()
             return True
         except Exception as e:
-            pprint(f"Failed to start CAN interface: {e}")
+            console.print(
+                f"[red]Can interface: Error starting CAN interface: {e}[/red]"
+            )
             if self.bus:
                 self.bus.shutdown()
                 self.bus = None
