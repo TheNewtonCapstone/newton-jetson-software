@@ -53,6 +53,14 @@ class ODriveManager:
                         gear_ratio=gear_ratio,
                     )
 
+            discovered_nodes = self.enumerate_devices()
+
+            # check if the devices in the config file mathc the discovered devices
+            for node_id, device in self.devices.items():
+                if node_id not in discovered_nodes:
+                    raise Exception(
+                        f"Device with node_id {node_id} in config file not found"
+                    )
         except FileNotFoundError:
             console.print(f"[red]Failed to load config file: {config_file_path}[/red]")
             return
