@@ -149,7 +149,7 @@ class AsyncCanInterface:
         Returns:
             bool: True if successfully started, False otherwise
         """
-        self.console.print("Starting CAN interface")
+        console.print("Starting CAN interface")
         if self.running:
             return False
         try:

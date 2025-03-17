@@ -4,6 +4,7 @@ from rich.console import Console
 
 from .device import ODriveDevice, AxisState, ControlMode, InputMode, OdriveCANCommands
 from .can_interface import CanInterface, Arbitration
+import yaml
 
 console = Console()
 
@@ -26,8 +27,15 @@ class ODriveManager:
         Start the manager and all devices
         """
         self.can_interface.start(self.process_can_message)
-        import yaml
+            # check if the devices in the config file match the discovered devices
+            # discovered_nodes = self.enumerate_devices()
+            # for node_id, device in self.devices.items():
+            #     if node_id not in discovered_nodes:
+            #         raise Exception(
+            #             f"Device with node_id {node_id} in config file not found"
+            #         )
 
+    def load_configs_from_file(self, config_file_path: str) -> None:
         config = {}
         try:
             with open(config_file_path, "r") as file:
@@ -42,10 +50,6 @@ class ODriveManager:
                     position_limit = motor_params["position_limit"]
                     gear_ratio = motor_params["gear_ratio"]
 
-                    console.print(
-                        f"[green]Loading motor: {motor_name} with id {node_id} from yaml file[/green] "
-                    )
-
                     self.add_device(
                         node_id=node_id,
                         name=name,
@@ -54,17 +58,10 @@ class ODriveManager:
                         gear_ratio=gear_ratio,
                     )
 
-            # check if the devices in the config file match the discovered devices
-            discovered_nodes = self.enumerate_devices()
-            # for node_id, device in self.devices.items():
-            #     if node_id not in discovered_nodes:
-            #         raise Exception(
-            #             f"Device with node_id {node_id} in config file not found"
-            #         )
         except FileNotFoundError:
             console.print(f"[red]Failed to load config file: {config_file_path}[/red]")
             return
-
+        
     def add_device(
         self,
         node_id: int,
