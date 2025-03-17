@@ -15,11 +15,13 @@ class ODriveNode(Node):
         super().__init__("odrive_node")
         self.console = Console()
         self.console.print("Initializing ODrive CAN controller node")
-        self.can_interface = AsyncCanInterface()
+        self.can_interface = CanInterface()
         self.manager = ODriveManager(self.can_interface)
-        self.loop = asyncio.get_event_loop()
-        self.loop.run_until_complete(self._async_init())
-        # self.manager.initialize_all()
+        config_file_path = "../../configs/newton.yaml"
+        self.manager.load_configs_from_file(config_file_path)
+        self.can_interface.start(self.manager.process_can_message)
+        self.manager.calibrate_all()
+
         
         
 
@@ -33,10 +35,6 @@ class ODriveNode(Node):
         # setup timers
         # start can interface
 
-    async def _async_init(self):
-        config_file_path = "../../configs/newton.yaml"
-        self.manager.load_configs_from_file(config_file_path)
-        await self.can_interface.start(self.manager.process_can_message)
     
     def position_callback(self, msg):
         # command for position command messages

@@ -34,6 +34,7 @@ class ODriveManager:
             #         raise Exception(
             #             f"Device with node_id {node_id} in config file not found"
             #         )
+    
 
     def load_configs_from_file(self, config_file_path: str) -> None:
         config = {}
@@ -77,7 +78,9 @@ class ODriveManager:
             return self.devices[node_id]
 
         device = ODriveDevice(
-            node_id, name, direction, position_limit, gear_ratio, self.send_can_frame
+            node_id, name, direction, position_limit, gear_ratio, 
+            self.send_can_frame,
+            self.request,
         )
 
         self.devices[node_id] = device
@@ -91,6 +94,25 @@ class ODriveManager:
 
     def get_device(self, node_id: int) -> Optional[ODriveDevice]:
         return self.devices.get(node_id)
+
+    def request(self, 
+                node_id: int, 
+                cmd_id: int, 
+                data: bytes, 
+                response_id: int, 
+                timeout:float=2.0) -> bool:
+        """
+        Send a request message to a device
+
+        Args:
+            node_id: Node ID of the device
+            cmd_id: Command ID
+            data: Request data
+
+        Returns:
+            bool: True if successful, False otherwise
+        """
+        return self.can_interface.request(node_id, cmd_id, data, response_id)
 
     def send_can_frame(self, arbitration_id: int, data: bytes) -> bool:
         """
@@ -293,3 +315,11 @@ class ODriveManager:
                 console.print(f"[red]Failed to estop device {node_id}[/red]")
             else:
                 console.print(f"[green]E-stopped device {node_id}[/green]")
+    def calibrate_all(self) -> None:
+        """
+        Calibrate all devices
+        """
+        # calibrate only the first device in devices 
+        node_id = list(self.devices.keys())[2]
+        device = self.devices[node_id]
+        device.calibrate()
