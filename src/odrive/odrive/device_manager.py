@@ -43,8 +43,9 @@ class ODriveManager:
                     gear_ratio = motor_params["gear_ratio"]
 
                     console.print(
-                        f"[green]Loading motor: {motor_name} with id {node_id}[/green]"
+                        f"[green]Loading motor: {motor_name} with id {node_id} from yaml file[/green] "
                     )
+
                     self.add_device(
                         node_id=node_id,
                         name=name,
@@ -55,11 +56,11 @@ class ODriveManager:
 
             # check if the devices in the config file match the discovered devices
             discovered_nodes = self.enumerate_devices()
-            for node_id, device in self.devices.items():
-                if node_id not in discovered_nodes:
-                    raise Exception(
-                        f"Device with node_id {node_id} in config file not found"
-                    )
+            # for node_id, device in self.devices.items():
+            #     if node_id not in discovered_nodes:
+            #         raise Exception(
+            #             f"Device with node_id {node_id} in config file not found"
+            #         )
         except FileNotFoundError:
             console.print(f"[red]Failed to load config file: {config_file_path}[/red]")
             return
@@ -210,7 +211,7 @@ class ODriveManager:
         if set_zero_pos:
             # set current position as zero
             for node_id, device in self.devices.items():
-                if not device.set_zero_position():
+                if not device.set_absolute_position(0.0):
                     console.print(
                         f"[yellow]Failed to set zero position for device {node_id}[/yellow]"
                     )
@@ -219,11 +220,16 @@ class ODriveManager:
         # set control mode
         if closed_loop:
             for node_id, device in self.devices.items():
-                if not device.set_controller_mode(control_mode, input_mode):
+                if not device.set_axis_state(AxisState.CLOSED_LOOP_CONTROL):
                     console.print(
-                        f"[red]Failed to set controller mode for device {node_id}[/red]"
+                        f"[red]Failed to enter closed loop control for device {node_id}[/red]"
                     )
                     continue
+                # if not device.set_controller_mode(control_mode, input_mode):
+                #     console.print(
+                #         f"[red]Failed to set controller mode for device {node_id}[/red]"
+                #     )
+                #     continue
 
                 console.print(f"[green]Initialized device {node_id}[/green]")
 

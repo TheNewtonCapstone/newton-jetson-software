@@ -130,8 +130,16 @@ class AsyncCanInterface:
     """
 
     def __init__(self, interface: str = "can0", bitrate: int = 1000000):
-        pass
+        self.interface = interface
+        self.bitrate = bitrate
+        self.bus: Optional[can.Bus] = None
+        self.callback: Optional[Callable] = None
+        self.reader: Optional[can.AsyncBufferedReader] = None
+        self.notifier: Optional[can.Notifier] = None
+        self.running = False
+        self.initilized = False
 
+        
     async def start(self, callback: Callable[[int, int, bytes], None]) -> bool:
         """
         Start CAN interface
@@ -141,13 +149,46 @@ class AsyncCanInterface:
         Returns:
             bool: True if successfully started, False otherwise
         """
-        pass
+        self.console.print("Starting CAN interface")
+        if self.running:
+            return False
+        try:
+            self.bus = can.Bus(
+                channel=self.interface, bustype="socketcan", bitrate=self.bitrate
+            )
+            self.callback = callback
+            self.reader = can.AsyncBufferedReader()
+            loop = asyncio.get_event_loop()
+            self.notifier = can.Notifier(self.bus, [self.reader], loop=loop)
 
-    async def stop(self) -> None:
+            self.running = True
+            self.initilized = True
+            
+            asyncio.create_task(self._receive_loop())
+            await asyncio.sleep(0.1)
+            
+            return True
+
+        except Exception as e:
+            console.print(
+                f"[red]Async Can interface: Error starting CAN interface: {e}[/red]"
+            )
+            if self.bus:
+                self.bus.shutdown()
+                self.bus = None
+            return False
+
+    def stop(self) -> None:
         """
         Stop async CAN interface
         """
-        pass
+        self.running = False
+        self.initilized = False
+        if self.notifier:
+            self.notifier.stop()
+        if self.bus:
+            self.bus.shutdown()
+            self.bus = None
 
     def send_frame(self, arbitration_id: int, data: bytes) -> bool:
         """
@@ -158,10 +199,33 @@ class AsyncCanInterface:
         Returns:
             bool: True if successfully sent, False otherwise
         """
-        pass
+        try:
+            if not self.bus or not self.initilized:
+                raise ValueError("CAN interface not started or initialized")
+            msg = can.Message(
+                arbitration_id=arbitration_id, data=data, is_extended_id=False
+            )
+            self.bus.send(msg)
+            return True
+        except Exception as e:
+            console.print(f"[red]Async Can interface: Error sending CAN message: {e}[/red]")
+            return False
 
     async def _receive_loop(self) -> None:
         """
         Async loop for receiving CAN messages
         """
-        pass
+        try:
+            while self.running:
+                msg = await self.reader.get_message()
+                if msg and not msg.is_error_frame:
+                    node_id = msg.arbitration_id >> Arbitration.NODE_ID_SIZE
+                    cmd_id = msg.arbitration_id & Arbitration.ARBITRATION_ID_SIZE
+                    if self.callback:
+                        self.callback(node_id, cmd_id, msg.data)
+        except Exception as e:
+            console.print(
+                f"Async Can interface: Error receiving CAN message in receive loop: {e}"
+            )
+            await asyncio.sleep(0.1)
+            await self._receive_loop()

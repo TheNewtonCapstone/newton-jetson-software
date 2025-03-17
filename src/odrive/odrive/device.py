@@ -292,7 +292,7 @@ class ODriveDevice:
         Returns:
             int: Arbitration ID
         """
-        return (node_id << Arbitration.NODE_ID_SIZE) | cmd_id
+        return (node_id << Arbitration.NODE_ID_SIZE | cmd_id)
 
     def set_axis_state(self, state: AxisState) -> bool:
         """
@@ -308,6 +308,7 @@ class ODriveDevice:
         arb_id = self.make_arbitration_id(self.node_id, cmd_id)
         data = struct.pack("<I", int(state))
         success = self.send_can_frame(arb_id, data)
+        self.console.print(f"Setting axis state to node {self.name} {state} with status {success}")
 
         if success:
             self.last_send_time = time.time()
@@ -389,6 +390,7 @@ class ODriveDevice:
             self.position = pos
             self.velocity = vel
             self.last_receive_time = time.time()
+        self.console.print(f"Received encoder estimates for node {self.name} with position {self.position} and velocity {self.velocity}")
 
     def handle_heartbeat(self, data: bytes) -> None:
         """

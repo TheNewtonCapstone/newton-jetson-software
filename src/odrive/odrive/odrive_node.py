@@ -4,7 +4,7 @@ from rclpy.executors import ExternalShutdownException
 from rclpy.node import Node
 from rich.console import Console
 from .device_manager import ODriveManager
-from .can_interface import CanInterface
+from .can_interface import CanInterface, AsyncCanInterface
 
 class ODriveNode(Node):
     def __init__(self):
@@ -18,16 +18,8 @@ class ODriveNode(Node):
         config_file_path = "../../configs/newton.yaml"
         print(f"current working directory: {os.getcwd()}")
         self.manager.start(config_file_path)
-        self.manager.enumerate_devices()
         # self.manager.initialize_all()
-        self.manager.init_one(6)
-        # self.manager.init_one(7)
-        # self.manager.init_one(8)
-        # self.manager.init_one(9)
-        # self.manager.init_one(10)
-        # self.manager.init_one(11)
         
-        # manager.enumerate_devices()
         
 
 
@@ -40,11 +32,15 @@ class ODriveNode(Node):
         # setup timers
         # start can interface
 
+    def initialize(self):
+        pass
+    
     def position_callback(self, msg):
         # command for position command messages
         pass
 
     def shutdown(self):
+        self.manager.estop_all()
         
         pass
 
