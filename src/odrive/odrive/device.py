@@ -5,6 +5,7 @@ from typing import Callable, Dict, Optional, List, Tuple, Any
 import time
 from .can_interface import Arbitration
 from rich.console import Console
+import pprint
 
 
 class AxisState(IntEnum):
@@ -22,6 +23,10 @@ class AxisState(IntEnum):
     ENCODER_HALL_PHASE_receive_thread = 12
     ENCODER_HALL_POLARITY_CALIBRATION = 13
 
+
+
+
+    
 
 @unique
 class OdriveCANCommands(IntEnum):
@@ -104,6 +109,7 @@ class ODriveDevice:
         position_limit: float,
         gear_ratio: float,
         send_can_frame: Callable[[int, bytes], bool],
+        request: Callable[[int, int, bytes, float], Optional[bytes]] = None,
     ):
         """
         Initialize ODrive device.
@@ -120,6 +126,7 @@ class ODriveDevice:
         self.direction = direction  # direction of the motor, this used to keep the all movements uniform
         self.gear_ratio = gear_ratio  # gear ratio of the motor
         self.send_can_frame = send_can_frame
+        self.request = request
 
         # rad to motor turns conversion
         self.TURNS_TO_RAD = (2 * math.pi) / self.gear_ratio
@@ -294,7 +301,7 @@ class ODriveDevice:
         """
         return (node_id << Arbitration.NODE_ID_SIZE | cmd_id)
 
-    def set_axis_state(self, state: AxisState) -> bool:
+    def set_axis_state(self, state: AxisState) -> Tuple[int, int, int, bool]:
         """
         Set the state of the axis.
 
@@ -307,13 +314,17 @@ class ODriveDevice:
         cmd_id = OdriveCANCommands.SET_AXIS_STATE
         arb_id = self.make_arbitration_id(self.node_id, cmd_id)
         data = struct.pack("<I", int(state))
-        success = self.send_can_frame(arb_id, data)
-        self.console.print(f"Setting axis state to node {self.name} {state} with status {success}")
+        # self.send_can_frame(arb_id, data)
+        self.request(self.node_id, cmd_id, data, OdriveCANCommands.SET_AXIS_STATE)
+        err, curr_state, procedule_result,traj_done = self.request_heartbeat(timeout=3.0)
 
-        if success:
+        if err != 0 or procedule_result != 0:
+            raise Exception(f"Error setting axis state for node {self.name} {err}")
+
+        if curr_state == AxisState.IDLE:
             self.last_send_time = time.time()
+            return err, curr_state, procedule_result, traj_done 
 
-        return success
 
     def set_controller_mode(
         self, control_mode: ControlMode, input_mode: InputMode
@@ -342,21 +353,6 @@ class ODriveDevice:
             self.console.print(f"[red]{e}[/red]")
             return False
 
-    def request_heartbeat(self) -> bool:
-        """
-        Request a heartbeat message.
-
-        Returns:
-            bool: True if request was sent successfully
-        """
-        cmd_id = OdriveCANCommands.GET_HEARTBEAT
-        arb_id = self.make_arbitration_id(self.node_id, cmd_id)
-        success = self.send_can_frame(arb_id, b"")
-
-        if success:
-            self.last_send_time = time.time()
-
-        return success
 
     def clear_errors(self, identify: bool = False) -> bool:
         """
@@ -390,7 +386,6 @@ class ODriveDevice:
             self.position = pos
             self.velocity = vel
             self.last_receive_time = time.time()
-        self.console.print(f"Received encoder estimates for node {self.name} with position {self.position} and velocity {self.velocity}")
 
     def handle_heartbeat(self, data: bytes) -> None:
         """
@@ -626,3 +621,40 @@ class ODriveDevice:
     def get_address_msg(self, sn: int) -> bool:
         # to be implemented, getting addressees using odrive's serial number
         pass
+    
+    def request_heartbeat(self, timeout: float = 3.0) -> bool:
+        """
+        Request a heartbeat and wait for the response
+
+        Args:
+            timeout: Maximum time to wait for response
+            
+        Returns:
+            bool: True if heartbeat received and processed, False otherwise
+        """
+            
+        data = self.request(
+            self.node_id, 
+            OdriveCANCommands.GET_HEARTBEAT, 
+            b"", 
+            OdriveCANCommands.GET_HEARTBEAT,
+            timeout=timeout
+        )
+        error, state, procedure_result, trajectory_done = struct.unpack(
+            "<IBBB", data[:7]
+        )
+        print(f"Request heartbeat response {state} for node {self.name}")
+        return error, state, procedure_result, trajectory_done
+
+    def calibrate(self, timeout: float = 3.0) -> bool:
+        """
+        Run motor calibration and wait for completion
+        
+        Args:
+            timeout: Maximum time to wait for calibration
+            
+        Returns:
+            bool: True if calibration successful, False otherwise
+        """
+        # Start calibration
+        self.set_axis_state(AxisState.MOTOR_CALIBRATION)
