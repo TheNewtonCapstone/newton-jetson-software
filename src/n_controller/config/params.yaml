@@ -1,0 +1,5 @@
+n_motor_controller:
+  ros__parameters:
+    model_path: "model.onnx"
+    num_inputs: 45
+    num_outputs: 12

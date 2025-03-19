@@ -1,0 +1,3 @@
+[submodule "src/odrive"]
+	path = src/odrive
+	url = https://github.com/TheNewtonCapstone/ros-odrive.git

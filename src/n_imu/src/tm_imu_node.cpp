@@ -7,7 +7,7 @@ EasyProfile eP(&eOD);
 #define DEBUG_MODE_PRINT_TIMER_MS_ (10000) // 10 seconds
 #endif
 
-TMSerial::TMSerial() : rclcpp::Node("tm_imu")
+TMSerial::TMSerial() : rclcpp::Node("n_imu")
 {
     // Declare node's parameters default value
     // [NOT NECESSARY TO CHANGE THE FOLLOWING, USE ../config/params.yaml INSTEAD !]

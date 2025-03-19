@@ -5,6 +5,7 @@ from launch.conditions import IfCondition
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
+from ament_index_python.packages import get_package_share_directory
 import os
 import yaml
 
@@ -36,16 +37,25 @@ def create_motor_node(motor_name, motor_config):
 
 def generate_launch_description():
     # get root path of the package
-    root_path = pythonpath = os.environ.get("PWD")
-    config_path = os.path.join(root_path, "configs", "newton.yaml")
+    root_path = os.environ.get("PWD")
+    robot_path = os.path.join(
+        root_path, 
+        "configs", 
+        "newton.yaml"
+    )
+    config_path = os.path.join(
+        get_package_share_directory("n_controller"),
+        "config", 
+        "params.yaml",
+    )
 
     try:
-        if not os.path.exists(config_path):
+        if not os.path.exists(robot_path):
             raise FileNotFoundError
-        with open(config_path, "r") as file:
+        with open(robot_path, "r") as file:
             configs = yaml.safe_load(file)
     except FileNotFoundError:
-        print(f"Configuration file not found: {config_path}")
+        print(f"Configuration file not found: {robot_path}")
 
     motors_params = configs["motors_params"]
     # Declare all launch arguments
@@ -75,7 +85,7 @@ def generate_launch_description():
         name="motor_driver_node",
         output="screen",
         emulate_tty=True,
-        parameters=[launch_args],
+        parameters=[launch_args, config_path],
     )
 
     return LaunchDescription([*nodes, motor_controller_node])
