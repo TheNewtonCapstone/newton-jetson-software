@@ -1,5 +1,10 @@
 import logging
+from enum import IntEnum
+from error import ODriveErrorCode, ODriveProcedureResult
 
+
+    
+    
 class CanException(Exception):
     def __init__(self, *args):
         super().__init__(*args) 
@@ -20,7 +25,13 @@ class ODriveException(Exception):
         logging.error("An exception: {}".format(self))
 
 class NoHearBeatException(ODriveException):
-    def __init__(self, *args):
+    def __init__(
+        self, 
+        node_id: int,
+        error_code: ODriveErrorCode,
+        procedure_result: ODriveProcedureResult,
+        *args
+        ):
         super().__init__(*args)
 
 class TimeoutException(ODriveException):

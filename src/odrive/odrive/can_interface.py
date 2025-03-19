@@ -139,11 +139,10 @@ class CanInterface:
         node_id: int,
         cmd_id: int,
         data: bytes,
-        response_cmd_id: int,
-        timeout: float = 1.0) -> Optional[bytes]:
+        timeout: float = 3.0) -> Optional[bytes]:
 
         """ 
-        Send a can frame and waiting a response 
+        Send a can frame and waiting a response.
         Args:
             node_id: Node ID
             cmd_id: Command ID
@@ -151,9 +150,6 @@ class CanInterface:
             response_cmd_id: Command ID of the response
             timeout: Timeout in seconds
         """
-        if response_cmd_id is None:
-            response_cmd_id = cmd_id
-
         request_id = str(uuid.uuid4())
         tracker = RequestTracker(
             request_id=request_id,
@@ -163,7 +159,7 @@ class CanInterface:
         )
         
 
-        key = (node_id, response_cmd_id)
+        key = (node_id, cmd_id)
 
         with self.requests_lock:
             self.requests[key] = tracker
