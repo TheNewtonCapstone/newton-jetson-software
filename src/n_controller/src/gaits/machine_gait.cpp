@@ -7,10 +7,10 @@ using namespace newton;
 using namespace std::chrono_literals;
 
 MachineGait::MachineGait(const rclcpp::NodeOptions &options)
-    : BaseGait("machine_gait", options)
-{
+    : BaseGait("machine_gait", options) {
   // Declare node's parameters default value
-  // [NOT NECESSARY TO CHANGE THE FOLLOWING, USE ../config/params.yaml INSTEAD !]
+  // [NOT NECESSARY TO CHANGE THE FOLLOWING, USE ../config/params.yaml INSTEAD
+  // !]
   this->declare_parameter("model_path", "model.onnx");
   this->declare_parameter("num_inputs", 45);
   this->declare_parameter("num_outputs", 12);
@@ -20,23 +20,22 @@ MachineGait::MachineGait(const rclcpp::NodeOptions &options)
   const auto num_inputs = this->get_parameter("num_inputs").as_int();
   const auto num_outputs = this->get_parameter("num_outputs").as_int();
 
-  onnx_handler = std::make_unique<OnnxHandler>(model_path, num_inputs, num_outputs);
+  onnx_handler =
+      std::make_unique<OnnxHandler>(model_path, num_inputs, num_outputs);
 
   BaseGait::init();
 };
 
-void MachineGait::move()
-{
+void MachineGait::move() {
   Logger::INFO("MachineGait", "Waiting for encoder offsets to be loaded");
-  while (!offset_loaded)
-  {
+  while (!offset_loaded) {
   };
 
   std::array<float, NUM_JOINTS> jp_mult = {
-      1.0, 1.0, -1.0, // fl
-      1.0, -1.0, 1.0, // fr
-      1.0, 1.0, -1.0, // hl
-      1.0, -1.0, 1.0, // hr
+      1.0, 1.0,  -1.0, // fl
+      1.0, -1.0, 1.0,  // fr
+      1.0, 1.0,  -1.0, // hl
+      1.0, -1.0, 1.0,  // hr
   };
 
   std::array<float, NUM_JOINTS> standing_positions = {
@@ -65,22 +64,19 @@ void MachineGait::move()
   input_buffer[8] = 0.0;
 
   // joint positions
-  for (int i = 0; i < NUM_JOINTS; i++)
-  {
+  for (int i = 0; i < NUM_JOINTS; i++) {
     input_buffer[9 + i] = joints[i].cur_pos - standing_positions[i];
   }
 
   // joint velocities
   const auto joint_velocity_scaler = 0.05;
-  for (int i = 0; i < NUM_JOINTS; i++)
-  {
+  for (int i = 0; i < NUM_JOINTS; i++) {
     input_buffer[21 + i] = joints[i].curr_vel * joint_velocity_scaler;
   }
 
   // previous actions
   const auto previous_actions_scaler = 1.0;
-  for (int i = 0; i < NUM_JOINTS; i++)
-  {
+  for (int i = 0; i < NUM_JOINTS; i++) {
     input_buffer[33 + i] = previous_actions[i] * previous_actions_scaler;
   }
 
@@ -89,20 +85,17 @@ void MachineGait::move()
   const auto &output_buffer = onnx_handler->get_output_buffer();
 
   std::array<double, NUM_JOINTS> positions{};
-  for (int i = 0; i < NUM_JOINTS; i++)
-  {
+  for (int i = 0; i < NUM_JOINTS; i++) {
     previous_actions[i] = output_buffer[i];
     positions[i] = standing_positions[i] + (output_buffer[i] * jp_mult[i]);
   }
 
   // print the positions
-  for (int i = 0; i < NUM_JOINTS; i++)
-  {
+  for (int i = 0; i < NUM_JOINTS; i++) {
     RCLCPP_INFO(this->get_logger(), "Joint %d: %f", i, positions[i]);
   }
 
-  for (int i = 0; i < NUM_JOINTS; i++)
-  {
+  for (int i = 0; i < NUM_JOINTS; i++) {
     set_joint_position(standing_positions[i], i);
   }
 }
