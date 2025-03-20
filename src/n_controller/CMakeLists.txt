@@ -1,6 +1,6 @@
 # motor_driver CMakeLists.txt
 cmake_minimum_required(VERSION 3.8)
-project(n_motor_controller)
+project(n_controller)
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
@@ -14,7 +14,7 @@ find_package(std_srvs REQUIRED)
 find_package(sensor_msgs REQUIRED)
 
 set(ONNXRUNTIME_INCLUDE_DIR /usr/local/include/onnxruntime)
-set(ONNXRUNTIME_BIN_DIR /usr/local/lib/onnxruntime)
+set(ONNXRUNTIME_BIN_DIR /usr/local/lib)
 
 # Onnxruntime
 include_directories(include "${ONNXRUNTIME_INCLUDE_DIR}/")
@@ -41,7 +41,7 @@ include_directories(${UTILS_DIR}/include)
 include_directories(${UTILS_DIR}/build)
 
 # Define executable target
-add_executable(motor_driver_node
+add_executable(controller_node
   src/main.cpp
   src/gaits/base_gait.cpp
   src/gaits/harmonic_gait.cpp
@@ -55,7 +55,7 @@ message("Current Dir: ${PROJECT_DIR}")
 message("Utils Include Dir: ${UTILS_DIR}")
 
 # Add ROS dependencies
-ament_target_dependencies(motor_driver_node
+ament_target_dependencies(controller_node
   rclcpp
   rclcpp_components
   odrive_can
@@ -63,29 +63,30 @@ ament_target_dependencies(motor_driver_node
   sensor_msgs
 )
 
-target_include_directories(motor_driver_node
+target_include_directories(controller_node
   PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>
     ${UTILS_DIR}/include  
 )
 
-target_link_libraries(motor_driver_node
+target_link_libraries(controller_node
   ${UTILS_DIR}/build/libutils.so
   onnxruntime
 )
 
 # Set compile features
-target_compile_features(motor_driver_node PRIVATE cxx_std_20)
+target_compile_features(controller_node PRIVATE cxx_std_20)
 
 install(
-  TARGETS motor_driver_node
+  TARGETS controller_node
   DESTINATION lib/${PROJECT_NAME}
 )
 
 install(DIRECTORY
   launch
   config
+  models
   DESTINATION share/${PROJECT_NAME}/
 )
 

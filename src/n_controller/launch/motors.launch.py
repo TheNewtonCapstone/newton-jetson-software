@@ -36,41 +36,35 @@ def create_motor_node(motor_name, motor_config):
 
 
 def generate_launch_description():
-    # get root path of the package
-    root_path = os.environ.get("PWD")
-    robot_path = os.path.join(
-        root_path, 
-        "configs", 
-        "newton.yaml"
-    )
-    config_path = os.path.join(
-        get_package_share_directory("n_controller"),
+    shared_directory = get_package_share_directory("n_controller")
+    robot_config_path = os.path.join(
+        shared_directory,
         "config", 
-        "params.yaml",
+        "robot.yaml"
     )
 
     try:
-        if not os.path.exists(robot_path):
+        if not os.path.exists(robot_config_path):
             raise FileNotFoundError
-        with open(robot_path, "r") as file:
+        with open(robot_config_path, "r") as file:
             configs = yaml.safe_load(file)
     except FileNotFoundError:
-        print(f"Configuration file not found: {robot_path}")
+        print(f"Configuration file not found: {robot_config_path}")
 
     motors_params = configs["motors_params"]
     # Declare all launch arguments
-    launch_args = {}
-    launch_args["robot_name"] = configs["robot_name"]
-    launch_args["num_joints"] = len(motors_params)
-    print(f"Number of joints: {launch_args['num_joints']}")
+    ros_motor_config = {}
+    ros_motor_config["robot_name"] = configs["robot_name"]
+    ros_motor_config["num_joints"] = len(motors_params)
+    print(f"Number of joints: {ros_motor_config['num_joints']}")
 
     for motor_name, motor_config in motors_params.items():
         for key, value in motor_config.items():
             param_name = f"{motor_name.lower()}_{key}"
             if isinstance(value, (int, float)):
-                launch_args[param_name] = float(value)
+                ros_motor_config[param_name] = float(value)
             else:
-                launch_args[param_name] = str(value)
+                ros_motor_config[param_name] = str(value)
 
     nodes = []
 
@@ -78,14 +72,36 @@ def generate_launch_description():
         print(f"Motor name: {motor_name}")
         print(f"Motor config: {motor_config}")
         nodes.append(create_motor_node(motor_name, motor_config))
+        
+    ros_config_path = os.path.join(
+        shared_directory,
+        "config", 
+        "onnx.yaml",
+    )
+    
+    with open(ros_config_path, "r") as file:
+        onnx_config = yaml.safe_load(file)
+    
+    relative_model_path = onnx_config["model_path"]
+    
+    onnx_config["model_path"] = os.path.join(
+        shared_directory,
+        relative_model_path,
+    )
+    
+    print(f"Switched model path from {relative_model_path} to {onnx_config['model_path']}")
+    
+    config = {}
+    config.update(ros_motor_config)
+    config.update(onnx_config)
 
-    motor_controller_node =  Node (
-        package="n_motor_controller",
-        executable="motor_driver_node",
-        name="motor_driver_node",
+    controller_node = Node(
+        package="n_controller",
+        executable="controller_node",
+        name="controller_node",
         output="screen",
         emulate_tty=True,
-        parameters=[launch_args, config_path],
+        parameters=[config],
     )
 
-    return LaunchDescription([*nodes, motor_controller_node])
+    return LaunchDescription([*nodes, controller_node])

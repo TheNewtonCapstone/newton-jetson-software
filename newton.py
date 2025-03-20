@@ -20,11 +20,11 @@ ROOT_DIR = None
 
 
 class PkgName(str, Enum):
-    n_motor = "n_motor"
+    n_controller = "n_controller"
     odrive_can = "odrive_can"
     n_imu = "n_imu"
     newton = "newton"
-    n_utils = "n_utils"
+    utils = "utils"
     all = "all"
 
 
@@ -78,9 +78,9 @@ def clean_workspace(
         except Exception as e:
             console.print(f"[red]Error cleaning package: {str(e)}[/red]")
             return
-    if name == "motor_driver":
+    if name == "controller":
         try:
-            clean_ros_package(Path(ROOT_DIR, "core", "src", "motor_driver"))
+            clean_ros_package(Path(ROOT_DIR, "core", "src", "n_controller"))
         except Exception as e:
             console.print(f"[red]Error cleaning package: {str(e)}[/red]")
             return
@@ -93,11 +93,11 @@ def clean_workspace(
             return
     if name == "imu_driver":
         try:
-            clean_ros_package(Path(ROOT_DIR, "core", "src", "imu"))
+            clean_ros_package(Path(ROOT_DIR, "core", "src", "n_imu"))
         except Exception as e:
             console.print(f"[red]Error cleaning package: {str(e)}[/red]")
             return
-    if name == "n_utils":
+    if name == "utils":
         try:
             clean_ros_package(Path(ROOT_DIR, "utils"))
         except Exception as e:
@@ -123,7 +123,7 @@ def build_package(
     """Build newton packages"""
     if name == PkgName.all:
         try:
-            build_package(PkgName.n_utils)
+            build_package(PkgName.utils)
             src_path = Path(ROOT_DIR, "src")
             if not src_path.exists():
                 raise Exception(f"Could not find package: {src_path}")
@@ -138,7 +138,7 @@ def build_package(
             os.execvp(cmd[0], cmd)
         except Exception as e:
             console.print(f"[red]Error building package: {str(e)}[/red]")
-    if name == PkgName.n_motor:
+    if name == PkgName.n_controller:
         try:
             console.print("Building motor_driver")
             cmd = ["ros2", "pkg", "list"]
@@ -150,7 +150,7 @@ def build_package(
             )
             output, error = process.communicate()
 
-            if PkgName.n_motor in str(output):
+            if PkgName.n_controller in str(output):
                 console.print("Package already installed")
                 return
 
@@ -241,8 +241,8 @@ def build_package(
         except Exception as e:
             console.print(f"[red]Error building package: {str(e)}[/red]")
 
-    elif PkgName.n_utils:
-        console.print("Building n_utils")
+    elif PkgName.utils:
+        console.print("Building utils")
         try:
             n_utils_path = Path(ROOT_DIR, "utils")
             build_path = Path(n_utils_path, "build")
@@ -284,6 +284,7 @@ def build_package(
         except Exception as e:
             console.print(f"[red]Error building package: {str(e)}[/red]")
 
+
 @pkg_app.command("launch")
 def launch_package(
     pkg_name: Annotated[
@@ -291,17 +292,11 @@ def launch_package(
     ] = PkgName.all,
 ):
     try:
-        if pkg_name == PkgName.n_motor:
+        if pkg_name == PkgName.n_controller:
             cmd = ["ros2", "launch", "n_motor_controller", "motors.launch.py"]
             os.execvp(cmd[0], cmd)
     except Exception as e:
         console.print(f"[red]Error launching package {pkg_name}: {str(e)}[/red]")
-
-    
-    
-
-
-
 
 
 @ctn_app.command("run")
@@ -326,20 +321,23 @@ def run_container(
 ):
     """Run a container with hardware access and proper ROS2 environment setup"""
     try:
+        # get user id and group id
+        user_id = os.getuid()
+        group_id = os.getgid()
 
         print("Container: ", container)
         cmd = [
             "docker",
             "run",
+            "--runtime=nvidia",
             "-it",
             "--net=host",
-            "-e",
-            f"DISPLAY={os.getenv('DISPLAY', ':0')}",
             "-v",
             "/dev:/dev",
             "--device-cgroup-rule=c *:* rmw",
-            # "--device=/dev/ttyACM0:/dev/ttyACM0",  
-            "--group-add=dialout",  
+            # "--device=/dev/ttyACM0:/dev/ttyACM0",
+            "--group-add=dialout",
+            "--group-add=video",
             "--device=/dev",
             "-e",
             "WORKSPACE_ROOT=/home/newton/workspace",
