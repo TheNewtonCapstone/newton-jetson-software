@@ -33,6 +33,10 @@
 .idea
 .venv
 __pycache__
+
 .cache
 .vscode
 build
+src/install
+src/build
+src/log
