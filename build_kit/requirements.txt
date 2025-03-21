@@ -1,4 +1,0 @@
-click==8.1.7
-typer==0.15.1
-rich
-packaging>=20.0

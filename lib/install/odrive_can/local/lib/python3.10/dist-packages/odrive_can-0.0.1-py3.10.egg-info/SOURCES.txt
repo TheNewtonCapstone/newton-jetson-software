@@ -1,6 +1,0 @@
-setup.py
-odrive_can/__init__.py
-odrive_can.egg-info/PKG-INFO
-odrive_can.egg-info/SOURCES.txt
-odrive_can.egg-info/dependency_links.txt
-odrive_can.egg-info/top_level.txt

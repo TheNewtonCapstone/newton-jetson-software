@@ -1,0 +1,60 @@
+{
+    "name": "newton-dev",
+    "remoteUser": "newton",
+    "postStartCommand": ". /newton_entrypoint.sh",
+    "build": {
+        "dockerfile": "../docker/Dockerfile.x86_64.dev",
+        "context": "../docker/",
+        "args": {
+            "USERNAME": "newton"
+        }
+    },
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-python.python",
+                "ms-vscode.cpptools",
+                "llvm-vs-code-extensions.vscode-clangd",
+                "ms-vscode.cmake-tools",
+                "twxs.cmake",
+                "ms-azuretools.vscode-docker",
+                "ms-vscode-remote.remote-containers",
+                "ms-iot.vscode-ros",
+                "charliermarsh.ruff",
+                "ms-vscode.cpptools-extension-pack",
+                "smilerobotics.urdf",
+                "redhat.vscode-xml",
+                "tamasfe.even-better-toml",
+                "timonwong.shellcheck",
+                "yzhang.markdown-all-in-one"
+            ],
+            "settings": {
+                "files.associations": {
+                    "*.rviz": "yaml",
+                    "*.srdf": "xml",
+                    "*.urdf": "xml",
+                    "*.xacro": "xml"
+                },
+                "C_Cpp.intelliSenseEngine": "disabled",
+                "clangd.arguments": [
+                    "--compile-commands-dir=${workspaceFolder}/scr/build",
+                    "--completion-style=detailed",
+                    "--clang-tidy",
+                    "--clang-tidy-checks=-*,modernize*",
+                    "--header-insertion=never"
+                ]
+            }
+        }
+    },
+    "workspaceFolder": "/home/newton/workspace",
+    "workspaceMount": "source=${localWorkspaceFolder},target=/home/newton/workspace,type=bind",
+    "mounts": [
+        "source=/dev,target=/dev,type=bind"
+    ],
+    "runArgs": [
+        "--net=host",
+        "--privileged",
+        "--device-cgroup-rule=c *:* rmw",
+        "--device=/dev"
+    ]
+}

@@ -40,3 +40,14 @@ build
 src/install
 src/build
 src/log
+
+build/
+log/
+install/
+cmake-build-debug/
+.vscode/
+.vscode-server/
+.local/
+.cache/
+.donet/
+.env

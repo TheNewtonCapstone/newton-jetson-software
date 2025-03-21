@@ -1,6 +1,0 @@
-Invoking command in '/home/newton/lib/build/odrive_can': /usr/local/bin/cmake /home/newton/lib/ros_odrive/odrive_node -DCMAKE_INSTALL_PREFIX=/home/newton/lib/install/odrive_can
-Invoked command in '/home/newton/lib/build/odrive_can' returned '0': /usr/local/bin/cmake /home/newton/lib/ros_odrive/odrive_node -DCMAKE_INSTALL_PREFIX=/home/newton/lib/install/odrive_can
-Invoking command in '/home/newton/lib/build/odrive_can': /usr/local/bin/cmake --build /home/newton/lib/build/odrive_can -- -j6 -l6
-Invoked command in '/home/newton/lib/build/odrive_can' returned '0': /usr/local/bin/cmake --build /home/newton/lib/build/odrive_can -- -j6 -l6
-Invoking command in '/home/newton/lib/build/odrive_can': /usr/local/bin/cmake --install /home/newton/lib/build/odrive_can
-Invoked command in '/home/newton/lib/build/odrive_can' returned '0': /usr/local/bin/cmake --install /home/newton/lib/build/odrive_can

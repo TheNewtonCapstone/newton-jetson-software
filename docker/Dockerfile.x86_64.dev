@@ -1,0 +1,98 @@
+FROM ros:humble-ros-base
+
+ARG USERNAME=newton
+ARG UID=1000
+ARG GID=$UID
+ARG ONNXRUNTIME_VERSION=1.16.3
+ARG CMAKE_VERSION=3.27.7
+
+
+# Install base dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+  build-essential \
+  software-properties-common \
+  python3-pip \
+  git \
+  vim \
+  tmux \
+  xclip \
+  xauth \
+  fzf \
+  libprotoc-dev \
+  protobuf-compiler \
+  cmake \
+  ca-certificates \
+  curl \
+  python3-dev \
+  python3-setuptools \
+  python3-wheel \
+  python3-numpy \
+  ros-humble-ament-cmake \
+  ros-humble-ament-cmake-ros \
+  ros-humble-ament-package \
+  ros-humble-ament-index-cpp \
+  ros-humble-ament-index-python \
+  clangd \
+  gdb \
+  ros-humble-ament-clang-format \
+  ros-humble-ament-flake8 \
+  ros-humble-ament-cmake-cpplint \
+  ros-humble-ament-cmake-cppcheck \
+  && apt-get clean \
+  && rm -rf /var/lib/apt/lists/*
+
+# Install newer CMake version
+RUN cd /tmp && \
+  curl -LO https://github.com/Kitware/CMake/releases/download/v${CMAKE_VERSION}/cmake-${CMAKE_VERSION}-linux-x86_64.sh && \
+  chmod +x cmake-${CMAKE_VERSION}-linux-x86_64.sh && \
+  ./cmake-${CMAKE_VERSION}-linux-x86_64.sh --skip-license --prefix=/usr/local && \
+  rm cmake-${CMAKE_VERSION}-linux-x86_64.sh
+
+# Clone and build ONNX Runtime
+RUN cd /opt && \
+  git clone --recursive https://github.com/microsoft/onnxruntime.git 
+
+RUN cd /opt/onnxruntime && \
+  git checkout v${ONNXRUNTIME_VERSION} && \
+  ./build.sh --config Release \
+  --build_shared_lib \
+  --parallel \
+  --skip_tests \
+  --allow_running_as_root \
+  --cmake_extra_defines CMAKE_INSTALL_PREFIX=/usr/local && \
+  cd build/Linux/Release && \
+  make install && \
+  cd /opt && \
+  rm -rf onnxruntime
+
+RUN pip3 install --upgrade pip && \
+  pip3 install click \ 
+  python-can \
+  typer \
+  rich \
+  packaging 
+
+
+
+# Create user and setup sudo
+RUN groupadd -g $GID $USERNAME \
+  && useradd -lm -u $UID -g $USERNAME -s /bin/bash $USERNAME \
+  && echo "$USERNAME ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+
+COPY scripts/bashrc /home/$USERNAME/.bashrc
+COPY scripts/inputrc /home/$USERNAME/.inputrc
+COPY scripts/vimrc /home/$USERNAME/.vimrc
+COPY scripts/newton_entrypoint.sh /
+
+RUN chown -R $USERNAME:$USERNAME /home/$USERNAME
+
+ENV LD_LIBRARY_PATH=/usr/local/lib
+
+# Install Python dependencies
+# Switch to non-root user
+RUN mkdir -p /home/$USERNAME/workspace
+WORKDIR /home/$USERNAME/workspace
+
+USER $USERNAME
+ENTRYPOINT [ "/newton_entrypoint.sh" ]
+CMD ["bash"]

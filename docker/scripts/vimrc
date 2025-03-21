@@ -1,0 +1,76 @@
+" VIM Configuration File
+" Description: created for C/C++ development, but is useful for other things as well
+" Author: Bhaskar Tallamraju
+" Last updated: July Fri 13 2018 by Shami Ivan
+
+color desert
+" turn syntax highlighting on
+set t_Co=256
+syntax on
+" set the hightlight for search, with background black and red font
+set hlsearch
+hi Search ctermbg=black
+hi Search ctermfg=Red
+
+set number relativenumber
+set smartcase
+set showcmd
+set showmode
+set history=500
+
+" Enable auto completion menu after pressing TAB.
+set wildmenu
+set wildmode=list:longest
+
+
+" Set no backup, avoids creating extra files by vim
+set nobackup
+
+"folding settings  
+" zc folds at the current place
+" zM folds everything
+" zR unfolds everything
+" za toggle folding
+set foldmethod=indent   "fold based on indent
+set foldnestmax=10      "deepest fold is 10 levels
+set nofoldenable        "dont fold by default
+set foldlevel=2         "this is just what i use
+
+" set UTF-8 encoding
+set enc=utf-8
+set fenc=utf-8
+set termencoding=utf-8
+
+" disable vi compatibility (emulation of old bugs)
+set nocompatible
+"enable filetype
+filetype plugin on
+" use indentation of previous line
+set autoindent
+" use intelligent indentation for C
+set smartindent
+" configure tabwidth and insert spaces instead of tabs
+set tabstop=2        " tab width is 4 spaces
+set shiftwidth=2     " indent also with 4 spaces
+set expandtab        " expand tabs to spaces
+" wrap lines at 120 chars. 80 is no longer the norm
+set textwidth=120
+" turn line numbers on
+set number
+" highlight matching braces
+set showmatch
+" intelligent comments
+set comments=sl:/*,mb:\ *,elx:\ */
+" c++ indent
+set cindent
+set cinoptions=g0
+retab
+if exists('$TMUX')
+    let &t_SI = "\<Esc>Ptmux;\<Esc>\<Esc>[6 q\<Esc>\\"
+    let &t_SR = "\<Esc>Ptmux;\<Esc>\<Esc>[4 q\<Esc>\\"
+    let &t_EI = "\<Esc>Ptmux;\<Esc>\<Esc>[2 q\<Esc>\\"
+else
+    let &t_SI = "\<Esc>[6 q"    " insert mode, vertical bar
+    let &t_SR = "\<Esc>[4 q"    " replace mode, underscore
+    let &t_EI = "\<Esc>[2 q"    " normal mode, block
+endif

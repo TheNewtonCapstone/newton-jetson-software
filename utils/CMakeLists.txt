@@ -1,17 +1,31 @@
-add_library(utils)
+cmake_minimum_required(VERSION 3.8)
+project(utils)
 
-# header files here 
+# Make sure to build as a shared library
+add_library(utils SHARED)
+
+file(GLOB_RECURSE HEADER_FILES 
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/*.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/*.hpp
+)
+
+file(GLOB_RECURSE SOURCE_FILES 
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp
+)
+
 target_sources(utils
   PUBLIC
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/logger.h
+    ${HEADER_FILES}
+  PRIVATE 
+    ${SOURCE_FILES}
 )
 
-target_sources(utils
-  PRIVATE 
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/logger.cpp
-)
+# Make includes public for linking libraries
 target_include_directories(utils
     PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}/include
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+        $<INSTALL_INTERFACE:include>
 )
 
+# Export include directories
+set(utils_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/include CACHE INTERNAL "")

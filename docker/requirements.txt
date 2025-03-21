@@ -1,0 +1,4 @@
+click
+typer
+rich
+packaging>=20.0

@@ -1,27 +1,30 @@
 {
     "configurations": [
         {
-            "name": "Linux",
+            "name": "newton",
             "includePath": [
-                "${workspaceFolder}/**"
+                "${workspaceFolder}/**",
+                "/opt/ros/humble/include/**",
+                "/usr/local/include",
+                "${workspaceFolder}/core/src/*/include/**",
+                "${workspaceFolder}/core/install/*/include"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",
             "cStandard": "c17",
             "cppStandard": "gnu++17",
             "intelliSenseMode": "linux-gcc-x64",
-            "configurationProvider": "ms-vscode.cmake-tools"
-        },
-        {
-            "name": "vscode_config",
-            "includePath": [
-                "${workspaceFolder}/**"
-            ],
-            "defines": [],
-            "compilerPath": "/usr/bin/gcc",
-            "cStandard": "c17",
-            "cppStandard": "gnu++17",
-            "intelliSenseMode": "linux-gcc-x64"
+            "compileCommands": "${workspaceFolder}/build/compile_commands.json",
+            "browse": {
+                "path": [
+                    "${workspaceFolder}",
+                    "/opt/ros/humble/include",
+                    "/usr/local/include",
+                    "${workspaceFolder}/core/src/*/include/**",
+                    "${workspaceFolder}/core/install/*/include"
+                ],
+                "limitSymbolsToIncludedHeaders": false
+            }
         }
     ],
     "version": 4

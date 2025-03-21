@@ -1,6 +1,3 @@
-[submodule "lib/jetson-containers"]
-	path = lib/jetson-containers
-    url = https://github.com/dusty-nv/jetson-containers.git
-[submodule "lib/ros_odrive"]
-    path = lib/ros_odrive
-    url = https://github.com/odriverobotics/ros_odrive.git
+[submodule "src/odrive"]
+	path = src/odrive
+	url = https://github.com/TheNewtonCapstone/ros-odrive.git
