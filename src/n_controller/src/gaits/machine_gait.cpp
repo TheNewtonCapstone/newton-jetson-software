@@ -4,10 +4,10 @@
 #include <rclcpp/rclcpp.hpp>
 
 using namespace newton;
-using namespace std::chrono_literals;
 
 MachineGait::MachineGait(const rclcpp::NodeOptions &options)
-    : BaseGait("machine_gait", options) {
+    : BaseGait("machine_gait", options)
+{
   // Declare node's parameters default value
   // [NOT NECESSARY TO CHANGE THE FOLLOWING, USE ../config/params.yaml INSTEAD
   // !]
@@ -24,26 +24,11 @@ MachineGait::MachineGait(const rclcpp::NodeOptions &options)
       std::make_unique<OnnxHandler>(model_path, num_inputs, num_outputs);
 
   BaseGait::init();
-};
+}
 
-void MachineGait::move() {
+result<void> MachineGait::move()
+{
   Logger::INFO("MachineGait", "Waiting for encoder offsets to be loaded");
-  while (!offset_loaded) {
-  };
-
-  std::array<float, NUM_JOINTS> jp_mult = {
-      1.0, 1.0,  -1.0, // fl
-      1.0, -1.0, 1.0,  // fr
-      1.0, 1.0,  -1.0, // hl
-      1.0, -1.0, 1.0,  // hr
-  };
-
-  std::array<float, NUM_JOINTS> standing_positions = {
-      0.0, 0.8, -1.5, // fl
-      0.0, 0.8, -1.5, // fr
-      0.0, 1.0, -1.5, // hl
-      0.0, 1.0, -1.5, // hr
-  };
 
   auto &input_buffer = onnx_handler->get_input_buffer();
 
@@ -59,24 +44,27 @@ void MachineGait::move() {
   input_buffer[5] = imu->projected_gravity.z;
 
   // commands
-  input_buffer[6] = 0.0;
-  input_buffer[7] = 0.0;
-  input_buffer[8] = 0.0;
+  input_buffer[6] = cmd->linear_velocity.x;
+  input_buffer[7] = cmd->linear_velocity.y;
+  input_buffer[8] = cmd->angular_velocity.z;
 
   // joint positions
-  for (int i = 0; i < NUM_JOINTS; i++) {
-    input_buffer[9 + i] = joints[i].cur_pos - standing_positions[i];
+  for (int i = 0; i < NUM_JOINTS; i++)
+  {
+    input_buffer[9 + i] = joints[i].curr_pos - standing_positions[i];
   }
 
   // joint velocities
   const auto joint_velocity_scaler = 0.05;
-  for (int i = 0; i < NUM_JOINTS; i++) {
+  for (int i = 0; i < NUM_JOINTS; i++)
+  {
     input_buffer[21 + i] = joints[i].curr_vel * joint_velocity_scaler;
   }
 
   // previous actions
   const auto previous_actions_scaler = 1.0;
-  for (int i = 0; i < NUM_JOINTS; i++) {
+  for (int i = 0; i < NUM_JOINTS; i++)
+  {
     input_buffer[33 + i] = previous_actions[i] * previous_actions_scaler;
   }
 
@@ -84,18 +72,13 @@ void MachineGait::move() {
 
   const auto &output_buffer = onnx_handler->get_output_buffer();
 
-  std::array<double, NUM_JOINTS> positions{};
-  for (int i = 0; i < NUM_JOINTS; i++) {
+  std::array<float, NUM_JOINTS> positions{};
+  for (int i = 0; i < NUM_JOINTS; i++)
+  {
     previous_actions[i] = output_buffer[i];
-    positions[i] = standing_positions[i] + (output_buffer[i] * jp_mult[i]);
+    positions[i] =
+        standing_positions[i] + (output_buffer[i] * direction_mult[i]);
   }
 
-  // print the positions
-  for (int i = 0; i < NUM_JOINTS; i++) {
-    RCLCPP_INFO(this->get_logger(), "Joint %d: %f", i, positions[i]);
-  }
-
-  for (int i = 0; i < NUM_JOINTS; i++) {
-    set_joint_position(standing_positions[i], i);
-  }
+  set_joints_position(positions);
 }

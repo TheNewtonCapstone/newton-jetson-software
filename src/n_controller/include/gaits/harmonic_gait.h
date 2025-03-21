@@ -12,6 +12,6 @@ namespace newton
     ~HarmonicGait() = default;
 
   protected:
-    void move() override;
- };
+    result<void> move() override;
+  };
 } // namespace newton

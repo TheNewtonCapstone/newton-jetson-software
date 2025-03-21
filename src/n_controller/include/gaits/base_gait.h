@@ -1,105 +1,87 @@
 #pragma once
 
+#include "data/cmd.h"
+#include "data/imu.h"
+#include "data/joint.h"
+#include "geometry_msgs/msg/twist.hpp"
 #include "odrive_can/msg/control_message.hpp"
 #include "odrive_can/msg/controller_status.hpp"
 #include "odrive_can/msg/o_drive_status.hpp"
 #include "odrive_can/srv/axis_state.hpp"
-#include "std_srvs/srv/empty.hpp"
-#include "sensor_msgs/msg/imu.hpp"
 #include "rclcpp/rclcpp.hpp"
-#include "data/joint.h"
-#include "data/imu.h"
 #include "result.h"
+#include "sensor_msgs/msg/imu.hpp"
+#include "std_msgs/msg/float32_multi_array.hpp"
+#include "std_srvs/srv/empty.hpp"
 #include "unit.h"
 
 namespace newton
 {
-    class BaseGait : public rclcpp::Node
-    {
-    public:
-        explicit BaseGait(
-            const std::string name, const rclcpp::NodeOptions &options = rclcpp::NodeOptions());
-        ~BaseGait() = default;
+  class BaseGait : public rclcpp::Node
+  {
+  public:
+    explicit BaseGait(const std::string name,
+                      const rclcpp::NodeOptions &options = rclcpp::NodeOptions());
+    ~BaseGait() = default;
 
-        /**
-          * @brief Initialize all the motors with the necessary runtime parameters
-          * Odrive node takes care of communicating with the motor drivers via CAN.
-          * The method loops through all the joints and sets the runtime parameters
+    static constexpr uint8_t NUM_JOINTS = 12;
 
-          * @return result<void> indicating success or failure
-         */
-        result<void> init();
-        result<void> init_clients();
-        result<void> init_pubs();
-        result<void> init_subs();
+    result<void> init();
+    result<void> init_clients();
+    result<void> init_pubs();
+    result<void> init_subs();
+    result<void> shutdown();
 
-        result<void> arm(int joint_index); // change the state of the motor driver to control mode
-        result<void> disarm(int joint_index);
-        result<void> load_joint_configs();
-        result<void> shutdown();
+    result<void>
+    set_joints_position(const std::array<float, NUM_JOINTS> &positions);
 
-        /**
-         * @brief Send a request to the motor driver node to set the joint mode.
-         *  See https://docs.odriverobotics.com/v/latest/manual/can-protocol.html#can-msg-set-axis-state for more details
-         * @param mode: the mode to set the joint to
-         * @param joint_index: the index of the joint to set the mode for
-         */
-        result<void> request_axis_state(size_t joint_index, uint32_t requested_state);
-        result<void> clear_error(int joint_index);
-        result<void> set_joint_position(int joint_index, float position);
-
-        result<void> clear_all_errors();
-
-    protected:
-        static constexpr uint8_t NUM_JOINTS = 12;
-        bool offset_loaded = false;
-
-        std::array<std::string, NUM_JOINTS> joint_names = {
-            "fl_haa", "fl_hfe", "fl_kfe", "fr_haa", "fr_hfe", "fr_kfe",
-            "hl_haa", "hl_hfe", "hl_kfe", "hr_haa", "hr_hfe", "hr_kfe"};
-
-        std::array<newton::Joint, NUM_JOINTS> joints;
-        std::array<float, NUM_JOINTS> encoder_offsets;
-        std::unique_ptr<newton::Imu> imu;
-
-        rclcpp::TimerBase::SharedPtr move_timer;
-
-        std::array<rclcpp::Client<odrive_can::srv::AxisState>::SharedPtr, NUM_JOINTS>
-            axis_state_clients;
-        std::array<rclcpp::Client<std_srvs::srv::Empty>::SharedPtr, NUM_JOINTS>
-            clear_error_clients;
-
-        std::array<rclcpp::Subscription<odrive_can::msg::ODriveStatus>::SharedPtr,
-                   NUM_JOINTS>
-            status_subs;
-        std::array<rclcpp::Subscription<odrive_can::msg::ControllerStatus>::SharedPtr,
-                   NUM_JOINTS>
-            joint_state_subs;
-        std::array<rclcpp::Publisher<odrive_can::msg::ControlMessage>::SharedPtr,
-                   NUM_JOINTS>
-            control_pubs;
-
-        rclcpp::Time last_time;
-
-        rclcpp::Subscription<odrive_can::msg::ControllerStatus>::SharedPtr state_sub;
-        rclcpp::Subscription<sensor_msgs::msg::Imu>::SharedPtr imu_sub;
-
-        void update_driver_status(const odrive_can::msg::ODriveStatus::SharedPtr msg,
-                                  int joint_index);
-        result<void> update_joint_state(const odrive_can::msg::ControllerStatus::SharedPtr msg,
-                                        int joint_index);
-        result<void> update_imu(const sensor_msgs::msg::Imu::SharedPtr msg);
-
-        void load_configs();
-        void get_encoder_offsets();
-
-        // safety checks
-        bool check_limits();
-        bool check_watchdog();
-        bool check_errors();
-
-        // result<void> clear_errors();
-
-        virtual void move() = 0;
+  protected:
+    const std::array<std::string, NUM_JOINTS> joint_names = {
+        "fl_haa", "fl_hfe", "fl_kfe", // front left
+        "fr_haa", "fr_hfe", "fr_kfe", // front right
+        "hl_haa", "hl_hfe", "hl_kfe", // hind left
+        "hr_haa", "hr_hfe", "hr_kfe", // hind right
     };
+
+    const std::array<float, NUM_JOINTS> direction_mult = {
+        1.0, 1.0, -1.0, // fl
+        1.0, -1.0, 1.0, // fr
+        1.0, 1.0, -1.0, // hl
+        1.0, -1.0, 1.0, // hr
+    };
+
+    const std::array<float, NUM_JOINTS> standing_positions = {
+        0.0, 0.5, -1.5, // fl
+        0.0, 0.5, -1.5, // fr
+        0.0, 0.8, -1.5, // hl
+        0.0, 0.8, -1.5, // hr
+    };
+
+    std::array<newton::Joint, NUM_JOINTS> joints;
+    std::unique_ptr<newton::ImuReading> imu;
+    std::unique_ptr<newton::VelocityCmd> cmd;
+
+    rclcpp::TimerBase::SharedPtr move_timer;
+    rclcpp::Time last_time;
+
+    rclcpp::Publisher<std_msgs::msg::Float32MultiArray>::SharedPtr
+        joints_position_pub;
+
+    rclcpp::Subscription<std_msgs::msg::Float32MultiArray>::SharedPtr
+        joints_velocity_sub;
+    rclcpp::Subscription<std_msgs::msg::Float32MultiArray>::SharedPtr
+        joints_position_sub;
+    rclcpp::Subscription<sensor_msgs::msg::Imu>::SharedPtr imu_sub;
+    rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr cmd_sub;
+
+    // update methods
+    result<void>
+    update_joints_position(const std_msgs::msg::Float32MultiArray::SharedPtr msg);
+    result<void>
+    update_joints_velocity(const std_msgs::msg::Float32MultiArray::SharedPtr msg);
+    result<void> update_imu(const sensor_msgs::msg::Imu::SharedPtr msg);
+    result<void> update_cmd(const geometry_msgs::msg::Twist::SharedPtr msg);
+
+    virtual result<void> move() = 0;
+  };
 } // namespace newton

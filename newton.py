@@ -21,8 +21,8 @@ ROOT_DIR = None
 
 class PkgName(str, Enum):
     n_controller = "n_controller"
-    odrive_can = "odrive_can"
     n_imu = "n_imu"
+    n_inputs = "n_inputs"
     newton = "newton"
     utils = "utils"
     all = "all"
@@ -80,20 +80,20 @@ def clean_workspace(
             return
     if name == "controller":
         try:
-            clean_ros_package(Path(ROOT_DIR, "core", "src", "n_controller"))
+            clean_ros_package(Path(ROOT_DIR, "src", "n_controller"))
         except Exception as e:
             console.print(f"[red]Error cleaning package: {str(e)}[/red]")
             return
-    if name == "odrive_can":
-        console.print(f"[red]Cleaning odrive_can package[/red]")
+    if name == "imu":
         try:
-            clean_ros_package(Path(ROOT_DIR, "lib", "ros_odrive"))
+            clean_ros_package(Path(ROOT_DIR, "src", "n_imu"))
         except Exception as e:
             console.print(f"[red]Error cleaning package: {str(e)}[/red]")
             return
-    if name == "imu_driver":
+    if name == "inputs":
+        console.print(f"[red]Cleaning inputs package[/red]")
         try:
-            clean_ros_package(Path(ROOT_DIR, "core", "src", "n_imu"))
+            clean_ros_package(Path(ROOT_DIR, "src", "n_inputs"))
         except Exception as e:
             console.print(f"[red]Error cleaning package: {str(e)}[/red]")
             return
@@ -138,9 +138,10 @@ def build_package(
             os.execvp(cmd[0], cmd)
         except Exception as e:
             console.print(f"[red]Error building package: {str(e)}[/red]")
-    if name == PkgName.n_controller:
+            
+    elif name == PkgName.n_controller:
         try:
-            console.print("Building motor_driver")
+            console.print("Building controller")
             cmd = ["ros2", "pkg", "list"]
             process = subprocess.Popen(
                 cmd,
@@ -154,16 +155,16 @@ def build_package(
                 console.print("Package already installed")
                 return
 
-            motor_driver_path = Path(ROOT_DIR, "src")
+            controller_path = Path(ROOT_DIR, "src")
 
-            if not motor_driver_path.exists():
-                raise Exception(f"Could not find package: {motor_driver_path}")
-            os.chdir(motor_driver_path)
+            if not controller_path.exists():
+                raise Exception(f"Could not find package: {controller_path}")
+            os.chdir(controller_path)
             cmd = [
                 "colcon",
                 "build",
                 "--packages-select",
-                "motor_driver",
+                "n_controller",
                 "--symlink-install",
                 "--cmake-args",
                 "-DCMAKE_EXPORT_COMPILE_COMMANDS=1",
@@ -172,42 +173,9 @@ def build_package(
 
         except Exception as e:
             console.print(f"[red]Error building package: {str(e)}[/red]")
-    elif name == PkgName.odrive_can:
-        try:
-            console.print("Building odrive_can")
-            cmd = ["ros2", "pkg", "list"]
-            process = subprocess.Popen(
-                cmd,
-                stdin=subprocess.PIPE,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-            )
-            output, error = process.communicate(timeout=4)
-
-            if PkgName.odrive_can in str(output):
-                console.print("Package already installed")
-                return
-
-            odrive_can_path = Path(ROOT_DIR, "src")
-            print(odrive_can_path)
-            if not odrive_can_path.exists():
-                raise Exception(f"Could not find package: {odrive_can_path}")
-
-            os.chdir(odrive_can_path)
-            cmd = [
-                "colcon",
-                "build",
-                "--packages-select",
-                "odrive_can",
-                "--symlink-install",
-                "--cmake-args",
-                "-DCMAKE_EXPORT_COMPILE_COMMANDS=1",
-            ]
-            os.execvp(cmd[0], cmd)
-        except Exception as e:
-            console.print(f"[red]Error building package: {str(e)}[/red]")
+            
     elif name == PkgName.n_imu:
-        console.print("Building imu_driver")
+        console.print("Building imu")
         try:
             cmd = ["ros2", "pkg", "list"]
             process = subprocess.Popen(
@@ -233,6 +201,41 @@ def build_package(
                 "build",
                 "--packages-select",
                 "n_imu",
+                "--symlink-install",
+                "--cmake-args",
+                "-DCMAKE_EXPORT_COMPILE_COMMANDS=1",
+            ]
+            os.execvp(cmd[0], cmd)
+        except Exception as e:
+            console.print(f"[red]Error building package: {str(e)}[/red]")
+            
+    elif name == PkgName.n_inputs:
+        try:
+            console.print("Building inputs")
+            cmd = ["ros2", "pkg", "list"]
+            process = subprocess.Popen(
+                cmd,
+                stdin=subprocess.PIPE,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+            )
+            output, error = process.communicate(timeout=4)
+
+            if PkgName.odrive_can in str(output):
+                console.print("Package already installed")
+                return
+
+            inputs_path = Path(ROOT_DIR, "src")
+            print(inputs_path)
+            if not inputs_path.exists():
+                raise Exception(f"Could not find package: {inputs_path}")
+
+            os.chdir(inputs_path)
+            cmd = [
+                "colcon",
+                "build",
+                "--packages-select",
+                "inputs",
                 "--symlink-install",
                 "--cmake-args",
                 "-DCMAKE_EXPORT_COMPILE_COMMANDS=1",
@@ -293,7 +296,7 @@ def launch_package(
 ):
     try:
         if pkg_name == PkgName.n_controller:
-            cmd = ["ros2", "launch", "n_motor_controller", "motors.launch.py"]
+            cmd = ["ros2", "launch", "n_controller", "motors.launch.py"]
             os.execvp(cmd[0], cmd)
     except Exception as e:
         console.print(f"[red]Error launching package {pkg_name}: {str(e)}[/red]")
@@ -335,7 +338,6 @@ def run_container(
             "-v",
             "/dev:/dev",
             "--device-cgroup-rule=c *:* rmw",
-            # "--device=/dev/ttyACM0:/dev/ttyACM0",
             "--group-add=dialout",
             "--group-add=video",
             "--device=/dev",
