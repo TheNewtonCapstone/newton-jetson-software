@@ -19,15 +19,6 @@ set(ONNXRUNTIME_BIN_DIR /usr/local/lib)
 # Onnxruntime
 include_directories(include "${ONNXRUNTIME_INCLUDE_DIR}/")
 
-# Try to find odrive_can package
-find_package(odrive_can QUIET)
-if(NOT odrive_can_FOUND)
-  message(WARNING "odrive_can package not found. Make sure it's built and sourced properly.")
-  # You might want to specify the path manually if needed:
-  # set(odrive_can_DIR "/path/to/odrive_can/install/share/odrive_can/cmake")
-  # find_package(odrive_can UIRED)
-endif()
-
 # get the utils directory
 set(PROJECT_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 cmake_path(GET PROJECT_DIR PARENT_PATH GRANDPARENT_DIR)
@@ -44,9 +35,9 @@ include_directories(${UTILS_DIR}/build)
 add_executable(controller_node
   src/main.cpp
   src/gaits/base_gait.cpp
-  src/gaits/harmonic_gait.cpp
-  src/gaits/machine_gait.cpp
-  src/handlers/onnx_handler.cpp
+  # src/gaits/harmonic_gait.cpp
+  # src/gaits/machine_gait.cpp
+  # src/handlers/onnx_handler.cpp
 )
 
 message("Grandparent Dir: ${PARENT_DIR}")
@@ -58,7 +49,6 @@ message("Utils Include Dir: ${UTILS_DIR}")
 ament_target_dependencies(controller_node
   rclcpp
   rclcpp_components
-  odrive_can
   std_srvs
   sensor_msgs
 )

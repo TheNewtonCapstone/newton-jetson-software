@@ -16,7 +16,6 @@
   <depend>rlccpp</depend>
   <depend>rclcpp_components</depend>
   <depend>std_msgs</depend>
-  <depend>odrive_can</depend>
   <depend>std_srvs</depend>
 
   <test_depend>ament_lint_auto</test_depend>
