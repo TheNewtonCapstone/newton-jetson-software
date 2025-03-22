@@ -151,9 +151,9 @@ def build_package(
             )
             output, error = process.communicate()
 
-            if PkgName.n_controller in str(output):
-                console.print("Package already installed")
-                return
+            # if PkgName.n_controller in str(output):
+            #     console.print("Package already installed")
+            #     return
 
             controller_path = Path(ROOT_DIR, "src")
 
