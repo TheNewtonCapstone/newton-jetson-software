@@ -41,10 +41,10 @@ namespace newton
 
 
     const std::array<float, NUM_JOINTS> standing_positions = {
-        0.0, 0.5, -1.5, // fl
-        0.0, 0.5, -1.5, // fr
-        0.0, 0.8, -1.5, // hl
-        0.0, 0.8, -1.5, // hr
+        0.0, - 0.5, 1.5, // fl
+        0.0, - 0.5, 1.5, // fr
+        0.0, - 0.5, 1.5, // hl
+        0.0, -0.5, 1.5, // hr
     };
 
     std::array<newton::Joint, NUM_JOINTS> joints;
