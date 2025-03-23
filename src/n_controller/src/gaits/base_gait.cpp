@@ -91,6 +91,11 @@ result<void>
 BaseGait::set_joints_position(const std::array<float, NUM_JOINTS> &positions)
 {
   auto msg = std_msgs::msg::Float32MultiArray();
+  msg.layout.dim.push_back(std_msgs::msg::MultiArrayDimension());
+  msg.layout.dim[0].size = NUM_JOINTS;
+  msg.layout.dim[0].stride = 1;
+  msg.layout.dim[0].label = "joint_positions";
+  msg.layout.data_offset = 0;
 
   for (int i = 0; i < NUM_JOINTS; i++)
   {

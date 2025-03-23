@@ -35,9 +35,9 @@ include_directories(${UTILS_DIR}/build)
 add_executable(controller_node
   src/main.cpp
   src/gaits/base_gait.cpp
-  # src/gaits/harmonic_gait.cpp
-  # src/gaits/machine_gait.cpp
-  # src/handlers/onnx_handler.cpp
+  src/gaits/harmonic_gait.cpp
+  src/gaits/machine_gait.cpp
+  src/handlers/onnx_handler.cpp
 )
 
 message("Grandparent Dir: ${PARENT_DIR}")

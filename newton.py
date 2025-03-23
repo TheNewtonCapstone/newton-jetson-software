@@ -2,12 +2,8 @@ import os
 import platform
 import subprocess
 import shutil
-from posix import getcwd
-import shlex
 import typer
-from click import prompt
 from rich import print
-from rich.prompt import Prompt, Confirm
 from rich.console import Console
 from rich.table import Table
 from typing import List, Optional
@@ -23,7 +19,7 @@ class PkgName(str, Enum):
     n_controller = "n_controller"
     n_imu = "n_imu"
     n_inputs = "n_inputs"
-    newton = "newton"
+    newton_jetson_software = "newton_jetson_software"
     utils = "utils"
     all = "all"
 
@@ -97,6 +93,13 @@ def clean_workspace(
         except Exception as e:
             console.print(f"[red]Error cleaning package: {str(e)}[/red]")
             return
+    if name == "newton_jetson_software":
+        console.print(f"[red]Cleaning newton_jetson_software package[/red]")
+        try:
+            clean_ros_package(Path(ROOT_DIR))
+        except Exception as e:
+            console.print(f"[red]Error cleaning package: {str(e)}[/red]")
+            return
     if name == "utils":
         try:
             clean_ros_package(Path(ROOT_DIR, "utils"))
@@ -112,7 +115,6 @@ def build_package(
     name: Annotated[
         PkgName, typer.Argument(help="Name of the package to build")
     ] = PkgName.all,
-
     compile_commands: Annotated[
         bool,
         typer.Option(
@@ -121,13 +123,20 @@ def build_package(
     ] = False,
 ):
     """Build newton packages"""
+    console.print(f"[yellow]Building package(s): {name}[/yellow]")
+
     if name == PkgName.all:
         try:
             build_package(PkgName.utils)
+            build_package(PkgName.newton_jetson_software)
+
             src_path = Path(ROOT_DIR, "src")
+
             if not src_path.exists():
                 raise Exception(f"Could not find package: {src_path}")
+
             os.chdir(src_path)
+
             cmd = [
                 "colcon",
                 "build",
@@ -138,10 +147,9 @@ def build_package(
             os.execvp(cmd[0], cmd)
         except Exception as e:
             console.print(f"[red]Error building package: {str(e)}[/red]")
-            
+
     elif name == PkgName.n_controller:
         try:
-            console.print("Building controller")
             cmd = ["ros2", "pkg", "list"]
             process = subprocess.Popen(
                 cmd,
@@ -151,9 +159,9 @@ def build_package(
             )
             output, error = process.communicate()
 
-            # if PkgName.n_controller in str(output):
-            #     console.print("Package already installed")
-            #     return
+            if PkgName.n_controller in str(output):
+                console.print("Package already installed")
+                return
 
             controller_path = Path(ROOT_DIR, "src")
 
@@ -173,9 +181,8 @@ def build_package(
 
         except Exception as e:
             console.print(f"[red]Error building package: {str(e)}[/red]")
-            
+
     elif name == PkgName.n_imu:
-        console.print("Building imu")
         try:
             cmd = ["ros2", "pkg", "list"]
             process = subprocess.Popen(
@@ -190,12 +197,12 @@ def build_package(
                 console.print("Package already installed")
                 return
 
-            imu_driver_path = Path(ROOT_DIR, "src")
-            print(imu_driver_path)
-            if not imu_driver_path.exists():
-                raise Exception(f"Could not find package: {imu_driver_path}")
+            njs_path = Path(ROOT_DIR, "src")
+            print(njs_path)
+            if not njs_path.exists():
+                raise Exception(f"Could not find package: {njs_path}")
 
-            os.chdir(imu_driver_path)
+            os.chdir(njs_path)
             cmd = [
                 "colcon",
                 "build",
@@ -208,10 +215,9 @@ def build_package(
             os.execvp(cmd[0], cmd)
         except Exception as e:
             console.print(f"[red]Error building package: {str(e)}[/red]")
-            
+
     elif name == PkgName.n_inputs:
         try:
-            console.print("Building inputs")
             cmd = ["ros2", "pkg", "list"]
             process = subprocess.Popen(
                 cmd,
@@ -221,7 +227,7 @@ def build_package(
             )
             output, error = process.communicate(timeout=4)
 
-            if PkgName.odrive_can in str(output):
+            if PkgName.n_inputs in str(output):
                 console.print("Package already installed")
                 return
 
@@ -235,7 +241,7 @@ def build_package(
                 "colcon",
                 "build",
                 "--packages-select",
-                "inputs",
+                "n_inputs",
                 "--symlink-install",
                 "--cmake-args",
                 "-DCMAKE_EXPORT_COMPILE_COMMANDS=1",
@@ -244,8 +250,42 @@ def build_package(
         except Exception as e:
             console.print(f"[red]Error building package: {str(e)}[/red]")
 
-    elif PkgName.utils:
-        console.print("Building utils")
+    elif name == PkgName.newton_jetson_software:
+        try:
+            cmd = ["ros2", "pkg", "list"]
+            process = subprocess.Popen(
+                cmd,
+                stdin=subprocess.PIPE,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+            )
+            output, error = process.communicate(timeout=4)
+
+            if PkgName.newton_jetson_software in str(output):
+                console.print("Package already installed")
+                return
+
+            os.chdir(ROOT_DIR)
+
+            cmd = [
+                "colcon",
+                "build",
+                "--symlink-install",
+            ]
+            process = subprocess.Popen(
+                cmd,
+                stdin=subprocess.PIPE,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+            )
+
+            output, error = process.communicate(timeout=4)
+
+            print(output.decode())
+        except Exception as e:
+            console.print(f"[red]Error building package: {str(e)}[/red]")
+
+    elif name == PkgName.utils:
         try:
             n_utils_path = Path(ROOT_DIR, "utils")
             build_path = Path(n_utils_path, "build")
@@ -256,7 +296,6 @@ def build_package(
                 build_path.mkdir(parents=True, exist_ok=True)
 
             os.chdir(build_path)
-            print(os.getcwd())
 
             cmd = [
                 "cmake",
@@ -268,10 +307,12 @@ def build_package(
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
             )
+
             output, error = process.communicate()
             if error:
                 raise Exception(f"Error building package: {error}")
-            print(output)
+            print(output.decode())
+
             cmd = [
                 "make",
             ]
@@ -282,8 +323,10 @@ def build_package(
                 stderr=subprocess.PIPE,
             )
             output, error = process.communicate()
-            print(output)
-            pass
+            if error:
+                raise Exception(f"Error installing package: {error}")
+
+            print(output.decode())
         except Exception as e:
             console.print(f"[red]Error building package: {str(e)}[/red]")
 
@@ -313,14 +356,12 @@ def run_container(
             help="Run a dev container with additional tools",
         ),
     ] = True,
-
     add_serial: Annotated[
         bool,
         typer.Option(
             help="Add serial devices to the container",
         ),
     ] = False,
-
 ):
     """Run a container with hardware access and proper ROS2 environment setup"""
     try:
@@ -384,7 +425,6 @@ def build_container(
                 cmd.extend(["--build-arg", arg])
         if not cache:
             cmd.append("--no-cache")
-
 
         default_args = {
             "USERNAME": "newton",
@@ -465,9 +505,6 @@ def build_container(
 
     except Exception as e:
         console.print(f"[red]Error building package: {str(e)}[/red]")
-
-
-app.command()
 
 
 def set_root_dir(
@@ -569,6 +606,7 @@ def info(
 
     except Exception as e:
         console.print(f"[red]Error getting package info: {str(e)}[/red]")
+
 
 if __name__ == "__main__":
     ROOT_DIR = get_workspace_root()
