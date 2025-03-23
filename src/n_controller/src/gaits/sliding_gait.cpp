@@ -11,6 +11,12 @@ SlidingGait::SlidingGait(const rclcpp::NodeOptions &options)
     : BaseGait("harmonic_gait", options)
 {
   BaseGait::init();
+//   Declare step length parameter
+    this->declare_parameter("step_length", 0.1);
+    this->get_parameter("step_length", step_length);
+    Logger::INFO("SM", "Step length: %f", step_length);
+
+
 };
 
 result<void> SlidingGait::move()
@@ -30,6 +36,7 @@ result<void> SlidingGait::move()
   }
 
 
+    float hfe_offset = 0.0;
     std::array<float, NUM_JOINTS> positions{};
 
 //   loop throug the leg ids
@@ -48,12 +55,8 @@ result<void> SlidingGait::move()
     positions[ids[0]] = base_angles[leg_name][0];
     positions[ids[1]] = base_angles[leg_name][1] + hfe_offset;
     positions[ids[2]] = base_angles[leg_name][2];
+    Logger::DEBUG("SM", "Sliding motion %ld, HFE offset: %f", now.nanoseconds(), hfe_offset);
     }
     
-
-
-
-  Logger::DEBUG("SM", "Sliding motion %ld, HFE offset: %f", now.nanoseconds(), hfe_offset);
-
   set_joints_position(positions);
 }
