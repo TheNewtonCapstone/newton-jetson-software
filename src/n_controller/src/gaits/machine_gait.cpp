@@ -77,7 +77,7 @@ result<void> MachineGait::move()
   {
     previous_actions[i] = output_buffer[i];
     positions[i] =
-        standing_positions[i] + (output_buffer[i] * direction_mult[i]);
+        standing_positions[i] + (output_buffer[i]);
   }
 
   set_joints_position(positions);
