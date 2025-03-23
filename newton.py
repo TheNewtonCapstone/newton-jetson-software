@@ -19,6 +19,7 @@ class PkgName(str, Enum):
     n_controller = "n_controller"
     n_imu = "n_imu"
     n_inputs = "n_inputs"
+    n_odrive = "n_odrive"
     newton_jetson_software = "newton_jetson_software"
     utils = "utils"
     all = "all"
@@ -163,11 +164,13 @@ def build_package(
                 console.print("Package already installed")
                 return
 
-            controller_path = Path(ROOT_DIR, "src")
+            src_path = Path(ROOT_DIR, "src")
 
-            if not controller_path.exists():
-                raise Exception(f"Could not find package: {controller_path}")
-            os.chdir(controller_path)
+            if not src_path.exists():
+                raise Exception(f"Could not find package: {src_path}")
+
+            os.chdir(src_path)
+
             cmd = [
                 "colcon",
                 "build",
@@ -177,8 +180,16 @@ def build_package(
                 "--cmake-args",
                 "-DCMAKE_EXPORT_COMPILE_COMMANDS=1",
             ]
-            os.execvp(cmd[0], cmd)
+            process = subprocess.Popen(
+                cmd,
+                stdin=subprocess.PIPE,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+            )
 
+            output, error = process.communicate(timeout=4)
+
+            console.print(output.decode())
         except Exception as e:
             console.print(f"[red]Error building package: {str(e)}[/red]")
 
@@ -197,12 +208,14 @@ def build_package(
                 console.print("Package already installed")
                 return
 
-            njs_path = Path(ROOT_DIR, "src")
-            print(njs_path)
-            if not njs_path.exists():
-                raise Exception(f"Could not find package: {njs_path}")
+            src_path = Path(ROOT_DIR, "src")
+            console.print(src_path)
 
-            os.chdir(njs_path)
+            if not src_path.exists():
+                raise Exception(f"Could not find package: {src_path}")
+
+            os.chdir(src_path)
+
             cmd = [
                 "colcon",
                 "build",
@@ -212,7 +225,16 @@ def build_package(
                 "--cmake-args",
                 "-DCMAKE_EXPORT_COMPILE_COMMANDS=1",
             ]
-            os.execvp(cmd[0], cmd)
+            process = subprocess.Popen(
+                cmd,
+                stdin=subprocess.PIPE,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+            )
+
+            output, error = process.communicate(timeout=4)
+
+            console.print(output.decode())
         except Exception as e:
             console.print(f"[red]Error building package: {str(e)}[/red]")
 
@@ -231,12 +253,14 @@ def build_package(
                 console.print("Package already installed")
                 return
 
-            inputs_path = Path(ROOT_DIR, "src")
-            print(inputs_path)
-            if not inputs_path.exists():
-                raise Exception(f"Could not find package: {inputs_path}")
+            src_path = Path(ROOT_DIR, "src")
+            console.print(src_path)
 
-            os.chdir(inputs_path)
+            if not src_path.exists():
+                raise Exception(f"Could not find package: {src_path}")
+
+            os.chdir(src_path)
+
             cmd = [
                 "colcon",
                 "build",
@@ -246,7 +270,59 @@ def build_package(
                 "--cmake-args",
                 "-DCMAKE_EXPORT_COMPILE_COMMANDS=1",
             ]
-            os.execvp(cmd[0], cmd)
+            process = subprocess.Popen(
+                cmd,
+                stdin=subprocess.PIPE,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+            )
+
+            output, error = process.communicate(timeout=4)
+
+            console.print(output.decode())
+        except Exception as e:
+            console.print(f"[red]Error building package: {str(e)}[/red]")
+
+    elif name == PkgName.n_odrive:
+        try:
+            cmd = ["ros2", "pkg", "list"]
+            process = subprocess.Popen(
+                cmd,
+                stdin=subprocess.PIPE,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+            )
+            output, error = process.communicate(timeout=4)
+
+            if PkgName.n_odrive in str(output):
+                console.print("Package already installed")
+                return
+
+            odrive_path = Path(ROOT_DIR, "src")
+            console.print(odrive_path)
+
+            if not odrive_path.exists():
+                raise Exception(f"Could not find package: {odrive_path}")
+
+            os.chdir(odrive_path)
+
+            cmd = [
+                "colcon",
+                "build",
+                "--packages-select",
+                "n_odrive",
+                "--symlink-install",
+            ]
+            process = subprocess.Popen(
+                cmd,
+                stdin=subprocess.PIPE,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+            )
+
+            output, error = process.communicate(timeout=4)
+
+            console.print(output.decode())
         except Exception as e:
             console.print(f"[red]Error building package: {str(e)}[/red]")
 
@@ -281,7 +357,7 @@ def build_package(
 
             output, error = process.communicate(timeout=4)
 
-            print(output.decode())
+            console.print(output.decode())
         except Exception as e:
             console.print(f"[red]Error building package: {str(e)}[/red]")
 
@@ -311,7 +387,7 @@ def build_package(
             output, error = process.communicate()
             if error:
                 raise Exception(f"Error building package: {error}")
-            print(output.decode())
+            console.print(output.decode())
 
             cmd = [
                 "make",
@@ -326,7 +402,7 @@ def build_package(
             if error:
                 raise Exception(f"Error installing package: {error}")
 
-            print(output.decode())
+            console.print(output.decode())
         except Exception as e:
             console.print(f"[red]Error building package: {str(e)}[/red]")
 
