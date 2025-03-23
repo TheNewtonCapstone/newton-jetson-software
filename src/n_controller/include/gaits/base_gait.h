@@ -39,12 +39,6 @@ namespace newton
         "hr_haa", "hr_hfe", "hr_kfe", // hind right
     };
 
-    const std::array<float, NUM_JOINTS> direction_mult = {
-        1.0, 1.0, -1.0, // fl
-        1.0, -1.0, 1.0, // fr
-        1.0, 1.0, -1.0, // hl
-        1.0, -1.0, 1.0, // hr
-    };
 
     const std::array<float, NUM_JOINTS> standing_positions = {
         0.0, 0.5, -1.5, // fl
