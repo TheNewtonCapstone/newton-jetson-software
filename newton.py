@@ -20,7 +20,7 @@ class PkgName(str, Enum):
     n_imu = "n_imu"
     n_inputs = "n_inputs"
     n_odrive = "n_odrive"
-    newton_jetson_software = "newton_jetson_software"
+    newton = "newton"
     utils = "utils"
     all = "all"
 
@@ -94,8 +94,8 @@ def clean_workspace(
         except Exception as e:
             console.print(f"[red]Error cleaning package: {str(e)}[/red]")
             return
-    if name == "newton_jetson_software":
-        console.print(f"[red]Cleaning newton_jetson_software package[/red]")
+    if name == "newton":
+        console.print(f"[red]Cleaning newton package[/red]")
         try:
             clean_ros_package(Path(ROOT_DIR))
         except Exception as e:
@@ -129,7 +129,7 @@ def build_package(
     if name == PkgName.all:
         try:
             build_package(PkgName.utils)
-            build_package(PkgName.newton_jetson_software)
+            build_package(PkgName.newton)
 
             src_path = Path(ROOT_DIR, "src")
 
@@ -326,7 +326,7 @@ def build_package(
         except Exception as e:
             console.print(f"[red]Error building package: {str(e)}[/red]")
 
-    elif name == PkgName.newton_jetson_software:
+    elif name == PkgName.newton:
         try:
             cmd = ["ros2", "pkg", "list"]
             process = subprocess.Popen(
@@ -337,7 +337,7 @@ def build_package(
             )
             output, error = process.communicate(timeout=4)
 
-            if PkgName.newton_jetson_software in str(output):
+            if PkgName.newton in str(output):
                 console.print("Package already installed")
                 return
 
