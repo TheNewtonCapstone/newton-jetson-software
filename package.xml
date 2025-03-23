@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format2.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="2">
+  <name>newton_jetson_software</name>
+  <version>0.1.0</version>
+  <description>ROS files for running Newton</description>
+  <maintainer email="thenewtoncapstone@gmail.com">The Newton Capstone</maintainer>
+
+  <license>Apache License 2.0</license>
+
+  <author email="shamiivan@gmail.com">Shami Ivan</author>
+  <author email="augustomp55@gmail.com">Augusto Mota Pinheiro</author>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>
