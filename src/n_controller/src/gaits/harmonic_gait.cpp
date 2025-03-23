@@ -37,11 +37,11 @@ result<void> HarmonicGait::move()
   {
     if (i % 3 == 1)
     {
-      positions[i] = standing_positions[i] + (hfe_offset * direction_mult[i]);
+      positions[i] = standing_positions[i] + hfe_offset;
     }
     else if (i % 3 == 2)
     {
-      positions[i] = standing_positions[i] + (kfe_offset * direction_mult[i]);
+      positions[i] = standing_positions[i] + kfe_offset;
     }
   }
 
