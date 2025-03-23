@@ -4,12 +4,12 @@
 
 namespace newton
 {
-  class HarmonicGait : public BaseGait
+  class SlidingGait : public BaseGait
   {
   public:
-    explicit HarmonicGait(
+    explicit SlidingGait(
         const rclcpp::NodeOptions &options = rclcpp::NodeOptions());
-    ~HarmonicGait() = default;
+    ~SlidingGait() = default;
 
   protected:
     result<void> move() override;
