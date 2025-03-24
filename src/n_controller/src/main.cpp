@@ -12,16 +12,16 @@ int main(int argc, char *argv[])
     try
     {
         rclcpp::init(argc, argv);
-        auto logger = rclcpp::get_logger("motor_main");
+        auto logger = rclcpp::get_logger("controller_node");
 
         RCLCPP_INFO(logger, "ROS 2 initialized successfully");
-        RCLCPP_INFO(logger, "Creating MotorDriver node...");
+        RCLCPP_INFO(logger, "Creating Controller node...");
 
         std::this_thread::sleep_for(std::chrono::seconds(5));
-        // auto node = std::make_shared<newton::HarmonicGait>();
+        // auto node = std::make_shared<newton::SlidingGait>();
         // auto node = std::make_shared<newton::MachineGait>();
         auto node = std::make_shared<newton::HarmonicGait>();
-        RCLCPP_INFO(logger, "MotorDriver node created, starting spin...");
+        RCLCPP_INFO(logger, "Controller node created, starting spin...");
 
         rclcpp::spin(node);
         RCLCPP_INFO(logger, "Spin completed");

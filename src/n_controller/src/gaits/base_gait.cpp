@@ -8,25 +8,12 @@
 using namespace newton;
 using namespace std::chrono_literals;
 
-BaseGait::BaseGait(const std::string node_name,
+BaseGait::BaseGait(const std::string node_name, const bool should_set_to_standing,
                    const rclcpp::NodeOptions &options)
-    : Node(node_name) {};
+    : Node(node_name), should_set_to_standing(should_set_to_standing) {};
 
 result<void> BaseGait::init()
 {
-  // declare the parameters for the joints
-
-  for (int i = 0; i < NUM_JOINTS; i++)
-  {
-    auto name = joints[i].name = joint_names[i];
-
-    double default_pos_limit = 3.14f;
-    double default_direction = 1.f;
-
-    this->declare_parameter(name + "_position_limit", default_pos_limit);
-    this->declare_parameter(name + "_direction", default_direction);
-  }
-
   init_pubs();
   init_clients();
   init_subs();
@@ -34,7 +21,9 @@ result<void> BaseGait::init()
   imu = std::make_unique<ImuReading>();
   cmd = std::make_unique<VelocityCmd>();
 
-  move_timer = this->create_wall_timer(20ms, std::bind(&BaseGait::move, this));
+  if (!should_set_to_standing)
+    move_timer = this->create_wall_timer(20ms, std::bind(&BaseGait::move, this));
+
   last_time = this->get_clock()->now();
 }
 
@@ -77,6 +66,10 @@ result<void> BaseGait::init_subs()
       "vel_cmds/keyboard", 10, [=, this](const geometry_msgs::msg::Twist::SharedPtr msg)
       { this->update_cmd(msg); });
 
+  odrive_ready_sub = this->create_subscription<std_msgs::msg::Bool>(
+      "odrive_ready", 10, [=, this](const std_msgs::msg::Bool::SharedPtr msg)
+      { this->update_odrive_ready(msg); });
+
   return result<void>::success();
 }
 
@@ -95,20 +88,22 @@ BaseGait::set_joints_position(const std::array<float, NUM_JOINTS> &positions)
   msg.layout.dim[0].size = NUM_JOINTS;
   msg.layout.dim[0].stride = 1;
   msg.layout.dim[0].label = "joint_positions";
-  msg.layout.data_offset = 0;
+  msg.data = {
+      0.f, 0.f, 0.f,
+      0.f, 0.f, 0.f,
+      0.f, 0.f, 0.f,
+      0.f, 0.f, 0.f};
 
   for (int i = 0; i < NUM_JOINTS; i++)
   {
-    float set_position = clamp_to_limits(positions[i], joints[i]);
-    set_position = rad_to_turns(set_position, joints[i]);
+    msg.data[i] = positions[i];
 
-    msg.data.push_back(set_position);
-
-    RCLCPP_INFO(this->get_logger(), "Set joint position to %f for %d",
-                set_position, i);
+    // RCLCPP_INFO(this->get_logger(), "Setting joint %s to %f", joint_names[i].c_str(), positions[i]);
   }
 
   joints_position_pub->publish(msg);
+
+  return result<void>::success();
 }
 
 result<void> BaseGait::update_joints_position(
@@ -161,6 +156,29 @@ BaseGait::update_cmd(geometry_msgs::msg::Twist::SharedPtr msg)
   cmd->linear_velocity = Vector3(msg->linear.x, msg->linear.y, msg->linear.z);
   cmd->angular_velocity =
       Vector3(msg->angular.x, msg->angular.y, msg->angular.z);
+
+  return result<void>::success();
+}
+
+result<void> BaseGait::update_odrive_ready(std_msgs::msg::Bool::SharedPtr msg)
+{
+  odrive_ready = msg->data;
+
+  // for some reason, we get this message with a false, just leave
+  if (!odrive_ready)
+  {
+    Logger::WARN("BaseGait", "Received non-ready odrive message");
+    return result<void>::success();
+  }
+
+  // if we are ready but we don't have an initial position, leave
+  if (!should_set_to_standing)
+    return result<void>::success();
+
+  set_joints_position(standing_positions);
+  std::this_thread::sleep_for(3s);
+
+  move_timer = this->create_wall_timer(20ms, std::bind(&BaseGait::move, this));
 
   return result<void>::success();
 }

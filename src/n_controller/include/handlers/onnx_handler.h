@@ -19,8 +19,8 @@ namespace newton
     std::vector<float> &get_output_buffer();
 
   private:
-    const char *INPUT_NAME = "observations";
-    const char *OUTPUT_NAME = "actions";
+    const char *INPUT_NAME = "observation"; // TODO: change to observations & actions
+    const char *OUTPUT_NAME = "action";
 
     std::string path;
     int num_inputs;

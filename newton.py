@@ -457,6 +457,8 @@ def run_container(
             "--device-cgroup-rule=c *:* rmw",
             "--group-add=dialout",
             "--group-add=video",
+            "--group-add=sudo",
+            "--group-add=root",
             "--device=/dev",
             "-e",
             "WORKSPACE_ROOT=/home/newton/workspace",

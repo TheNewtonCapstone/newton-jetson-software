@@ -6,7 +6,7 @@
 using namespace newton;
 
 MachineGait::MachineGait(const rclcpp::NodeOptions &options)
-    : BaseGait("machine_gait", options)
+    : BaseGait("machine_gait", true, options)
 {
   // Declare node's parameters default value
   // [NOT NECESSARY TO CHANGE THE FOLLOWING, USE ../config/params.yaml INSTEAD
@@ -23,12 +23,20 @@ MachineGait::MachineGait(const rclcpp::NodeOptions &options)
   onnx_handler =
       std::make_unique<OnnxHandler>(model_path, num_inputs, num_outputs);
 
+  Logger::get_instance().set_logfile("machine_gait.log");
+
+  Logger::INFO("machine_gait", "time,angular_velocity_x,angular_velocity_y,angular_velocity_z,projected_gravity_x,projected_gravity_y,projected_gravity_z,linear_velocity_x,linear_velocity_y,angular_velocity_z,"
+    "joint_delta_1,joint_delta_2,joint_delta_3,joint_delta_4,joint_delta_5,joint_delta_6,joint_delta_7,joint_delta_8,joint_delta_9,joint_delta_10,joint_delta_11,joint_delta_12,"
+    "joint_velocity_1,joint_velocity_2,joint_velocity_3,joint_velocity_4,joint_velocity_5,joint_velocity_6,joint_velocity_7,joint_velocity_8,joint_velocity_9,joint_velocity_10,joint_velocity_11,joint_velocity_12,previous_action_1,"
+    "previous_action_2,previous_action_3,previous_action_4,previous_action_5,previous_action_6,previous_action_7,previous_action_8,previous_action_9,previous_action_10,previous_action_11,previous_action_12,"
+    "action_1,action_2,action_3,action_4,action_5,action_6,action_7,action_8,action_9,action_10,action_11,action_12");
+
   BaseGait::init();
 }
 
 result<void> MachineGait::move()
 {
-  Logger::INFO("MachineGait", "Waiting for encoder offsets to be loaded");
+  std::string log_line = "";
 
   auto &input_buffer = onnx_handler->get_input_buffer();
 
@@ -68,6 +76,11 @@ result<void> MachineGait::move()
     input_buffer[33 + i] = previous_actions[i] * previous_actions_scaler;
   }
 
+  for (int i = 0; i < 45; i++)
+  {
+    log_line += std::to_string(input_buffer[i]) + ",";
+  }
+
   onnx_handler->run();
 
   const auto &output_buffer = onnx_handler->get_output_buffer();
@@ -76,9 +89,14 @@ result<void> MachineGait::move()
   for (int i = 0; i < NUM_JOINTS; i++)
   {
     previous_actions[i] = output_buffer[i];
-    positions[i] =
-        standing_positions[i] + (output_buffer[i]);
+    positions[i] = standing_positions[i] + (output_buffer[i]);
+
+    log_line += std::to_string(positions[i]) + ((i < NUM_JOINTS -1) ? "," : "");
   }
 
+  Logger::INFO("machine_gait", log_line.c_str());
+
   set_joints_position(positions);
+
+  return result<void>::success();
 }
