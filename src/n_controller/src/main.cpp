@@ -1,6 +1,7 @@
 #include <rclcpp/rclcpp.hpp>
 #include "gaits/harmonic_gait.h"
 #include "gaits/machine_gait.h"
+#include "gaits/walking_gait.h"
 #include "gaits/sliding_gait.h"
 #include <iostream>
 
@@ -20,7 +21,8 @@ int main(int argc, char *argv[])
         std::this_thread::sleep_for(std::chrono::seconds(5));
         // auto node = std::make_shared<newton::SlidingGait>();
         // auto node = std::make_shared<newton::MachineGait>();
-        auto node = std::make_shared<newton::HarmonicGait>();
+        // auto node = std::make_shared<newton::HarmonicGait>();
+        auto node = std::make_shared<newton::WalkingGait>();
         RCLCPP_INFO(logger, "Controller node created, starting spin...");
 
         rclcpp::spin(node);

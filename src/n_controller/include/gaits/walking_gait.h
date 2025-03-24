@@ -7,8 +7,9 @@ namespace newton
   class WalkingGait : public BaseGait
   {
   private: 
-        float frequency, phase, time_step, swing_height, step_length, stance_force, swing_force, forward_speed;
-        int steps, num_legs;
+        float frequency, time_step, swing_height, step_length, stance_force, swing_force, forward_speed;
+        int steps, num_legs, phase;
+
         float leg_phase_duration;
 
   public:

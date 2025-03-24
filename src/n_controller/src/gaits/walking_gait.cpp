@@ -1,4 +1,5 @@
 #include "gaits/walking_gait.h"
+#include "math.h"
 #include "logger.h"
 
 #include <rclcpp/rclcpp.hpp>
@@ -6,21 +7,36 @@
 using namespace newton;
 
 WalkingGait::WalkingGait(const rclcpp::NodeOptions &options)
-    : BaseGait("harmonic_gait", true, options),
-      frequency(1), phase(0), time_step(0.01), swing_height(0.5), step_length(0.25), steps(0), forward_speed(0.08)
+    : BaseGait("harmonic_gait", true, options), 
 
 {
   Logger::INFO("harmonic_gait", "time,angular_velocity_x,angular_velocity_y,angular_velocity_z,projected_gravity_x,projected_gravity_y,projected_gravity_z,linear_velocity_x,linear_velocity_y,angular_velocity_z,"
                                 "joint_delta_1,joint_delta_2,joint_delta_3,joint_delta_4,joint_delta_5,joint_delta_6,joint_delta_7,joint_delta_8,joint_delta_9,joint_delta_10,joint_delta_11,joint_delta_12,"
                                 "joint_velocity_1,joint_velocity_2,joint_velocity_3,joint_velocity_4,joint_velocity_5,joint_velocity_6,joint_velocity_7,joint_velocity_8,joint_velocity_9,joint_velocity_10,joint_velocity_11,joint_velocity_12"
                                 "action_1,action_2,action_3,action_4,action_5,action_6,action_7,action_8,action_9,action_10,action_11,action_12");
+  // get the parameters
+  this->phase = 0;
+  this->frequency = 0.5;
+  this->time_step = 0.01;
+  this->swing_height = 0.1;
+  this->step_length = 0.1;
+  this->forward_speed = 0.1;
+  this->steps = 0;
+  this->num_legs = 4;
+  this->leg_phase_duration = 1.0 / num_legs;
+
+
   BaseGait::init();
 };
 
 result<void> WalkingGait::move()
 {
       // update the phase 
-      phase = (phase + time_step * frequency) % 1.0f;
+      phase = (phase + time_step * frequency) % 1.0;
+      // get modulation  of 2 values x and y  using math library 
+
+
+
       // get a copy of the standing pose
       auto swing_pos = leg_standing_positions;
 
@@ -30,6 +46,9 @@ result<void> WalkingGait::move()
 
       // determine which leg is in swing phase
       auto swing_leg_idx = static_cast<int>(phase / leg_phase_duration);
+
+
+
       Logger::ERROR("Walking Gaits", "Swing Leg Index: %s", std::to_string(swing_leg_idx));
       
 

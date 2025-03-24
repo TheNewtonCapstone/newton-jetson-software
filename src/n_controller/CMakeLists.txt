@@ -38,6 +38,7 @@ add_executable(controller_node
   src/gaits/harmonic_gait.cpp
   src/gaits/machine_gait.cpp
   src/gaits/sliding_gait.cpp
+  src/gaits/walking_gait.cpp
   src/handlers/onnx_handler.cpp
 )
 
