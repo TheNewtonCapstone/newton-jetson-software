@@ -8,6 +8,7 @@ using namespace newton;
 HarmonicGait::HarmonicGait(const rclcpp::NodeOptions &options)
     : BaseGait("harmonic_gait", true, options)
 {
+  Logger::get_instance().set_logfile("harmonic_gait.log");
   Logger::INFO("harmonic_gait", "time,angular_velocity_x,angular_velocity_y,angular_velocity_z,projected_gravity_x,projected_gravity_y,projected_gravity_z,linear_velocity_x,linear_velocity_y,angular_velocity_z,"
                                 "joint_delta_1,joint_delta_2,joint_delta_3,joint_delta_4,joint_delta_5,joint_delta_6,joint_delta_7,joint_delta_8,joint_delta_9,joint_delta_10,joint_delta_11,joint_delta_12,"
                                 "joint_velocity_1,joint_velocity_2,joint_velocity_3,joint_velocity_4,joint_velocity_5,joint_velocity_6,joint_velocity_7,joint_velocity_8,joint_velocity_9,joint_velocity_10,joint_velocity_11,joint_velocity_12"
@@ -18,14 +19,16 @@ HarmonicGait::HarmonicGait(const rclcpp::NodeOptions &options)
 
 result<void> HarmonicGait::move()
 {
+  std::string log_line = "";
+
   // every 5s, the amplitude will change and after 5 amplitude changes, the frequency will change (up to 5 changes)
 
   const float INITIAL_AMPLITUDE = 0.5;
-  const float INITIAL_FREQUENCY = 0.1;
+  const float INITIAL_FREQUENCY = 0.2;
 
   // every 5s, the amplitude will change and after 5 amplitude changes, the frequency will change (up to 5 changes)
-  static float base_amplitude = 0.5;
-  static float base_frequency = 0.5;
+  static float base_amplitude = INITIAL_AMPLITUDE;
+  static float base_frequency = INITIAL_FREQUENCY;
   static int amplitude_changes = 0;
   static int frequency_changes = 0;
   static double last_change_time = 0.0;
@@ -46,7 +49,7 @@ result<void> HarmonicGait::move()
     RCLCPP_INFO(this->get_logger(), "Amplitude changed to %f", base_amplitude);
 
     // If we've changed amplitude 5 times, change frequency
-    if (amplitude_changes >= 5)
+    if (amplitude_changes >= 3)
     {
       amplitude_changes = 0;
       base_amplitude = INITIAL_AMPLITUDE;
@@ -55,7 +58,7 @@ result<void> HarmonicGait::move()
       RCLCPP_INFO(this->get_logger(), "Frequency changed to %f", base_frequency);
 
       // Increase frequency (up to 5 changes)
-      if (frequency_changes < 6)
+      if (frequency_changes < 3)
       {
         base_frequency += 0.1;
       }
@@ -102,6 +105,11 @@ result<void> HarmonicGait::move()
     input_buffer[21 + i] = joints[i].curr_vel * joint_velocity_scaler;
   }
 
+  for (int i = 0; i < 33; i++)
+  {
+    log_line += std::to_string(input_buffer[i]) + ",";
+  }
+
   // get the offsets
   float base_position = amplitude * sin(TWO_PI * frequency * now.seconds());
   float haa_offset = amplitude * 0.5 * base_position;
@@ -119,21 +127,22 @@ result<void> HarmonicGait::move()
     positions[ids[0]] = leg_standing_positions[leg_name][0] + std::max(haa_offset, 0.f);
     positions[ids[1]] = leg_standing_positions[leg_name][1] + hfe_offset;
     positions[ids[2]] = leg_standing_positions[leg_name][2] + kfe_offset;
+    
+    // log the positions
+    log_line += std::to_string(positions[ids[0]]) + ",";
+    log_line += std::to_string(positions[ids[1]]) + ",";
+    log_line += std::to_string(positions[ids[2]]) + ((leg.first != "hr_kfe") ? "," : "");
   }
 
-  /*   RCLCPP_INFO(
-        this->get_logger(),
-        "Harmonic motion %ld, Base position: %f, HFE offset: %f, KFE offset: %f",
-        now.nanoseconds(), base_position, hfe_offset, kfe_offset);
-   */
+  if (amplitude_changes == 5 && frequency_changes == 5)
+  {
+    RCLCPP_INFO(this->get_logger(), "Amplitude and frequency changes completed");
+    rclcpp::shutdown();
+  }
 
   set_joints_position(positions);
 
-  if (amplitude_changes == 5 && frequency_changes == 6)
-  {
-    Logger::INFO("harmonic_gait", "Amplitude and frequency changes completed");
-    rclcpp::shutdown();
-  }
+  Logger::INFO("machine_gait", log_line.c_str());
 
   return result<void>::success();
 }
