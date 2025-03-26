@@ -16,6 +16,17 @@ find_package(tf2_ros REQUIRED)
 
 include_directories(include external/serialib external/EasyProfile)
 
+set(PROJECT_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+cmake_path(GET PROJECT_DIR PARENT_PATH GRANDPARENT_DIR)
+cmake_path(GET GRANDPARENT_DIR PARENT_PATH PARENT_DIR)
+set(ROOT_PATH ${PARENT_DIR})
+set(UTILS_DIR ${PARENT_DIR}/utils)
+
+# Add include directories
+include_directories(include)
+include_directories(${UTILS_DIR}/include)
+include_directories(${UTILS_DIR}/build)
+
 add_executable(transducer_m_imu 
     src/tm_imu_node.cpp
     external/serialib/serialib.cpp

@@ -1,11 +1,12 @@
 #include "tm_imu/tm_imu_node.hpp"
-
+#include "logger.h"
 EasyObjectDictionary eOD;
 EasyProfile eP(&eOD);
 
 #ifdef DEBUG_MODE
 #define DEBUG_MODE_PRINT_TIMER_MS_ (10000) // 10 seconds
 #endif
+using namespace newton;
 
 TMSerial::TMSerial() : rclcpp::Node("n_imu")
 {
@@ -18,6 +19,8 @@ TMSerial::TMSerial() : rclcpp::Node("n_imu")
     this->declare_parameter("timer_period", 50); // Unit: ms
     this->declare_parameter("translation", std::vector<double>{0.0, 0.0, 0.0});
     this->declare_parameter("rotation", std::vector<double>{0.0, 0.0, 0.0});
+    Logger::get_instance().set_logfile("imu.log");
+
 
     // transform euleur rotation into quaternion
     orientation = std::make_unique<tf2::Quaternion>();
@@ -88,6 +91,12 @@ void TMSerial::TimerCallback()
     // Publish msg
     PublishTransform();
     publisher_IMU->publish(imu_data_msg);
+    //
+    // RCLCPP_INFO(this->get_logger(), "x, y,z,w: %f, %f, %f, %f", imu_data_msg.orientation.x, imu_data_msg.orientation.y, imu_data_msg.orientation.z, imu_data_msg.orientation.w);
+    // Logger::INFO("IMU", "orientation: %f, %f, %f, %f", imu_data_msg.orientation.x, imu_data_msg.orientation.y, imu_data_msg.orientation.z, imu_data_msg.orientation.w);
+    // Logger::INFO("IMU", "angular_velocity: %f, %f, %f", imu_data_msg.angular_velocity.x, imu_data_msg.angular_velocity.y, imu_data_msg.angular_velocity.z);
+    // Logger::INFO("IMU", "linear_acceleration: %f, %f, %f,", imu_data_msg.linear_acceleration.x, imu_data_msg.linear_acceleration.y, imu_data_msg.linear_acceleration.z);
+
     publisher_IMU_RPY->publish(imu_data_rpy_msg);
     publisher_IMU_MAG->publish(imu_data_mag_msg);
 }

@@ -1,9 +1,10 @@
 n_imu:
   ros__parameters:
     imu_baudrate : 115200
-    imu_port : "/dev/ttyACM0"
+    imu_port : "/dev/ttyACM1"
     imu_frame_id : 'imu'
     parent_frame_id : 'base_link'
     timer_period : 5
     translation: [0.0, 0.0, 0.0] # meters
     rotation: [0.0, 0.0, 3.14] # rads
+

@@ -17,7 +17,7 @@ WalkingGait::WalkingGait(const rclcpp::NodeOptions &options)
     this->frequency = 0.5f;      // Walking frequency in Hz
     this->time_step = 0.02f;     // 20ms = 0.02s (from the timer in BaseGait)
     this->swing_height = 0.1f;
-    this->step_length = 0.05f;
+    this->step_length = 0.7f;
     this->stance_force = 10.0f;
     this->swing_force = 5.0f;
     this->forward_speed = 0.1f;
@@ -72,7 +72,7 @@ result<void> WalkingGait::move()
         }
         
         // Create a backward-pushing motion during stance
-        float hip_stance_adjust = direction * step_length * 0.5f;  // Consistent push
+        float hip_stance_adjust = direction * step_length * 0.5f; 
         
         // Apply the stance motion (push backward) - adjust hip joint (index 1)
         pose[leg][1] = stance_pose[leg][1] + hip_stance_adjust;
@@ -81,7 +81,6 @@ result<void> WalkingGait::move()
         pose[leg][2] = stance_pose[leg][2] - 0.05f;
     }
     
-    // Apply leg motion for the SWING leg
     // For the height (knee) motion, use a parabolic trajectory
     float height_factor = 4.0f * swing_phase * (1.0f - swing_phase);  // Parabolic curve: 0->1->0
     float lift_amount = swing_height * height_factor;
@@ -109,7 +108,7 @@ result<void> WalkingGait::move()
     final_positions = standing_positions;
     
     // Populate the array with joint positions from the pose map
-    // Convert from leg-centric structure to flat array
+    
     for (const auto& [leg_name, leg_indices] : leg_ids) {
         if (pose.find(leg_name) != pose.end()) {
             for (size_t i = 0; i < 3; ++i) {
