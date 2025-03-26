@@ -89,10 +89,10 @@ BaseGait::set_joints_position(const std::array<float, NUM_JOINTS> &positions)
   msg.layout.dim[0].stride = 1;
   msg.layout.dim[0].label = "joint_positions";
   msg.data = {
-      0.f, 0.f, 0.f,
-      0.f, 0.f, 0.f,
-      0.f, 0.f, 0.f,
-      0.f, 0.f, 0.f};
+      0.f, 0.f,
+      0.f, 0.f,
+      0.f, 0.f,
+      0.f, 0.f};
 
   for (int i = 0; i < NUM_JOINTS; i++)
   {

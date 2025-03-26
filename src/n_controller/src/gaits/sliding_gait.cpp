@@ -32,7 +32,7 @@ result<void> SlidingGait::move()
   {
     // Get the phase
     std::string leg_name = leg.first;
-    std::array<int, 3> ids = leg.second;
+    std::array<int, 2> ids = leg.second;
 
     float phase = phases[leg_name];
     float cycle_pos = sin(TWO_PI * FREQUENCY * now.seconds() + phase);
@@ -40,9 +40,8 @@ result<void> SlidingGait::move()
     hfe_offset = step_length * cycle_pos;
 
     // set the positions, only the HFE joints are affected
-    positions[ids[0]] = leg_standing_positions[leg_name][0];
-    positions[ids[1]] = leg_standing_positions[leg_name][1] + hfe_offset;
-    positions[ids[2]] = leg_standing_positions[leg_name][2];
+    positions[ids[0]] = leg_standing_positions[leg_name][0] + hfe_offset;
+    positions[ids[1]] = leg_standing_positions[leg_name][1];
     // Logger::DEBUG("SM", "Sliding motion %ld, HFE offset: %f", now.nanoseconds(), hfe_offset);
   }
 

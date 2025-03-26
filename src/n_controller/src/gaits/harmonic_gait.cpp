@@ -121,17 +121,15 @@ result<void> HarmonicGait::move()
   {
     // Get the phase
     std::string leg_name = leg.first;
-    std::array<int, 3> ids = leg.second;
+    std::array<int, 2> ids = leg.second;
 
     // set the positions, only the HFE joints are affected
-    positions[ids[0]] = leg_standing_positions[leg_name][0] + std::max(haa_offset, 0.f);
-    positions[ids[1]] = leg_standing_positions[leg_name][1] + hfe_offset;
-    positions[ids[2]] = leg_standing_positions[leg_name][2] + kfe_offset;
+    positions[ids[0]] = leg_standing_positions[leg_name][0] + hfe_offset;
+    positions[ids[1]] = leg_standing_positions[leg_name][1] + kfe_offset;
 
     // log the positions
     log_line += std::to_string(positions[ids[0]]) + ",";
     log_line += std::to_string(positions[ids[1]]) + ",";
-    log_line += std::to_string(positions[ids[2]]) + ((leg_name != "hr_kfe") ? "," : "");
   }
 
   if (amplitude_changes == 5 && frequency_changes == 5)

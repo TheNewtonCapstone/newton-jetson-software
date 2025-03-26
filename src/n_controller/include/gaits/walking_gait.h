@@ -25,11 +25,11 @@ namespace newton
     std::vector<std::string> leg_sequence;
     
     // Map to store the target positions for each leg in the stance phase
-    std::unordered_map<std::string, std::array<float, 3>> stance_pose = {
-        {"fl", {0.0f, -0.5, 1.0f}},
-        {"fr", {0.0f, 0.5, 1.0f}},
-        {"hl", {0.0f, -0.5, 1.0f}},
-        {"hr", {0.0f, 0.5, 1.0f}}
+    std::unordered_map<std::string, std::array<float, 2>> stance_pose = {
+        {"fl", {-0.5, 1.0f}},
+        {"fr", {0.5, 1.0f}},
+        {"hl", {-0.5, 1.0f}},
+        {"hr", {0.5, 1.0f}}
     };
 
 

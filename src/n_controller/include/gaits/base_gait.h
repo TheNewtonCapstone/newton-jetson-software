@@ -21,7 +21,7 @@ namespace newton
                           const rclcpp::NodeOptions &options = rclcpp::NodeOptions());
         ~BaseGait() = default;
 
-        static constexpr uint8_t NUM_JOINTS = 12;
+        static constexpr uint8_t NUM_JOINTS = 8;
 
         result<void> init();
         result<void> init_clients();
@@ -41,34 +41,34 @@ namespace newton
         };
 
         const std::array<std::string, NUM_JOINTS> joint_names = {
-            "fl_haa", "fl_hfe", "fl_kfe", // front left
-            "fr_haa", "fr_hfe", "fr_kfe", // front right
-            "hl_haa", "hl_hfe", "hl_kfe", // hind left
-            "hr_haa", "hr_hfe", "hr_kfe", // hind right
+            "fl_hfe", "fl_kfe", // front left
+            "fr_hfe", "fr_kfe", // front right
+            "hl_hfe", "hl_kfe", // hind left
+            "hr_hfe", "hr_kfe", // hind right
         };
 
-        std::unordered_map<std::string, std::array<float, 3>> leg_standing_positions =
+        std::unordered_map<std::string, std::array<float, 2>> leg_standing_positions =
             {
-                {"fl", {0.0, 0.8, -1.4}}, // front left
-                {"fr", {0.0, 0.8, -1.4}},   // front right
-                {"hl", {0.0, 0.8, -1.4}},   // hind left
-                {"hr", {0.0, 0.8, -1.4}}, // hind right
+                {"fl", {0.8, -1.4}}, // front left
+                {"fr", {0.8, -1.4}},   // front right
+                {"hl", {0.8, -1.4}},   // hind left
+                {"hr", {0.8, -1.4}}, // hind right
             };
 
         std::array<float, NUM_JOINTS> standing_positions = {
-            0.0, 0.8, -1.4, // front left
-            0.0, 0.8, -1.4, // front right
-            0.0, 0.8, -1.4, // hind left
-            0.0, 0.8, -1.4, // hind right
+            0.8, -1.4, // front left
+            0.8, -1.4, // front right
+            0.8, -1.4, // hind left
+            0.8, -1.4, // hind right
 
         };
 
         // map the legs to ids
-        const std::unordered_map<std::string, std::array<int, 3>> leg_ids = {
-            {"fl", {0, 1, 2}},   // front left
-            {"fr", {3, 4, 5}},   // front right
-            {"hl", {6, 7, 8}},   // hind left
-            {"hr", {9, 10, 11}}, // hind right
+        const std::unordered_map<std::string, std::array<int, 2>> leg_ids = {
+            {"fl", {1, 2}},   // front left
+            {"fr", {4, 5}},   // front right
+            {"hl", {7, 8}},   // hind left
+            {"hr", {10, 11}}, // hind right
         };
 
         std::array<newton::Joint, NUM_JOINTS> joints;

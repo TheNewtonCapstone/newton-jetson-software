@@ -75,10 +75,10 @@ result<void> WalkingGait::move()
         float hip_stance_adjust = direction * step_length * 0.5f; 
         
         // Apply the stance motion (push backward) - adjust hip joint (index 1)
-        pose[leg][1] = stance_pose[leg][1] + hip_stance_adjust;
+        pose[leg][0] = stance_pose[leg][0] + hip_stance_adjust;
         
         // Apply slight downward pressure during stance for better grip - adjust knee joint (index 2)
-        pose[leg][2] = stance_pose[leg][2] - 0.05f;
+        pose[leg][1] = stance_pose[leg][1] - 0.05f;
     }
     
     // For the height (knee) motion, use a parabolic trajectory
@@ -98,8 +98,8 @@ result<void> WalkingGait::move()
     float hip_swing_adjust = direction * step_length * (1.0f - 2.0f * forward_factor);
     
     // Apply the swing trajectory to the current swing leg
-    pose[swing_leg][1] = stance_pose[swing_leg][1] + hip_swing_adjust;
-    pose[swing_leg][2] = stance_pose[swing_leg][2] + lift_amount;
+    pose[swing_leg][0] = stance_pose[swing_leg][0] + hip_swing_adjust;
+    pose[swing_leg][1] = stance_pose[swing_leg][1] + lift_amount;
     
     // Prepare final joint positions array
     std::array<float, NUM_JOINTS> final_positions;
@@ -111,7 +111,7 @@ result<void> WalkingGait::move()
     
     for (const auto& [leg_name, leg_indices] : leg_ids) {
         if (pose.find(leg_name) != pose.end()) {
-            for (size_t i = 0; i < 3; ++i) {
+            for (size_t i = 0; i < 2; ++i) {
                 final_positions[leg_indices[i]] = pose[leg_name][i];
             }
         }
@@ -129,7 +129,7 @@ result<void> WalkingGait::move()
 
       // log everything
       for (const auto& [leg_name, leg_indices] : leg_ids) {
-        Logger::INFO("walking_gait", "Leg %s: %.2f, %.2f, %.2f", leg_name, pose[leg_name][0], pose[leg_name][1], pose[leg_name][2]);
+        Logger::INFO("walking_gait", "Leg %s: %.2f, %.2f", leg_name, pose[leg_name][0], pose[leg_name][1]);
       }
     }
     

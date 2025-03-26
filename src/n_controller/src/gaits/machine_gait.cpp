@@ -12,8 +12,8 @@ MachineGait::MachineGait(const rclcpp::NodeOptions &options)
   // [NOT NECESSARY TO CHANGE THE FOLLOWING, USE ../config/params.yaml INSTEAD
   // !]
   this->declare_parameter("model_path", "model.onnx");
-  this->declare_parameter("num_inputs", 45);
-  this->declare_parameter("num_outputs", 12);
+  this->declare_parameter("num_inputs", 33);
+  this->declare_parameter("num_outputs", 8);
 
   // Get the parameters
   const auto model_path = this->get_parameter("model_path").as_string();
@@ -25,11 +25,12 @@ MachineGait::MachineGait(const rclcpp::NodeOptions &options)
 
   Logger::get_instance().set_logfile("machine_gait.log");
 
-  Logger::INFO("machine_gait", "time,angular_velocity_x,angular_velocity_y,angular_velocity_z,projected_gravity_x,projected_gravity_y,projected_gravity_z,linear_velocity_x,linear_velocity_y,angular_velocity_z,"
-    "joint_delta_1,joint_delta_2,joint_delta_3,joint_delta_4,joint_delta_5,joint_delta_6,joint_delta_7,joint_delta_8,joint_delta_9,joint_delta_10,joint_delta_11,joint_delta_12,"
-    "joint_velocity_1,joint_velocity_2,joint_velocity_3,joint_velocity_4,joint_velocity_5,joint_velocity_6,joint_velocity_7,joint_velocity_8,joint_velocity_9,joint_velocity_10,joint_velocity_11,joint_velocity_12,previous_action_1,"
-    "previous_action_2,previous_action_3,previous_action_4,previous_action_5,previous_action_6,previous_action_7,previous_action_8,previous_action_9,previous_action_10,previous_action_11,previous_action_12,"
-    "action_1,action_2,action_3,action_4,action_5,action_6,action_7,action_8,action_9,action_10,action_11,action_12");
+  Logger::INFO("machine_gait", 
+    "time,angular_velocity_x,angular_velocity_y,angular_velocity_z,projected_gravity_x,projected_gravity_y,projected_gravity_z,linear_velocity_x,linear_velocity_y,angular_velocity_z,"
+    "joint_delta_1,joint_delta_2,joint_delta_3,joint_delta_4,joint_delta_5,joint_delta_6,joint_delta_7,joint_delta_8,"
+    "joint_velocity_1,joint_velocity_2,joint_velocity_3,joint_velocity_4,joint_velocity_5,joint_velocity_6,joint_velocity_7,joint_velocity_8"
+    "previous_action_1,previous_action_2,previous_action_3,previous_action_4,previous_action_5,previous_action_6,previous_action_7,previous_action_8,"
+    "action_1,action_2,action_3,action_4,action_5,action_6,action_7,action_8,");
 
   BaseGait::init();
 }
@@ -49,7 +50,7 @@ result<void> MachineGait::move()
   // projected gravity
   input_buffer[3] = imu->projected_gravity.x;
   input_buffer[4] = imu->projected_gravity.y;
-  input_buffer[5] = imu->projected_gravity.z * -1.0; // added -1.0 to invert the z axis
+  input_buffer[5] = imu->projected_gravity.z;
 
   // commands
   input_buffer[6] = cmd->linear_velocity.x;
@@ -66,17 +67,17 @@ result<void> MachineGait::move()
   const auto joint_velocity_scaler = 0.05;
   for (int i = 0; i < NUM_JOINTS; i++)
   {
-    input_buffer[21 + i] = joints[i].curr_vel * joint_velocity_scaler;
+    input_buffer[17 + i] = joints[i].curr_vel * joint_velocity_scaler;
   }
 
   // previous actions
   const auto previous_actions_scaler = 1.0;
   for (int i = 0; i < NUM_JOINTS; i++)
   {
-    input_buffer[33 + i] = previous_actions[i] * previous_actions_scaler;
+    input_buffer[25 + i] = previous_actions[i] * previous_actions_scaler;
   }
 
-  for (int i = 0; i < 45; i++)
+  for (int i = 0; i < 33; i++)
   {
     log_line += std::to_string(input_buffer[i]) + ",";
   }
