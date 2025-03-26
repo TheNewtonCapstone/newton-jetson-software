@@ -8,7 +8,9 @@ using namespace newton;
 HarmonicGait::HarmonicGait(const rclcpp::NodeOptions &options)
     : BaseGait("harmonic_gait", true, options)
 {
+  
   Logger::get_instance().set_logfile("harmonic_gait.log");
+
   std::string log_title ="time,";
   log_title += "ang_vel_x, ang_vel_y, ang_vel_z,";
   log_title += "proj_grav_x, proj_grav_y, proj_grav_z,";
@@ -16,7 +18,7 @@ HarmonicGait::HarmonicGait(const rclcpp::NodeOptions &options)
   log_title += "fl_hfe, fl_kfe, fr_hfe, fr_kfe, hl_hfe, hl_kfe, hr_hfe, hr_kfe,";
   log_title += "vel_fl_hfe, vel_fl_kfe, vel_fr_hfe, vel_fr_kfe, vel_hl_hfe, vel_hl_kfe, vel_hr_hfe, vel_hr_kfe,";
   log_title += "act_fl_hfe, act_fl_kfe, act_fr_hfe, act_fr_kfe, act_hl_hfe, act_hl_kfe, act_hr_hfe, act_hr_kfe,";
-
+  Logger::INFO("harmonic_gait", log_title.c_str());
 
   BaseGait::init();
 };
@@ -24,6 +26,7 @@ HarmonicGait::HarmonicGait(const rclcpp::NodeOptions &options)
 result<void> HarmonicGait::move()
 {
   std::string log_line = "";
+
 
   // every 5s, the amplitude will change and after 5 amplitude changes, the frequency will change (up to 5 changes)
 
@@ -38,6 +41,7 @@ result<void> HarmonicGait::move()
   static double last_change_time = 0.0;
 
   auto now = this->get_clock()->now();
+  log_line += std::to_string(now.nanoseconds()) + ",";
   auto current_time = now.seconds();
 
   // Check if 5 seconds have passed since the last change
@@ -92,9 +96,13 @@ result<void> HarmonicGait::move()
   input_buffer[5] = imu->projected_gravity.z;
 
   // commands
-  input_buffer[6] = cmd->linear_velocity.x;
-  input_buffer[7] = cmd->linear_velocity.y;
-  input_buffer[8] = cmd->angular_velocity.z;
+  // input_buffer[6] = cmd->linear_velocity.x;
+  // input_buffer[7] = cmd->linear_velocity.y;
+  // input_buffer[8] = cmd->angular_velocity.z;
+
+  input_buffer[6] = 1.0;
+  input_buffer[7] = 0.0;
+  input_buffer[8] = 0.0;
 
   // joint positions
   for (int i = 0; i < NUM_JOINTS; i++)
@@ -106,7 +114,7 @@ result<void> HarmonicGait::move()
   const auto joint_velocity_scaler = 0.05;
   for (int i = 0; i < NUM_JOINTS; i++)
   {
-    input_buffer[21 + i] = joints[i].curr_vel * joint_velocity_scaler;
+    input_buffer[17 + i] = joints[i].curr_vel * joint_velocity_scaler;
   }
 
   for (int i = 0; i < 33; i++)
@@ -151,7 +159,6 @@ result<void> HarmonicGait::move()
   set_joints_position(positions);
 
   Logger::INFO("harmonic_gait", log_line.c_str());
-  Logger::INFO("harmonic_gait", "Sent joint positions");
 
   return result<void>::success();
 }

@@ -45,7 +45,7 @@ result<void> BaseGait::init_subs()
 {
   joints_position_sub =
       this->create_subscription<std_msgs::msg::Float32MultiArray>(
-          "joints_state_positions", 10,
+          "joint_state_positions", 10,
           [=, this](const std_msgs::msg::Float32MultiArray::SharedPtr msg)
           {
             this->update_joints_position(msg);
@@ -53,7 +53,7 @@ result<void> BaseGait::init_subs()
 
   joints_velocity_sub =
       this->create_subscription<std_msgs::msg::Float32MultiArray>(
-          "joints_state_velocities", 10,
+          "joint_state_velocities", 10,
           [=, this](const std_msgs::msg::Float32MultiArray::SharedPtr msg)
           {
             this->update_joints_velocity(msg);
@@ -123,6 +123,7 @@ result<void> BaseGait::update_joints_velocity(
   for (int i = 0; i < NUM_JOINTS; i++)
   {
     joints[i].curr_vel = msg->data[i];
+
   }
 
   return result<void>::success();
