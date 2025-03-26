@@ -9,10 +9,14 @@ HarmonicGait::HarmonicGait(const rclcpp::NodeOptions &options)
     : BaseGait("harmonic_gait", true, options)
 {
   Logger::get_instance().set_logfile("harmonic_gait.log");
-  Logger::INFO("harmonic_gait", "time,angular_velocity_x,angular_velocity_y,angular_velocity_z,projected_gravity_x,projected_gravity_y,projected_gravity_z,linear_velocity_x,linear_velocity_y,angular_velocity_z,"
-                                "joint_delta_1,joint_delta_2,joint_delta_3,joint_delta_4,joint_delta_5,joint_delta_6,joint_delta_7,joint_delta_8,joint_delta_9,joint_delta_10,joint_delta_11,joint_delta_12,"
-                                "joint_velocity_1,joint_velocity_2,joint_velocity_3,joint_velocity_4,joint_velocity_5,joint_velocity_6,joint_velocity_7,joint_velocity_8,joint_velocity_9,joint_velocity_10,joint_velocity_11,joint_velocity_12"
-                                "action_1,action_2,action_3,action_4,action_5,action_6,action_7,action_8,action_9,action_10,action_11,action_12");
+  std::string log_title ="time,";
+  log_title += "ang_vel_x, ang_vel_y, ang_vel_z,";
+  log_title += "proj_grav_x, proj_grav_y, proj_grav_z,";
+  log_title += "cmd_lin_vel_x, cmd_lin_vel_y, cmd_ang_vel_z,";
+  log_title += "pos_0, pos_1, pos_2, pos_3, pos_4, pos_5, pos_6, pos_7,";
+  log_title += "vel_0, vel_1, vel_2, vel_3, vel_4, vel_5, vel_6, vel_7,";
+  log_title += "action_0, action_1, action_2, action_3, action_4, action_5, action_6, action_7, action_8,";
+
 
   BaseGait::init();
 };
