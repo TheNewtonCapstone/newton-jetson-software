@@ -9,7 +9,8 @@
 using namespace newton;
 
 SlidingGait::SlidingGait(const rclcpp::NodeOptions &options)
-    : BaseGait("harmonic_gait", false, options) {
+    : BaseGait("sliding_gait", true, options)
+{
   BaseGait::init();
   //   Declare step length parameter
   this->declare_parameter("step_length", 0.1);
@@ -17,7 +18,8 @@ SlidingGait::SlidingGait(const rclcpp::NodeOptions &options)
   Logger::INFO("SM", "Step length: %f", step_length);
 };
 
-result<void> SlidingGait::move() {
+result<void> SlidingGait::move()
+{
   const float FREQUENCY = 0.5;
 
   auto now = this->get_clock()->now();
@@ -26,7 +28,8 @@ result<void> SlidingGait::move() {
   std::array<float, NUM_JOINTS> positions{};
 
   // loop throug the leg ids
-  for (auto &leg : leg_ids) {
+  for (auto &leg : leg_ids)
+  {
     // Get the phase
     std::string leg_name = leg.first;
     std::array<int, 3> ids = leg.second;
