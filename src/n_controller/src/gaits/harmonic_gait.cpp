@@ -59,7 +59,7 @@ result<void> HarmonicGait::move()
       base_amplitude = INITIAL_AMPLITUDE;
       frequency_changes++;
 
-      RCLCPP_INFO(this->get_logger(), "Frequency changed to %f", base_frequency);
+      // RCLCPP_INFO(this->get_logger(), "Frequency changed to %f", base_frequency);
 
       // Increase frequency (up to 5 changes)
       if (frequency_changes < 5)
@@ -131,7 +131,7 @@ result<void> HarmonicGait::move()
     std::array<int, 2> ids = leg.second;
 
     // set the positions, only the HFE joints are affected
-    Logger::INFO("harmonic_gait", "Leg: %s, id_1:%d, id_2: %d:HFE offset: %f, KFE offset: %f", leg_name.c_str(), ids[0], ids[1],  hfe_offset, kfe_offset);
+    // Logger::INFO("harmonic_gait", "Leg: %s, id_1:%d, id_2: %d:HFE offset: %f, KFE offset: %f", leg_name.c_str(), ids[0], ids[1],  hfe_offset, kfe_offset);
     positions[counter++] = leg_standing_positions[leg_name][0] + hfe_offset;
     positions[counter++] = leg_standing_positions[leg_name][1] + kfe_offset;
     // positions[ids[0]] = leg_standing_positions[leg_name][0] + hfe_offset;
@@ -142,7 +142,7 @@ result<void> HarmonicGait::move()
     // log_line += std::to_string(positions[ids[1]]) + ",";
   }
 
-    RCLCPP_INFO(this->get_logger(), "Amplitude and frequency changes completed");
+    // RCLCPP_INFO(this->get_logger(), "Amplitude and frequency changes completed");
   // if (amplitude_changes == 5 && frequency_changes == 5)
   // {
   //   rclcpp::shutdown();

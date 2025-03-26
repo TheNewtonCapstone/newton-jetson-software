@@ -86,7 +86,6 @@ BaseGait::set_joints_position(const std::array<float, NUM_JOINTS> &positions)
 {
   // lets add debug info to know where code break
 
-  Logger::ERROR("BaseGait", "Setting joint positions");
   auto msg = std_msgs::msg::Float32MultiArray();
   msg.layout.dim.push_back(std_msgs::msg::MultiArrayDimension());
   msg.layout.dim[0].size = positions.size();
@@ -98,16 +97,12 @@ BaseGait::set_joints_position(const std::array<float, NUM_JOINTS> &positions)
       0.f, 0.f,
       0.f, 0.f};
 
-  Logger::ERROR("BaseGait", "Setting joint positions 1.0");
   for (int i = 0; i < NUM_JOINTS; i++)
   {
     msg.data[i] = positions[i];
-    RCLCPP_INFO(this->get_logger(), "Setting joint %s to %f", joint_names[i].c_str(), positions[i]);
+    // RCLCPP_INFO(this->get_logger(), "Setting joint %s to %f", joint_names[i].c_str(), positions[i]);
   }
-  Logger::ERROR("BaseGait", "Setting joint positions 2.0");
   joints_position_pub->publish(msg);
-  Logger::ERROR("BaseGait", "Setting joint positions 3.0");
-
   return result<void>::success();
 }
 

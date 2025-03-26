@@ -65,10 +65,10 @@ namespace newton
 
         // map the legs to ids
         const std::unordered_map<std::string, std::array<int, 2>> leg_ids = {
-            {"fl", {1, 2}},   // front left
-            {"fr", {4, 5}},   // front right
-            {"hl", {7, 8}},   // hind left
-            {"hr", {10, 11}}, // hind right
+            {"fl", {0, 1}},   // front left
+            {"fr", {2, 3}},   // front right
+            {"hl", {4, 5}},   // hind left
+            {"hr", {6, 7}}, // hind right
         };
 
         std::array<newton::Joint, NUM_JOINTS> joints;
