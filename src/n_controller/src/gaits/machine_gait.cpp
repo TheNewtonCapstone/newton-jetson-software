@@ -44,12 +44,12 @@ result<void> MachineGait::move()
   const auto angular_velocity_scaler = 0.25;
   input_buffer[0] = imu->angular_velocity.x * angular_velocity_scaler;
   input_buffer[1] = imu->angular_velocity.y * angular_velocity_scaler;
-  input_buffer[2] = imu->angular_velocity.z * angular_velocity_scaler;
+  input_buffer[2] = imu->angular_velocity.z * angular_velocity_scaler * -1.0;  // added -1.0 to invert the z axis
 
   // projected gravity
   input_buffer[3] = imu->projected_gravity.x;
   input_buffer[4] = imu->projected_gravity.y;
-  input_buffer[5] = imu->projected_gravity.z;
+  input_buffer[5] = imu->projected_gravity.z * -1.0; // added -1.0 to invert the z axis
 
   // commands
   input_buffer[6] = cmd->linear_velocity.x;
@@ -89,7 +89,9 @@ result<void> MachineGait::move()
   for (int i = 0; i < NUM_JOINTS; i++)
   {
     previous_actions[i] = output_buffer[i];
-    positions[i] = standing_positions[i] + (output_buffer[i]);
+    float action_scaler = 0.25;
+    auto delta = output_buffer[i] * action_scaler;
+    positions[i] = standing_positions[i] + delta;
 
     log_line += std::to_string(positions[i]) + ((i < NUM_JOINTS -1) ? "," : "");
   }

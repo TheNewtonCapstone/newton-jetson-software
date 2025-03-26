@@ -24,7 +24,7 @@ result<void> HarmonicGait::move()
   // every 5s, the amplitude will change and after 5 amplitude changes, the frequency will change (up to 5 changes)
 
   const float INITIAL_AMPLITUDE = 0.5;
-  const float INITIAL_FREQUENCY = 0.2;
+  const float INITIAL_FREQUENCY = 0.1;
 
   // every 5s, the amplitude will change and after 5 amplitude changes, the frequency will change (up to 5 changes)
   static float base_amplitude = INITIAL_AMPLITUDE;
@@ -49,7 +49,7 @@ result<void> HarmonicGait::move()
     RCLCPP_INFO(this->get_logger(), "Amplitude changed to %f", base_amplitude);
 
     // If we've changed amplitude 5 times, change frequency
-    if (amplitude_changes >= 3)
+    if (amplitude_changes >= 5)
     {
       amplitude_changes = 0;
       base_amplitude = INITIAL_AMPLITUDE;
@@ -58,7 +58,7 @@ result<void> HarmonicGait::move()
       RCLCPP_INFO(this->get_logger(), "Frequency changed to %f", base_frequency);
 
       // Increase frequency (up to 5 changes)
-      if (frequency_changes < 3)
+      if (frequency_changes < 5)
       {
         base_frequency += 0.1;
       }
@@ -127,11 +127,11 @@ result<void> HarmonicGait::move()
     positions[ids[0]] = leg_standing_positions[leg_name][0] + std::max(haa_offset, 0.f);
     positions[ids[1]] = leg_standing_positions[leg_name][1] + hfe_offset;
     positions[ids[2]] = leg_standing_positions[leg_name][2] + kfe_offset;
-    
+
     // log the positions
     log_line += std::to_string(positions[ids[0]]) + ",";
     log_line += std::to_string(positions[ids[1]]) + ",";
-    log_line += std::to_string(positions[ids[2]]) + ((leg.first != "hr_kfe") ? "," : "");
+    log_line += std::to_string(positions[ids[2]]) + ((leg_name != "hr_kfe") ? "," : "");
   }
 
   if (amplitude_changes == 5 && frequency_changes == 5)
@@ -140,9 +140,9 @@ result<void> HarmonicGait::move()
     rclcpp::shutdown();
   }
 
-  set_joints_position(positions);
+  // set_joints_position(positions);
 
-  Logger::INFO("machine_gait", log_line.c_str());
+  Logger::INFO("harmonic_gait", log_line.c_str());
 
   return result<void>::success();
 }
