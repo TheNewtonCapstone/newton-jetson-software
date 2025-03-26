@@ -13,9 +13,9 @@ HarmonicGait::HarmonicGait(const rclcpp::NodeOptions &options)
   log_title += "ang_vel_x, ang_vel_y, ang_vel_z,";
   log_title += "proj_grav_x, proj_grav_y, proj_grav_z,";
   log_title += "cmd_lin_vel_x, cmd_lin_vel_y, cmd_ang_vel_z,";
-  log_title += "pos_0, pos_1, pos_2, pos_3, pos_4, pos_5, pos_6, pos_7,";
-  log_title += "vel_0, vel_1, vel_2, vel_3, vel_4, vel_5, vel_6, vel_7,";
-  log_title += "action_0, action_1, action_2, action_3, action_4, action_5, action_6, action_7, action_8,";
+  log_title += "fl_hfe, fl_kfe, fr_hfe, fr_kfe, hl_hfe, hl_kfe, hr_hfe, hr_kfe,";
+  log_title += "vel_fl_hfe, vel_fl_kfe, vel_fr_hfe, vel_fr_kfe, vel_hl_hfe, vel_hl_kfe, vel_hr_hfe, vel_hr_kfe,";
+  log_title += "act_fl_hfe, act_fl_kfe, act_fr_hfe, act_fr_kfe, act_hl_hfe, act_hl_kfe, act_hr_hfe, act_hr_kfe,";
 
 
   BaseGait::init();
@@ -28,7 +28,7 @@ result<void> HarmonicGait::move()
   // every 5s, the amplitude will change and after 5 amplitude changes, the frequency will change (up to 5 changes)
 
   const float INITIAL_AMPLITUDE = 0.5;
-  const float INITIAL_FREQUENCY = 0.1;
+  const float INITIAL_FREQUENCY = 0.2;
 
   // every 5s, the amplitude will change and after 5 amplitude changes, the frequency will change (up to 5 changes)
   static float base_amplitude = INITIAL_AMPLITUDE;
@@ -115,36 +115,43 @@ result<void> HarmonicGait::move()
   }
 
   // get the offsets
-  float base_position = amplitude * sin(TWO_PI * frequency * now.seconds());
-  float haa_offset = amplitude * 0.5 * base_position;
-  float hfe_offset = amplitude * 1.0 * base_position;
-  float kfe_offset = amplitude * -2.0 * base_position;
+  float base_position = INITIAL_AMPLITUDE * sin(TWO_PI * frequency * now.seconds());
+  // float haa_offset = amplitude * 0.5 * base_position;
+  float hfe_offset = INITIAL_AMPLITUDE * 1.0 * base_position;
+  float kfe_offset = INITIAL_AMPLITUDE * -2.0 * base_position;
 
   std::array<float, NUM_JOINTS> positions{};
+  
+  int counter = 0; 
   for (auto &leg : leg_ids)
   {
     // Get the phase
+
     std::string leg_name = leg.first;
     std::array<int, 2> ids = leg.second;
 
     // set the positions, only the HFE joints are affected
-    positions[ids[0]] = leg_standing_positions[leg_name][0] + hfe_offset;
-    positions[ids[1]] = leg_standing_positions[leg_name][1] + kfe_offset;
+    Logger::INFO("harmonic_gait", "Leg: %s, id_1:%d, id_2: %d:HFE offset: %f, KFE offset: %f", leg_name.c_str(), ids[0], ids[1],  hfe_offset, kfe_offset);
+    positions[counter++] = leg_standing_positions[leg_name][0] + hfe_offset;
+    positions[counter++] = leg_standing_positions[leg_name][1] + kfe_offset;
+    // positions[ids[0]] = leg_standing_positions[leg_name][0] + hfe_offset;
+    // positions[ids[1]] = leg_standing_positions[leg_name][1] + kfe_offset;
 
-    // log the positions
-    log_line += std::to_string(positions[ids[0]]) + ",";
-    log_line += std::to_string(positions[ids[1]]) + ",";
+    // // log the positions
+    // log_line += std::to_string(positions[ids[0]]) + ",";
+    // log_line += std::to_string(positions[ids[1]]) + ",";
   }
 
-  if (amplitude_changes == 5 && frequency_changes == 5)
-  {
     RCLCPP_INFO(this->get_logger(), "Amplitude and frequency changes completed");
-    rclcpp::shutdown();
-  }
+  // if (amplitude_changes == 5 && frequency_changes == 5)
+  // {
+  //   rclcpp::shutdown();
+  // }
 
-  // set_joints_position(positions);
+  set_joints_position(positions);
 
   Logger::INFO("harmonic_gait", log_line.c_str());
+  Logger::INFO("harmonic_gait", "Sent joint positions");
 
   return result<void>::success();
 }
