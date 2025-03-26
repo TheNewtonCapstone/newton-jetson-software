@@ -49,17 +49,18 @@ namespace newton
 
         std::unordered_map<std::string, std::array<float, 3>> leg_standing_positions =
             {
-                {"fl", {0.0, 0.5, -1.5}}, // front left
-                {"fr", {0.0, 0.5, -1.5}},   // front right
-                {"hl", {0.0, 0.8, -1.5}},   // hind left
-                {"hr", {0.0, 0.8, -1.5}}, // hind right
+                {"fl", {0.0, 0.8, -1.4}}, // front left
+                {"fr", {0.0, 0.8, -1.4}},   // front right
+                {"hl", {0.0, 0.8, -1.4}},   // hind left
+                {"hr", {0.0, 0.8, -1.4}}, // hind right
             };
 
         std::array<float, NUM_JOINTS> standing_positions = {
-            0.0, 0.5, -1.5, // front left
-            0.0, 0.5, -1.5, // front right
-            0.0, 0.8, -1.5, // hind left
-            0.0, 0.8, -1.5, // hind right
+            0.0, 0.8, -1.4, // front left
+            0.0, 0.8, -1.4, // front right
+            0.0, 0.8, -1.4, // hind left
+            0.0, 0.8, -1.4, // hind right
+
         };
 
         // map the legs to ids
