@@ -12,7 +12,7 @@ MachineGait::MachineGait(const rclcpp::NodeOptions &options)
     : BaseGait("machine_gait", true, options)
 {
   // Declare node's parameters default value
-  this->declare_parameter("model_path", "model.onnx");
+  this->declare_parameter("model_path", "model_700.onnx");
   this->declare_parameter("num_inputs", 33);
   this->declare_parameter("num_outputs", 8);
   this->declare_parameter("csv_path", "joint_positions.csv"); // New parameter for CSV file path
