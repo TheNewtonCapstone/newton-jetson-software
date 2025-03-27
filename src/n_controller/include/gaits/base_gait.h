@@ -87,6 +87,8 @@ namespace newton
         rclcpp::Subscription<std_msgs::msg::Float32MultiArray>::SharedPtr
             joints_velocity_sub;
         rclcpp::Subscription<std_msgs::msg::Float32MultiArray>::SharedPtr
+            joints_torque_sub;
+        rclcpp::Subscription<std_msgs::msg::Float32MultiArray>::SharedPtr
             joints_position_sub;
         rclcpp::Subscription<sensor_msgs::msg::Imu>::SharedPtr imu_sub;
         rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr cmd_sub;
@@ -97,6 +99,10 @@ namespace newton
             const std_msgs::msg::Float32MultiArray::SharedPtr msg);
         result<void> update_joints_velocity(
             const std_msgs::msg::Float32MultiArray::SharedPtr msg);
+
+        result<void> update_joints_torque(
+            const std_msgs::msg::Float32MultiArray::SharedPtr msg);
+
         result<void> update_imu(const sensor_msgs::msg::Imu::SharedPtr msg);
         result<void> update_cmd(const geometry_msgs::msg::Twist::SharedPtr msg);
         result<void> update_odrive_ready(const std_msgs::msg::Bool::SharedPtr msg);

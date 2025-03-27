@@ -9,15 +9,13 @@ HarmonicGait::HarmonicGait(const rclcpp::NodeOptions &options)
     : BaseGait("harmonic_gait", true, options)
 {
   
-  Logger::get_instance().set_logfile("harmonic_gait.log");
+  Logger::get_instance().set_logfile("harmonic_gait.csv");
 
   std::string log_title ="time,";
-  log_title += "ang_vel_x, ang_vel_y, ang_vel_z,";
-  log_title += "proj_grav_x, proj_grav_y, proj_grav_z,";
-  log_title += "cmd_lin_vel_x, cmd_lin_vel_y, cmd_ang_vel_z,";
-  log_title += "fl_hfe, fl_kfe, fr_hfe, fr_kfe, hl_hfe, hl_kfe, hr_hfe, hr_kfe,";
+  log_title += "hfe_offset,kfe_offset,"; 
+  log_title += "pos_fl_hfe, pos_fl_kfe, pos_fr_hfe, pos_fr_kfe, pos_hl_hfe, pos_hl_kfe, pos_hr_hfe, pos_hr_kfe,";
   log_title += "vel_fl_hfe, vel_fl_kfe, vel_fr_hfe, vel_fr_kfe, vel_hl_hfe, vel_hl_kfe, vel_hr_hfe, vel_hr_kfe,";
-  log_title += "act_fl_hfe, act_fl_kfe, act_fr_hfe, act_fr_kfe, act_hl_hfe, act_hl_kfe, act_hr_hfe, act_hr_kfe,";
+  log_title += "tor_fl_hfe, tor_fl_kfe, tor_fr_hfe, tor_fr_kfe, tor_hl_hfe, tor_hl_kfe, tor_hr_hfe, tor_hr_kfe,";
   Logger::INFO("harmonic_gait", log_title.c_str());
 
   BaseGait::init();
@@ -31,7 +29,7 @@ result<void> HarmonicGait::move()
   // every 5s, the amplitude will change and after 5 amplitude changes, the frequency will change (up to 5 changes)
 
   const float INITIAL_AMPLITUDE = 0.5;
-  const float INITIAL_FREQUENCY = 0.2;
+  const float INITIAL_FREQUENCY = 0.3;
 
   // every 5s, the amplitude will change and after 5 amplitude changes, the frequency will change (up to 5 changes)
   static float base_amplitude = INITIAL_AMPLITUDE;
@@ -82,51 +80,54 @@ result<void> HarmonicGait::move()
   float amplitude = base_amplitude;
   float frequency = base_frequency;
 
-  std::array<float, 33> input_buffer{};
+  // std::array<float, 33> input_buffer{};
 
-  // angular velocity
-  const auto angular_velocity_scaler = 0.25;
-  input_buffer[0] = imu->angular_velocity.x * angular_velocity_scaler;
-  input_buffer[1] = imu->angular_velocity.y * angular_velocity_scaler;
-  input_buffer[2] = imu->angular_velocity.z * angular_velocity_scaler;
+  // // angular velocity
+  // const auto angular_velocity_scaler = 0.25;
+  // input_buffer[0] = imu->angular_velocity.x * angular_velocity_scaler;
+  // input_buffer[1] = imu->angular_velocity.y * angular_velocity_scaler;
+  // input_buffer[2] = imu->angular_velocity.z * angular_velocity_scaler;
 
-  // projected gravity
-  input_buffer[3] = imu->projected_gravity.x;
-  input_buffer[4] = imu->projected_gravity.y;
-  input_buffer[5] = imu->projected_gravity.z;
+  // // projected gravity
+  // input_buffer[3] = imu->projected_gravity.x;
+  // input_buffer[4] = imu->projected_gravity.y;
+  // input_buffer[5] = imu->projected_gravity.z;
 
-  // commands
-  // input_buffer[6] = cmd->linear_velocity.x;
-  // input_buffer[7] = cmd->linear_velocity.y;
-  // input_buffer[8] = cmd->angular_velocity.z;
+  // // commands
+  // // input_buffer[6] = cmd->linear_velocity.x;
+  // // input_buffer[7] = cmd->linear_velocity.y;
+  // // input_buffer[8] = cmd->angular_velocity.z;
 
-  input_buffer[6] = 1.0;
-  input_buffer[7] = 0.0;
-  input_buffer[8] = 0.0;
+  // input_buffer[6] = 1.0;
+  // input_buffer[7] = 0.0;
+  // input_buffer[8] = 0.0;
 
   // joint positions
-  for (int i = 0; i < NUM_JOINTS; i++)
-  {
-    input_buffer[9 + i] = joints[i].curr_pos - standing_positions[i];
-  }
+  // for (int i = 0; i < NUM_JOINTS; i++)
+  // {
+  //   input_buffer[9 + i] = joints[i].curr_pos - standing_positions[i];
+  // }
 
   // joint velocities
-  const auto joint_velocity_scaler = 0.05;
-  for (int i = 0; i < NUM_JOINTS; i++)
-  {
-    input_buffer[17 + i] = joints[i].curr_vel * joint_velocity_scaler;
-  }
+  // const auto joint_velocity_scaler = 0.05;
+  // for (int i = 0; i < NUM_JOINTS; i++)
+  // {
+  //   input_buffer[17 + i] = joints[i].curr_vel * joint_velocity_scaler;
+  // }
 
-  for (int i = 0; i < 33; i++)
-  {
-    log_line += std::to_string(input_buffer[i]) + ",";
-  }
+  // for (int i = 0; i < 33; i++)
+  // {
+  //   log_line += std::to_string(input_buffer[i]) + ",";
+  // }
 
   // get the offsets
-  float base_position = INITIAL_AMPLITUDE * sin(TWO_PI * frequency * now.seconds());
+  float base_position = INITIAL_AMPLITUDE *  sin(TWO_PI * INITIAL_FREQUENCY * now.seconds());
   // float haa_offset = amplitude * 0.5 * base_position;
   float hfe_offset = INITIAL_AMPLITUDE * 1.0 * base_position;
   float kfe_offset = INITIAL_AMPLITUDE * -2.0 * base_position;
+
+  log_line += std::to_string(hfe_offset) + ",";
+  log_line += std::to_string(kfe_offset) + ",";
 
   std::array<float, NUM_JOINTS> positions{};
   
@@ -140,10 +141,10 @@ result<void> HarmonicGait::move()
 
     // set the positions, only the HFE joints are affected
     // Logger::INFO("harmonic_gait", "Leg: %s, id_1:%d, id_2: %d:HFE offset: %f, KFE offset: %f", leg_name.c_str(), ids[0], ids[1],  hfe_offset, kfe_offset);
-    positions[counter++] = leg_standing_positions[leg_name][0] + hfe_offset;
-    positions[counter++] = leg_standing_positions[leg_name][1] + kfe_offset;
-    // positions[ids[0]] = leg_standing_positions[leg_name][0] + hfe_offset;
-    // positions[ids[1]] = leg_standing_positions[leg_name][1] + kfe_offset;
+    // positions[counter++] = leg_standing_positions[leg_name][0] + hfe_offset;
+    // positions[counter++] = leg_standing_positions[leg_name][1] + kfe_offset;
+    positions[ids[0]] = leg_standing_positions[leg_name][0] + hfe_offset;
+    positions[ids[1]] = leg_standing_positions[leg_name][1] + kfe_offset;
 
     // // log the positions
     // log_line += std::to_string(positions[ids[0]]) + ",";
@@ -151,10 +152,28 @@ result<void> HarmonicGait::move()
   }
 
     // RCLCPP_INFO(this->get_logger(), "Amplitude and frequency changes completed");
-  // if (amplitude_changes == 5 && frequency_changes == 5)
-  // {
-  //   rclcpp::shutdown();
-  // }
+  if (amplitude_changes == 5 && frequency_changes == 5)
+  {
+    rclcpp::shutdown();
+  }
+
+  // log the positions
+  for (int i = 0; i < NUM_JOINTS; i++)
+  {
+    log_line += std::to_string(joints[i].curr_pos) + ",";
+  }
+
+  // log the velocities
+  for (int i = 0; i < NUM_JOINTS; i++)
+  {
+    log_line += std::to_string(joints[i].curr_vel) + ",";
+  }
+
+  // log the torques
+  for (int i = 0; i < NUM_JOINTS; i++)
+  {
+    log_line += std::to_string(joints[i].curr_torque) + ",";
+  }
 
   set_joints_position(positions);
 

@@ -58,6 +58,13 @@ result<void> BaseGait::init_subs()
           {
             this->update_joints_velocity(msg);
           });
+  joints_torque_sub =
+      this->create_subscription<std_msgs::msg::Float32MultiArray>(
+          "joint_state_torques", 10,
+          [=, this](const std_msgs::msg::Float32MultiArray::SharedPtr msg)
+          {
+            this->update_joints_torque(msg);
+          });
 
   imu_sub = this->create_subscription<sensor_msgs::msg::Imu>(
       "imu_data", 10, [=, this](const sensor_msgs::msg::Imu::SharedPtr msg)
@@ -106,6 +113,16 @@ BaseGait::set_joints_position(const std::array<float, NUM_JOINTS> &positions)
   return result<void>::success();
 }
 
+result<void> BaseGait::update_joints_torque(
+    std_msgs::msg::Float32MultiArray::SharedPtr msg)
+{
+  for (int i = 0; i < NUM_JOINTS; i++)
+  {
+    joints[i].curr_torque = msg->data[i];
+  }
+
+  return result<void>::success();
+}
 result<void> BaseGait::update_joints_position(
     std_msgs::msg::Float32MultiArray::SharedPtr msg)
 {
