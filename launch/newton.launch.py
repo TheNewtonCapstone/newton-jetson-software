@@ -50,6 +50,6 @@ def generate_launch_description():
             odrive_node,
             controller_launch,
             imu_launch,
-            keyboard_input_node,
+            # keyboard_input_node,
         ]
     )
