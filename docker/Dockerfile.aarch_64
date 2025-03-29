@@ -44,6 +44,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     sudo \
     wget \
     python3-argcomplete \
+    libx11-dev \
+    mesa-common-dev \
     && rm -rf /var/lib/apt/lists/*
 
 

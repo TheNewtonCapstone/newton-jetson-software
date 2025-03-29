@@ -38,6 +38,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   ros-humble-ament-flake8 \
   ros-humble-ament-cmake-cpplint \
   ros-humble-ament-cmake-cppcheck \
+  libx11-dev \
+  mesa-common-dev \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*
 
