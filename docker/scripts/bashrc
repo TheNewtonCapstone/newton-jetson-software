@@ -116,9 +116,7 @@ if ! shopt -oq posix; then
 fi
 
 
-# set fzf as bash auto complete
-source ~/.fzf/shell/key-bindings.bash
-
+export ROS_DOMAIN_ID=25
 
 # set fzf config
 [ -f ~/.fzf.bash ] && source ~/.fzf.bash

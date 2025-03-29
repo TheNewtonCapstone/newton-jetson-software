@@ -49,6 +49,8 @@ private:
 private:
   serialib* serialib1;  // We use linux serialib to interface with serial port.
 
+  std::unique_ptr<tf2::Quaternion> orientation;
+
   sensor_msgs::msg::Imu imu_data_msg;
   sensor_msgs::msg::MagneticField imu_data_rpy_msg; // RPY msg uses the same data structure as msg::MagneticField
   sensor_msgs::msg::MagneticField imu_data_mag_msg;

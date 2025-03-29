@@ -80,7 +80,7 @@
     "typeindex": "cpp",
     "*.txx": "cpp"
   },
-  "cmake.sourceDirectory": "/home/newton/workspace/utils",
+  "cmake.sourceDirectory": "/home/newton/projects/newton-jetson-software",
   "python.autoComplete.extraPaths": [
     "/opt/ros/humble/lib/python3.10/site-packages",
     "/opt/ros/humble/local/lib/python3.10/dist-packages"

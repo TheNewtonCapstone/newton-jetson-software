@@ -9,7 +9,7 @@ from launch_ros.substitutions import FindPackageShare
 
 def generate_launch_description():
     odrive_node = Node(
-        package="odrive",
+        package="n_odrive",
         executable="odrive_node",
         name="odrive_node",
         output="screen",
@@ -50,6 +50,6 @@ def generate_launch_description():
             odrive_node,
             controller_launch,
             imu_launch,
-            keyboard_input_node,
+            # keyboard_input_node,
         ]
     )

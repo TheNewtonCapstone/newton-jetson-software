@@ -30,9 +30,9 @@ inline Vector3 quat_to_proj_gravity(const double q, const double x,
                                     const double y, const double z) {
   Vector3 proj_gravity;
 
-  proj_gravity.x = 2.0 * (x * z - q * y);
-  proj_gravity.y = 2.0 * (y * z + q * x);
-  proj_gravity.z = q * q - x * x - y * y + z * z;
+  proj_gravity.x = -2.0 * (x * z - q * y);
+  proj_gravity.y = -2.0 * (y * z + q * x);
+  proj_gravity.z = -(q * q - x * x - y * y + z * z);
 
   return proj_gravity;
 }

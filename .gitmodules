@@ -1,5 +1,5 @@
-[submodule "src/odrive"]
-	path = src/odrive
+[submodule "src/n_odrive"]
+	path = src/n_odrive
 	url = https://github.com/TheNewtonCapstone/ros-odrive.git
 [submodule "src/n_inputs/lib/gainput"]
 	path = src/n_inputs/lib/gainput

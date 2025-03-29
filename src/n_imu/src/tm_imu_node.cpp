@@ -1,11 +1,12 @@
 #include "tm_imu/tm_imu_node.hpp"
-
+#include "logger.h"
 EasyObjectDictionary eOD;
 EasyProfile eP(&eOD);
 
 #ifdef DEBUG_MODE
 #define DEBUG_MODE_PRINT_TIMER_MS_ (10000) // 10 seconds
 #endif
+using namespace newton;
 
 TMSerial::TMSerial() : rclcpp::Node("n_imu")
 {
@@ -16,10 +17,19 @@ TMSerial::TMSerial() : rclcpp::Node("n_imu")
     this->declare_parameter("imu_frame_id", "imu");
     this->declare_parameter("parent_frame_id", "base_link");
     this->declare_parameter("timer_period", 50); // Unit: ms
-    this->declare_parameter("transform", std::vector<double>{0.0, 0.0, 0.0, 0.0, 0.0, 0.0});
+    this->declare_parameter("translation", std::vector<double>{0.0, 0.0, 0.0});
+    this->declare_parameter("rotation", std::vector<double>{0.0, 0.0, 0.0});
+    Logger::get_instance().set_logfile("imu.log");
+
+
+    // transform euleur rotation into quaternion
+    orientation = std::make_unique<tf2::Quaternion>();
+    orientation->setRPY(this->get_parameter("rotation").as_double_array()[0], this->get_parameter("rotation").as_double_array()[1], this->get_parameter("rotation").as_double_array()[2]);
+
     // Declare a serial object
     serialib1 = new serialib;
     SerialportOpen();
+
 // Performance monitor
 #ifdef DEBUG_MODE
     count = 0;
@@ -30,13 +40,16 @@ TMSerial::TMSerial() : rclcpp::Node("n_imu")
     imu_data_msg.header.frame_id = this->get_parameter("imu_frame_id").as_string();
     imu_data_rpy_msg.header.frame_id = this->get_parameter("imu_frame_id").as_string();
     imu_data_mag_msg.header.frame_id = this->get_parameter("imu_frame_id").as_string();
+
     // Create publisher
     publisher_IMU = this->create_publisher<sensor_msgs::msg::Imu>("imu_data", 10);
     publisher_IMU_RPY = this->create_publisher<sensor_msgs::msg::MagneticField>("imu_data_rpy", 10);
     publisher_IMU_MAG = this->create_publisher<sensor_msgs::msg::MagneticField>("imu_data_mag", 10);
+    
     // Create timer
     std::chrono::milliseconds period = std::chrono::milliseconds(this->get_parameter("timer_period").as_int());
     timer_ = this->create_wall_timer(period, std::bind(&TMSerial::TimerCallback, this));
+    
     // Create tf_broadcaster
     tf_broadcaster_ = std::make_shared<tf2_ros::TransformBroadcaster>(this);
 }
@@ -61,10 +74,29 @@ void TMSerial::TimerCallback()
     imu_data_msg.header.stamp = this->get_clock()->now();
     imu_data_rpy_msg.header.stamp = this->get_clock()->now();
     imu_data_mag_msg.header.stamp = this->get_clock()->now();
+
+    // rotate the imu_data_msg orientation by the rotation parameter
+    tf2::Quaternion q;
+    q.setX(imu_data_msg.orientation.x);
+    q.setY(imu_data_msg.orientation.y);
+    q.setZ(imu_data_msg.orientation.z);
+    q.setW(imu_data_msg.orientation.w);
+    q = q * (*orientation);
+    imu_data_msg.orientation.x = q.getX();
+    imu_data_msg.orientation.y = q.getY();
+    imu_data_msg.orientation.z = q.getZ();
+    imu_data_msg.orientation.w = q.getW();
+
     FillCovarianceMatrices();
     // Publish msg
     PublishTransform();
     publisher_IMU->publish(imu_data_msg);
+    //
+    // RCLCPP_INFO(this->get_logger(), "x, y,z,w: %f, %f, %f, %f", imu_data_msg.orientation.x, imu_data_msg.orientation.y, imu_data_msg.orientation.z, imu_data_msg.orientation.w);
+    // Logger::INFO("IMU", "orientation: %f, %f, %f, %f", imu_data_msg.orientation.x, imu_data_msg.orientation.y, imu_data_msg.orientation.z, imu_data_msg.orientation.w);
+    // Logger::INFO("IMU", "angular_velocity: %f, %f, %f", imu_data_msg.angular_velocity.x, imu_data_msg.angular_velocity.y, imu_data_msg.angular_velocity.z);
+    // Logger::INFO("IMU", "linear_acceleration: %f, %f, %f,", imu_data_msg.linear_acceleration.x, imu_data_msg.linear_acceleration.y, imu_data_msg.linear_acceleration.z);
+
     publisher_IMU_RPY->publish(imu_data_rpy_msg);
     publisher_IMU_MAG->publish(imu_data_mag_msg);
 }
@@ -334,9 +366,9 @@ void TMSerial::PublishTransform()
     transform_.header.stamp = this->get_clock()->now();
     transform_.header.frame_id = "world";
     transform_.child_frame_id = this->get_parameter("imu_frame_id").as_string();
-    transform_.transform.translation.x = this->get_parameter("transform").as_double_array()[0];
-    transform_.transform.translation.y = this->get_parameter("transform").as_double_array()[1];
-    transform_.transform.translation.z = this->get_parameter("transform").as_double_array()[2];
+    transform_.transform.translation.x = this->get_parameter("translation").as_double_array()[0];
+    transform_.transform.translation.y = this->get_parameter("translation").as_double_array()[1];
+    transform_.transform.translation.z = this->get_parameter("translation").as_double_array()[2];
 
     transform_.transform.rotation.x = imu_data_msg.orientation.x;
     transform_.transform.rotation.y = imu_data_msg.orientation.y;

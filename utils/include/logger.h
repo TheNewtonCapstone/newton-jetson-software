@@ -18,7 +18,7 @@ public:
     INFO,
     WARN,
     ERROR,
-    COUNT
+    COUNT,
   };
 
   template <typename... Args>
@@ -122,13 +122,22 @@ private:
     snprintf(buffer, sizeof(buffer), format, std::forward<Args>(args)...);
 
     std::stringstream ss;
-    ss << get_timestamp();
-    ss << " [ " << to_string(level) << " ]";
-    ss << " [ " << tag << " ] ";
-    ss << buffer;
+    std::stringstream file_ss;
 
-    // Output to console
-    std::cout << ss.str() << std::endl;
+    if (level != Level::INFO){
+    // console output
+      ss << get_timestamp();
+      ss << " [ " << to_string(level) << " ]";
+      ss << " [ " << tag << " ] ";
+      ss << buffer;
+
+      // Output to console
+      std::cout << ss.str() << std::endl;
+    }
+    // file output
+    // file_ss << get_timestamp();
+    file_ss << buffer;
+
 
     // Output to file if configured
     if (!logFile_.empty())
@@ -136,7 +145,7 @@ private:
       std::ofstream file(logFile_, std::ios::app);
       if (file.is_open())
       {
-        file << ss.str() << std::endl;
+        file << file_ss.str() << std::endl;
         file.flush();
       }
     }
@@ -151,6 +160,7 @@ private:
     struct tm* timeinfo = localtime(&now_c);
     char buffer[24];  // Enough for "YYYY-MM-DD HH:MM:SS.mmm"
     strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S", timeinfo);
+
 
     sprintf(buffer + strlen(buffer), ".%03ld", now_ms.count());
 
