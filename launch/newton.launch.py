@@ -45,11 +45,21 @@ def generate_launch_description():
         remappings=[("/vel_cmds/keyboard", "/vel_cmds")],
     )
 
+    gamepad_input_node = Node(
+        package="n_inputs",
+        executable="gamepad_node",
+        name="gamepad_node",
+        output="screen",
+        emulate_tty=True,
+        remappings=[("/vel_cmds/gamepad", "/vel_cmds")],
+    )
+
     return LaunchDescription(
         [
             odrive_node,
             controller_launch,
             imu_launch,
             # keyboard_input_node,
+            gamepad_input_node,
         ]
     )

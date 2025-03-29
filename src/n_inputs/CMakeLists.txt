@@ -14,15 +14,28 @@ find_package(geometry_msgs REQUIRED)
 # further dependencies manually.
 # find_package(<dependency> REQUIRED)
 
+# add lib subdirectories
+add_subdirectory(lib/gainput)
+
 # create an executable
 add_executable(keyboard_node 
   src/keyboard_entry.cpp
   src/nodes/keyboard_node.cpp
 )
+add_executable(gamepad_node 
+  src/gamepad_entry.cpp
+  src/nodes/gamepad_node.cpp
+)
 
 # link ROS dependencies
 ament_target_dependencies(
   keyboard_node 
+  rclcpp 
+  std_msgs 
+  geometry_msgs
+)
+ament_target_dependencies(
+  gamepad_node 
   rclcpp 
   std_msgs 
   geometry_msgs
@@ -43,15 +56,31 @@ target_include_directories(
   $<INSTALL_INTERFACE:include>
   ${UTILS_DIR}/include
 )
+target_include_directories(
+  gamepad_node
+  PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include>
+  ${UTILS_DIR}/include
+)
 
 # link against libraries
 target_link_libraries(
   keyboard_node
   ${UTILS_DIR}/build/libutils.so
 )
+target_link_libraries(
+  gamepad_node
+  ${UTILS_DIR}/build/libutils.so
+  gainputstatic
+  X11
+)
 
 # install lib
 install(TARGETS keyboard_node
+  DESTINATION lib/${PROJECT_NAME}
+)
+install(TARGETS gamepad_node
   DESTINATION lib/${PROJECT_NAME}
 )
 
