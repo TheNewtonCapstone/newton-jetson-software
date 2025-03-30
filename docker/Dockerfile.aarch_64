@@ -88,13 +88,11 @@ COPY scripts/bashrc /home/$USERNAME/.bashrc
 COPY scripts/vimrc /home/$USERNAME/.vimrc
 COPY scripts/newton_entrypoint.sh /newton_entrypoint.sh
 
-
 RUN chown -R $USERNAME:$USERNAME /home/$USERNAME
 RUN chmod +x /newton_entrypoint.sh
 
-
 # Enforce root user to be the default user
-USER root
+USER $USERNAME
 WORKDIR /home/${USERNAME}
 
 ENTRYPOINT [ "/newton_entrypoint.sh" ]
