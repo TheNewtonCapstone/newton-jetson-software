@@ -1,7 +1,4 @@
 #include "nodes/gamepad_node.h"
-
-#include "gamepad_node.h"
-
 using namespace newton;
 
 GamepadNode::GamepadNode() : Node("gamepad_node") {
