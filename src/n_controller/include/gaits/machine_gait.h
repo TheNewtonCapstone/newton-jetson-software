@@ -1,35 +1,37 @@
 #pragma once
 
-#include "gaits/base_gait.h"
-#include "handlers/onnx_handler.h"
-#include <memory>
 #include <array>
 #include <fstream>
+#include <memory>
 #include <vector>
 
-namespace newton
-{
-  class MachineGait : public BaseGait
-  {
-  public:
-    explicit MachineGait(
-        const rclcpp::NodeOptions &options = rclcpp::NodeOptions());
-    ~MachineGait() = default;
+#include "gaits/base_gait.h"
+#include "handlers/onnx_handler.h"
 
-  protected:
-    result<void> move() override;
+namespace newton {
+class MachineGait : public BaseGait {
+ public:
+  explicit MachineGait(
+      const rclcpp::NodeOptions &options = rclcpp::NodeOptions());
+  ~MachineGait() = default;
 
-  private:
-    static constexpr float velocity_scaler = 0.25f;
-    static constexpr float  action_scaler = 0.25f;A
-    static constexpr float prev_action_scaler = 1.0f;
-    
+ protected:
+  std::array<float, GaitManager::NUM_JOINTS> update(
+      const std::array<float, GaitManager::NUM_OBSERVATIONS> &observations);
 
-    std::array<float, NUM_JOINTS> previous_actions;
-    std::array<float, NUM_JOINTS> csv_data{}; // Stores the current line of CSV data (joint positions + 1 for time)
-    std::unique_ptr<OnnxHandler> onnx_handler;
+ private:
+  static constexpr float ANGULAR_VEL_SCALER = 0.05f;
+  static constexpr float VELOCITY_SCALER = 0.25f;
+  static constexpr float PREV_ACTION_SCALER = 1.0f;
+  static constexpr float ACTION_SCALER = 0.25f;
 
-    // CSV file handling
-    std::ifstream csv_file;
-  };
-} // namespace newton
+  std::array<float, NUM_JOINTS> previous_actions;
+  std::array<float, NUM_JOINTS>
+      csv_data{};  // Stores the current line of CSV data (joint positions + 2
+                   // for time)
+  std::unique_ptr<OnnxHandler> onnx_handler;
+
+  // CSV file handling
+  std::ifstream csv_file;
+};
+}  // namespace newton

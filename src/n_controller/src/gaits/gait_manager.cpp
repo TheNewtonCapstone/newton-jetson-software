@@ -65,7 +65,7 @@ result<void> GaitManager::init_subscribers() {
       "imu_data", 10, std::bind(&GaitManager::imu_state_cb, this, _1));
 
   cmd_vel_sub = this->create_subscription<geometry_msgs::msg::Twist>(
-      "vel_cmds", 10, std::bind(&GaitManager::cmd_vel_cb, this, _1));
+      "vel_cmd", 10, std::bind(&GaitManager::cmd_vel_cb, this, _1));
 
   odrive_ready_sub = this->create_subscription<std_msgs::msg::Bool>(
       "odrive_ready", 10,
@@ -95,11 +95,10 @@ void GaitManager::update_odrive_ready(std_msgs::msg::Bool::SharedPtr msg) {
   }
 
   // if ready but dont have init
-  //  if odrive is ready, set the standing positions
-
   // set the standing positions
   set_joint_positions(BaseGait::standing_positions);
   std::this_thread::sleep_for(std::chrono::milliseconds(3000));
+
   update_timer = this->create_wall_timer(CONTROLLER_PERIOD,
                                          std::bind(&GaitManager::update, this));
 }
@@ -138,12 +137,7 @@ void GaitManager::update() {
   // update the joint positions
   for (int i = 0; i < NUM_JOINTS; i++) {
     // if current_gait is machine gait then pass in the delta
-    if (current_gait_type == GaitType::MACHINE_LEARNING) {
-      observations[POSITION_IDX + i] =
-          current_joint_positions[i] - BaseGait::standing_positions[i];
-    } else {
-      observations[POSITION_IDX + i] = current_joint_positions[i];
-    }
+    observations[POSITION_IDX + i] = current_joint_positions[i];
   }
 
   // joint velocities
@@ -282,7 +276,7 @@ void GaitManager::joint_states_vel_cb(
 void GaitManager::joint_states_tor_cb(
     const std_msgs::msg::Float32MultiArray::SharedPtr msg) {
   for (int i = 0; i < NUM_JOINTS; i++) {
-    [i] = msg->data[i];
+    current_torques[i] = msg->data[i];
   }
 }
 void GaitManager::imu_state_cb(const sensor_msgs::msg::Imu::SharedPtr msg) {
@@ -302,4 +296,9 @@ void GaitManager::imu_state_cb(const sensor_msgs::msg::Imu::SharedPtr msg) {
   imu->projected_gravity =
       quat_to_proj_gravity(msg->orientation.w, msg->orientation.x,
                            msg->orientation.y, msg->orientation.z);
+}
+
+result<void> GaitManager::shutdown() {
+  rclcpp::shutdown();
+  return result<void>::success();
 }

@@ -21,6 +21,12 @@ class BaseGait : public rclcpp::Node {
   ~BaseGait() = default;
 
  protected:
+  static constexpr int NUM_JOINTS = GaitManager::NUM_JOINTS;
+  static constexpr int POSITION_IDX = GaitManager::POSITION_IDX;
+  static constexpr int VELOCITY_IDX = GaitManager::VELOCITY_IDX;
+  static constexpr int PREV_ACTION_IDX = GaitManager::PREV_ACTION_IDX;
+  static constexpr int NUM_OBSERVATIONS = GaitManager::NUM_OBSERVATIONS;
+
   std::unordered_map<std::string, float> phases = {
       {"fl", 0.0},  // front left
       {"fr", PI},   // front right
@@ -59,40 +65,9 @@ class BaseGait : public rclcpp::Node {
       {"hr", {6, 7}},  // hind right
   };
 
-  std::array<newton::Joint, NUM_JOINTS> joints;
-  std::unique_ptr<newton::ImuReading> imu;
-  std::unique_ptr<newton::VelocityCmd> cmd;
-
-  rclcpp::TimerBase::SharedPtr move_timer;
   rclcpp::Time last_time;
 
-  rclcpp::Publisher<std_msgs::msg::Float32MultiArray>::SharedPtr
-      joints_position_pub;
-
-  rclcpp::Subscription<std_msgs::msg::Float32MultiArray>::SharedPtr
-      joints_state_vel_sub;
-  rclcpp::Subscription<std_msgs::msg::Float32MultiArray>::SharedPtr
-      joint_states_torque_sub;
-  rclcpp::Subscription<std_msgs::msg::Float32MultiArray>::SharedPtr
-      joint_states_pos_sub;
-  rclcpp::Subscription<sensor_msgs::msg::Imu>::SharedPtr imu_sub;
-  rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr cmd_sub;
-  rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr odrive_ready_sub;
-
-  // update methods
-  result<void> update_joints_position(
-      const std_msgs::msg::Float32MultiArray::SharedPtr msg);
-  result<void> update_joints_velocity(
-      const std_msgs::msg::Float32MultiArray::SharedPtr msg);
-
-  result<void> update_joints_torque(
-      const std_msgs::msg::Float32MultiArray::SharedPtr msg);
-
-  result<void> update_imu(const sensor_msgs::msg::Imu::SharedPtr msg);
-  result<void> update_cmd(const geometry_msgs::msg::Twist::SharedPtr msg);
-  result<void> update_odrive_ready(const std_msgs::msg::Bool::SharedPtr msg);
-
   virtual std::array<float, GaitManager::NUM_JOINTS> update(
-      const std::array<float, GaitManager::NUM_JOINTS> &observations) = 0;
+      const std::array<float, GaitManager::NUM_OBSERVATIONS> &observations) = 0;
 };
 }  // namespace newton
