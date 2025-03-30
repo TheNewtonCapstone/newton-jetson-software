@@ -18,12 +18,10 @@ GamepadNode::GamepadNode() : Node("gamepad_node") {
   m_input_map->MapFloat(SWITCH_CMD_MODE, m_gamepad_id,
                         gainput::PadButtonX);  // X = Square on a PS controller
 
-  m_twist_publisher = create_publisher<geometry_msgs::msg::Twist>(
-      "/cmd_vel_teleop/gamepad", 10);
-  m_twist_publisher = create_publisher<geometry_msgs::msg::Twist>(
-      "/cmd_vel_teleop/gamepad", 10);
-  m_twist_publisher = create_publisher<geometry_msgs::msg::Twist>(
-      "/cmd_vel_teleop/gamepad", 10);
+  m_twist_pub = create_publisher<geometry_msgs::msg::Twist>("/cmd_vel", 10);
+  m_jump_pub = create_publisher<std_msgs::msg::String>("/change_gait", 10);
+  m_switch_mode_pub =
+      create_publisher<geometry_msgs::msg::Twist>("/preempt_teleop", 10);
   m_timer = create_wall_timer(std::chrono::milliseconds(10),
                               [this]() { read_gamepad(); });
 }
@@ -36,7 +34,7 @@ void newton::GamepadNode::read_gamepad() {
   const auto vertical = m_input_map->GetFloat(VERTICAL);
   const auto rotate = m_input_map->GetFloat(ROTATE);
 
-  auto linear = Vector3(horizontal, vertical, 0.0f);
+  auto linear = Vector3(vertical, horizontal, 0.0f);
   auto angular = Vector3(0.0f, 0.0f, rotate);
 
   publish_twist(linear, angular);
@@ -63,9 +61,11 @@ void newton::GamepadNode::publish_twist(const Vector3 &linear,
 }
 
 void newton::GamepadNode::publish_jump() {
-  std_msgs::msg::Empty empty_msg;
+  std_msgs::msg::Empty msg;
+  // gait is jumping
+  msg.data = "jump";
 
-  m_jump_publisher->publish(empty_msg);
+  m_jump_pub->publish(msg);
 
   RCLCPP_INFO(get_logger(), "Jump command published");
 }

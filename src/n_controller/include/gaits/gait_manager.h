@@ -1,4 +1,4 @@
-#pragma ONCE
+#pragma once
 #include <map>
 #include <memory>
 #include <string>
@@ -40,6 +40,9 @@ class GaitManager : public rclcpp::Node {
       const std_msgs::msg::Float32MultiArray::SharedPtr msg);  // cb is callback
   void joint_states_vel_cb(
       const std_msgs::msg::Float32MultiArray::SharedPtr msg);
+
+  void joint_states_tor_cb(
+      const std_msgs::msg::Float32MultiArray::SharedPtr msg);
   void imu_state_cb(const sensor_msgs::msg::Imu::SharedPtr msg);
   void update_odrive_ready(
       const std_msgs::msg::Bool::SharedPtr msg);  // odrive ready callback
@@ -60,6 +63,9 @@ class GaitManager : public rclcpp::Node {
 
   // select gait based on velocity
   result<GaitType> select_gait_by_velocity(float linear_magnitude);
+
+  // shutdown
+  result<void> shutdown();
 
  private:
   static constexpr uint8_t NUM_JOINTS = 8;

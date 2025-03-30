@@ -24,9 +24,9 @@ class GamepadNode : public rclcpp::Node {
   ~GamepadNode() = default;
 
  private:
-  rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr m_twist_publisher;
-  rclcpp::Publisher<std_msgs::msg::Empty>::SharedPtr m_jump_publisher;
-  rclcpp::Publisher<std_msgs::msg::Empty>::SharedPtr m_teleop_publisher;
+  rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr m_twist_pub;
+  rclcpp::Publisher<std_msgs::msg::Empty>::SharedPtr m_jump_pub;
+  rclcpp::Publisher<std_msgs::msg::Empty>::SharedPtr m_switch_cmd_mode_pub;
   rclcpp::TimerBase::SharedPtr m_timer;
 
   std::unique_ptr<gainput::InputManager> m_input_manager;
