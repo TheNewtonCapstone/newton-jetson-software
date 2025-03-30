@@ -24,7 +24,7 @@ namespace newton
             return GaitType::MACHINE_LEARNING;
         return GaitType::STANDING; // Default
     }
-    std::string gait_type_to_string(GaitType type){
+    std::string to_str(GaitType type){
         switch (type)
         {
         case GaitType::WALKING:

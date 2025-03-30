@@ -26,6 +26,7 @@
 
 
 namespace newton{
+    using namespace std::chrono_literals;
 
     class GaitManager : public rclcpp::Node {
         public:
@@ -33,15 +34,15 @@ namespace newton{
             ~GaitManager() = default; // 
 
             // Initialize ROS communication
-            void init_publishers();
-            void init_subscribers();
+            result<void> init_publishers();
+            result<void> init_subscribers();
 
             // callbacks 
-            void cmd_vel_callback(const geometry_msgs::msg::Twist::SharedPtr msg);
+            void cmd_vel_callback(const geometry_msgs::msg::Twist::SharedPtr msg); // the velocity of the robot
             void gait_change_callback(const std_msgs::msg::String::SharedPtr msg);
-            void joints_position_callback(const std_msgs::msg::Float32MultiArray::SharedPtr msg);
-            void joints_velocity_callback(const std_msgs::msg::Float32MultiArray::SharedPtr msg);
-            void imu_callback(const sensor_msgs::msg::Imu::SharedPtr msg);
+            void joint_states_pos_cb(const std_msgs::msg::Float32MultiArray::SharedPtr msg); // cb is callback
+            void joint_states_vel_cb(const std_msgs::msg::Float32MultiArray::SharedPtr msg);
+            void imu_state_cb(const sensor_msgs::msg::Imu::SharedPtr msg);
 
             // gait management
             result<std::shared_ptr<BaseGait>> get_gait(GaitType type);
@@ -60,7 +61,17 @@ namespace newton{
             result<GaitType> select_gait_by_velocity(float linear_magnitude);
 
         private:
+        static constexpr uint8_t NUM_JOINTS = 8;
+        static constexpr int NUM_OBSERVATIONS = 33;
+        static constexpr int NUM_ACTIONS = 8;
+        static constexpr int ANG_VEL_IDX = 0;
+        static constexpr int PROJ_GRAV_IDX = 3;
+        static constexpr int CMD_VEL_IDX = 6;
+        static constexpr int POSITION_IDX = 9;
+        static constexpr int VELOCITY_IDX = POSITION_IDX + NUM_JOINTS;
+        static constexpr int PREV_ACTION_IDX = VELOCITY_IDX + NUM_JOINTS;
 
+        
         std::map<GaitType, std::shared_ptr<BaseGait>> gaits;
         GaitType current_gait_type;
         GaitType target_gait_type;
@@ -73,10 +84,18 @@ namespace newton{
         std::unique_ptr<newton::ImuReading> imu;
         std::unique_ptr<newton::VelocityCmd> cmd;
 
+        // observations to the gait
+        std::array<float, NUM_OBSERVATIONS> observations;
+        // output positions
+        std::array<float, NUM_JOINTS> output_positions;
+
+        // previous actions
+        std::array<float, NUM_JOINTS> previous_actions;
         // output actions 
         std::array<float, 8> current_positions;
         std::array<float, 8> target_positions;
         std::array<float, 8> joint_cmd_positions; 
+
 
 
         // ROS interfaces
@@ -84,10 +103,20 @@ namespace newton{
         rclcpp::Publisher<std_msgs::msg::String>::SharedPtr current_gait_pub;
         rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr cmd_vel_sub;
         rclcpp::Subscription<std_msgs::msg::String>::SharedPtr gait_change_sub;
-        rclcpp::Subscription<std_msgs::msg::Float32MultiArray>::SharedPtr joints_position_sub;
-        rclcpp::Subscription<std_msgs::msg::Float32MultiArray>::SharedPtr joints_velocity_sub;
+        rclcpp::Subscription<std_msgs::msg::Float32MultiArray>::SharedPtr joint_states_pos_sub;
+        rclcpp::Subscription<std_msgs::msg::Float32MultiArray>::SharedPtr joint_states_vel_sub;
+        rclcpp::Subscription<std_msgs::msg::Float32MultiArray>::SharedPtr joint_states_torque_sub;
         rclcpp::Subscription<sensor_msgs::msg::Imu>::SharedPtr imu_sub;
+        rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr odrive_ready_sub;
         rclcpp::TimerBase::SharedPtr update_timer;
+
+
+        // static constexpr std::chrono::milliseconds CONTROLLER_PERIOD = 20ms; // 20ms update period
+
+        // control period
+        static constexpr std::chrono::milliseconds CONTROLLER_PERIOD = 20ms; // 20ms update period
+        rclcpp::Time last_time;
+        bool odrive_ready = false;
         
     }
 

@@ -21,7 +21,6 @@ namespace newton
                           const rclcpp::NodeOptions &options = rclcpp::NodeOptions());
         ~BaseGait() = default;
 
-        static constexpr uint8_t NUM_JOINTS = 8;
 
         result<void> init();
         result<void> init_clients();
@@ -85,11 +84,11 @@ namespace newton
             joints_position_pub;
 
         rclcpp::Subscription<std_msgs::msg::Float32MultiArray>::SharedPtr
-            joints_velocity_sub;
+            joints_state_vel_sub;
         rclcpp::Subscription<std_msgs::msg::Float32MultiArray>::SharedPtr
-            joints_torque_sub;
+            joint_states_torque_sub;
         rclcpp::Subscription<std_msgs::msg::Float32MultiArray>::SharedPtr
-            joints_position_sub;
+            joint_states_pos_sub;
         rclcpp::Subscription<sensor_msgs::msg::Imu>::SharedPtr imu_sub;
         rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr cmd_sub;
         rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr odrive_ready_sub;

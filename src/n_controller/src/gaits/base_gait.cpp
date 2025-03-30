@@ -47,7 +47,7 @@ result<void> BaseGait::init_pubs()
 
 result<void> BaseGait::init_subs()
 {
-  joints_position_sub =
+  joint_states_pos_sub =
       this->create_subscription<std_msgs::msg::Float32MultiArray>(
           "joint_state_positions", 10,
           [=, this](const std_msgs::msg::Float32MultiArray::SharedPtr msg)
@@ -55,14 +55,14 @@ result<void> BaseGait::init_subs()
             this->update_joints_position(msg);
           });
 
-  joints_velocity_sub =
+  joint_states_vel_sub =
       this->create_subscription<std_msgs::msg::Float32MultiArray>(
           "joint_state_velocities", 10,
           [=, this](const std_msgs::msg::Float32MultiArray::SharedPtr msg)
           {
             this->update_joints_velocity(msg);
           });
-  joints_torque_sub =
+  joint_states_torque_sub =
       this->create_subscription<std_msgs::msg::Float32MultiArray>(
           "joint_state_torques", 10,
           [=, this](const std_msgs::msg::Float32MultiArray::SharedPtr msg)
@@ -156,11 +156,11 @@ result<void> BaseGait::update_imu(sensor_msgs::msg::Imu::SharedPtr msg)
 
   imu->timestamp = msg->header.stamp.nanosec;
   imu->linear_acceleration =
-      Vector3(msg->linear_acceleration.x, msg->linear_acceleration.y,
+      vector3(msg->linear_acceleration.x, msg->linear_acceleration.y,
               msg->linear_acceleration.z);
   imu->linear_velocity += imu->linear_acceleration * dt;
   imu->angular_velocity =
-      Vector3(msg->angular_velocity.x, msg->angular_velocity.y,
+      vector3(msg->angular_velocity.x, msg->angular_velocity.y,
               msg->angular_velocity.z);
   imu->rotation = quat_to_rpy(msg->orientation.w, msg->orientation.x,
                               msg->orientation.y, msg->orientation.z);
