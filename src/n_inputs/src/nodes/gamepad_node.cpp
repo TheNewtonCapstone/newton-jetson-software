@@ -62,9 +62,8 @@ void newton::GamepadNode::publish_jump() {
   std_msgs::msg::String msg;
   // gait is jumping
   msg.data = "machine";
-  Logger
-
-      m_switch_gait_pub->publish(msg);
+  Logger::WARN("GamepadNode", "published %s command", msg.data.c_str());
+  m_switch_gait_pub->publish(msg);
 
   RCLCPP_INFO(get_logger(), "Jump command published");
 }

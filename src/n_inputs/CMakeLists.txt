@@ -62,6 +62,7 @@ target_include_directories(
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>
   ${UTILS_DIR}/include
+  ${PROJECT_DIR}/lib/gainput/include
 )
 
 # link against libraries
@@ -69,10 +70,12 @@ target_link_libraries(
   keyboard_node
   ${UTILS_DIR}/build/libutils.so
 )
+
 target_link_libraries(
   gamepad_node
   ${UTILS_DIR}/build/libutils.so
   gainputstatic
+  ${PROJECT_DIR}/lib/gainput/build/lib/libgainput.so
   X11
 )
 

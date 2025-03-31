@@ -43,8 +43,7 @@ GaitManager::GaitManager() : Node("gait_manager") {
   // Initialize gaits
   gaits[GaitType::STANDING] = std::make_shared<StandingGait>();
   gaits[GaitType::HARMONIC] = std::make_shared<HarmonicGait>();
-  gaits[GaitType::MACHINE_LEARNING] = std::make_shared<MachineGait>();
-  current_gait_type = GaitType::MACHINE_LEARNING;
+  gaits[GaitType::MACHINE_GAIT] = std::make_shared<MachineGait>();
 }
 
 result<void> GaitManager::init_publishers() {
@@ -95,7 +94,7 @@ result<std::shared_ptr<BaseGait>> GaitManager::get_gait(GaitType type) {
     case GaitType::HARMONIC:
       gaits[type] = std::make_shared<HarmonicGait>(options);
       break;
-    case GaitType::MACHINE_LEARNING:
+    case GaitType::MACHINE_GAIT:
       gaits[type] = std::make_shared<MachineGait>(options);
       break;
     default:
@@ -283,6 +282,8 @@ void GaitManager::odrive_ready_cb(std_msgs::msg::Bool::SharedPtr msg) {
 
   update_timer = this->create_wall_timer(CONTROLLER_PERIOD,
                                          std::bind(&GaitManager::update, this));
+
+  start_transition(GaitType::MACHINE_GAIT);
 }
 
 result<void> GaitManager::shutdown() {
