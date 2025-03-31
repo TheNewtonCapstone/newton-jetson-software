@@ -1,7 +1,5 @@
 #include "gaits/gait_manager.h"
-using namespace newton;
-using namespace std::chrono_literals;
-using std::placeholders::_1;
+
 #include <algorithm>
 #include <cmath>
 #include <iostream>
@@ -13,28 +11,28 @@ using std::placeholders::_1;
 #include <unordered_map>
 #include <vector>
 
+using namespace newton;
+using namespace std::chrono_literals;
+using std::placeholders::_1;
+
 GaitManager::GaitManager() : Node("gait_manager") {
   // Declare parameters
-  this->declare_parameter("transition_duration", 1.0);
-  this->declare_parameter("initial_gait", "standing");
-  this->declare_parameter("enable_automatic_transitions", true);
-  this->declare_parameter("velocity_threshold_walking", 0.1);
-  this->declare_parameter("velocity_threshold_sliding", 0.3);
-  this->declare_parameter("velocity_threshold_machine", 0.8);
+  declare_parameter("transition_duration", 1.0);
+  declare_parameter("initial_gait", "standing");
+  declare_parameter("enable_automatic_transitions", true);
+  declare_parameter("velocity_threshold_walking", 0.1);
+  declare_parameter("velocity_threshold_sliding", 0.3);
+  declare_parameter("velocity_threshold_machine", 0.8);
 
-  transition_duration = this->get_parameter("transition_duration").as_double();
-  std::string initial_gait = this->get_parameter("initial_gait").as_string();
-  enable_automatic =
-      this->get_parameter("enable_automatic_transitions").as_bool();
+  transition_duration = get_parameter("transition_duration").as_double();
+  std::string initial_gait = get_parameter("initial_gait").as_string();
+  enable_automatic = get_parameter("enable_automatic_transitions").as_bool();
 
   // Velocity thresholds for automatic transitions
-  velocity_thresholds = {
-      {"walking",
-       this->get_parameter("velocity_threshold_walking").as_double()},
-      {"sliding",
-       this->get_parameter("velocity_threshold_sliding").as_double()},
-      {"machine",
-       this->get_parameter("velocity_threshold_machine").as_double()}};
+  // velocity_thresholds = {
+  //     {"walking", get_parameter("velocity_threshold_walking").as_double()},
+  //     {"sliding", get_parameter("velocity_threshold_sliding").as_double()},
+  //     {"machine", get_parameter("velocity_threshold_machine").as_double()}};
 
   init_publishers();
   init_subscribers();
@@ -44,10 +42,9 @@ GaitManager::GaitManager() : Node("gait_manager") {
 
   // Initialize gaits
   gaits[GaitType::STANDING] = std::make_shared<StandingGait>();
-  gaits[GaitType::WALKING] = std::make_shared<WalkingGait>();
-  gaits[GaitType::SLIDING] = std::make_shared<SlidingGait>();
   gaits[GaitType::HARMONIC] = std::make_shared<HarmonicGait>();
   gaits[GaitType::MACHINE_LEARNING] = std::make_shared<MachineGait>();
+  current_gait_type = GaitType::MACHINE_LEARNING;
 }
 
 result<void> GaitManager::init_publishers() {
@@ -65,11 +62,10 @@ result<void> GaitManager::init_subscribers() {
       "imu_data", 10, std::bind(&GaitManager::imu_state_cb, this, _1));
 
   cmd_vel_sub = this->create_subscription<geometry_msgs::msg::Twist>(
-      "vel_cmd", 10, std::bind(&GaitManager::cmd_vel_cb, this, _1));
+      "cmd_vel", 10, std::bind(&GaitManager::cmd_vel_cb, this, _1));
 
   odrive_ready_sub = this->create_subscription<std_msgs::msg::Bool>(
-      "odrive_ready", 10,
-      std::bind(&GaitManager::update_odrive_ready, this, _1));
+      "odrive_ready", 10, std::bind(&GaitManager::odrive_ready_cb, this, _1));
 
   gait_change_sub = this->create_subscription<std_msgs::msg::String>(
       "change_gait", 10, std::bind(&GaitManager::gait_change_cb, this, _1));
@@ -87,20 +83,28 @@ result<void> GaitManager::init_subscribers() {
   return result<void>::success();
 }
 
-void GaitManager::update_odrive_ready(std_msgs::msg::Bool::SharedPtr msg) {
-  odrive_ready = msg->data;
-  if (!odrive_ready) {
-    Logger::WARN("GM", "Odrive not ready");
-    return;
+result<std::shared_ptr<BaseGait>> GaitManager::get_gait(GaitType type) {
+  // if gait does not exist make one
+  auto it = gaits.find(type);
+
+  if (it != gaits.end())
+    return result<std::shared_ptr<BaseGait>>::success(gaits[type]);
+
+  rclcpp::NodeOptions options;
+  switch (type) {
+    case GaitType::HARMONIC:
+      gaits[type] = std::make_shared<HarmonicGait>(options);
+      break;
+    case GaitType::MACHINE_LEARNING:
+      gaits[type] = std::make_shared<MachineGait>(options);
+      break;
+    default:
+      gaits[type] = std::make_shared<StandingGait>(options);
+      break;
   }
+  Logger::WARN("GM", "Gait not found, creating new gait");
 
-  // if ready but dont have init
-  // set the standing positions
-  set_joint_positions(BaseGait::standing_positions);
-  std::this_thread::sleep_for(std::chrono::milliseconds(3000));
-
-  update_timer = this->create_wall_timer(CONTROLLER_PERIOD,
-                                         std::bind(&GaitManager::update, this));
+  return result<std::shared_ptr<BaseGait>>::success(gaits[type]);
 }
 
 void GaitManager::update() {
@@ -114,7 +118,7 @@ void GaitManager::update() {
       transition_progress = 1.0;
       current_gait_type = target_gait_type;
       Logger::WARN("GM", "Completed transition to %s",
-                   to_str(current_gait_type).c_str());
+                   gait_type_to_string(current_gait_type).c_str());
     }
   }
 
@@ -137,12 +141,12 @@ void GaitManager::update() {
   // update the joint positions
   for (int i = 0; i < NUM_JOINTS; i++) {
     // if current_gait is machine gait then pass in the delta
-    observations[POSITION_IDX + i] = current_joint_positions[i];
+    observations[POSITION_IDX + i] = current_positions[i];
   }
 
   // joint velocities
   for (int i = 0; i < NUM_JOINTS; i++) {
-    observations[VELOCITY_IDX + i] = current_joint_velocities[i];
+    observations[VELOCITY_IDX + i] = current_velocities[i];
   }
 
   // previous actions
@@ -150,13 +154,13 @@ void GaitManager::update() {
     observations[PREV_ACTION_IDX + i] = previous_actions[i];
   }
 
-  auto current_gait = get_gait(current_gait_type);
+  auto current_gait = get_gait(current_gait_type).get_value();
   std::array<float, NUM_JOINTS> actions;
 
   // joint velocities
   if (transition_progress < 1.0) {
     //  get the target gait
-    auto target_gait = get_gait(target_gait_type);
+    auto target_gait = get_gait(target_gait_type).get_value();
     // get the proposed positions from the current and target gaits
     auto curr_actions = current_gait->update(observations);
     auto target_actions = target_gait->update(observations);
@@ -172,44 +176,18 @@ void GaitManager::update() {
   }
 
   // publish the joint positions
-  publish_joint_positions(actions);
+  set_joint_positions(actions);
+
   // update the previous actions
   for (int i = 0; i < NUM_JOINTS; i++) {
     previous_actions[i] = actions[i];
   }
 }
 
-result<std::shared_ptr<BaseGait>> GaitManager::get_gait(GaitType type) {
-  // if gait does not exist make one
-  if (gaits.find() == gaits.end()) {
-    rclcpp::NodeOptions options;
-    switch (type) {
-      case GaitType::WALKING:
-        gaits[type] = std::make_shared<WalkingGait>(options);
-        break;
-      case GaitType::SLIDING:
-        gaits[type] = std::make_shared<SlidingGait>(options);
-        break;
-      case GaitType::HARMONIC:
-        gaits[type] = std::make_shared<HarmonicGait>(options);
-        break;
-      case GaitType::MACHINE_LEARNING:
-        gaits[type] = std::make_shared<MachineGait>(options);
-        break;
-      default:
-        gaits[type] = std::make_shared<StandingGait>(options);
-        break;
-    }
-    Logger::WARN("GM", "Gait not found, creating new gait");
-  }
-
-  return result<std::shared_ptr<BaseGait>>::success(gaits[type]);
-}
-
-result<void> start_transition(GaitType target_gait) {
+void GaitManager::start_transition(GaitType target_gait) {
   if (target_gait == current_gait_type && transition_progress >= 1.0) {
     // Already at this gait, no need to transition
-    return result<void>::success();
+    return;
   }
 
   // Start the transition
@@ -218,16 +196,13 @@ result<void> start_transition(GaitType target_gait) {
 
   // Publish the change
   auto msg = std_msgs::msg::String();
-  msg.data = "Transitioning to " + to_str(target_gait);
+  msg.data = "Transitioning to " + gait_type_to_string(target_gait);
   current_gait_pub->publish(msg);
-
-  return result<void>::success();
 }
 
-result<void> update_transition() {};
-
 // setters
-void set_joint_positions(const std::array<float, NUM_JOINTS> &positions) {
+void GaitManager::set_joint_positions(
+    const std::array<float, NUM_JOINTS> &positions) {
   auto msg = std_msgs::msg::Float32MultiArray();
   msg.layout.dim.push_back(std_msgs::msg::MultiArrayDimension());
   msg.layout.dim[0].size = positions.size();
@@ -237,24 +212,20 @@ void set_joint_positions(const std::array<float, NUM_JOINTS> &positions) {
 
   for (int i = 0; i < NUM_JOINTS; i++) {
     msg.data[i] = positions[i];
-    Logger::DEBUG("GM", "Setting joint %s to %f", joint_names[i].c_str(),
-                  positions[i]);
   }
-  joints_position_pub->publish(msg);
-  return result<void>::success();
+
+  joint_cmd_pub->publish(msg);
 }
 
-// callback
+// callbacks
 
-void GaitManager::cmd_vel_callback(
-    const geometry_msgs::msg::Twist::SharedPtr msg) {
+void GaitManager::cmd_vel_cb(const geometry_msgs::msg::Twist::SharedPtr msg) {
   cmd->linear_velocity = Vector3(msg->linear.x, msg->linear.y, msg->linear.z);
   cmd->angular_velocity =
       Vector3(msg->angular.x, msg->angular.y, msg->angular.z);
 }
 
-void GaitManager::gait_change_callback(
-    const std_msgs::msg::String::SharedPtr msg) {
+void GaitManager::gait_change_cb(const std_msgs::msg::String::SharedPtr msg) {
   GaitType requested_gait = string_to_gait_type(msg->data);
   start_transition(requested_gait);
 }
@@ -262,14 +233,14 @@ void GaitManager::gait_change_callback(
 void GaitManager::joint_states_pos_cb(
     const std_msgs::msg::Float32MultiArray::SharedPtr msg) {
   for (int i = 0; i < NUM_JOINTS; i++) {
-    current_joint_positions[i] = msg->data[i];
+    current_positions[i] = msg->data[i];
   }
 }
 
 void GaitManager::joint_states_vel_cb(
     const std_msgs::msg::Float32MultiArray::SharedPtr msg) {
   for (int i = 0; i < NUM_JOINTS; i++) {
-    current_joint_velocities[i] = msg->data[i];
+    current_velocities[i] = msg->data[i];
   }
 }
 
@@ -279,6 +250,7 @@ void GaitManager::joint_states_tor_cb(
     current_torques[i] = msg->data[i];
   }
 }
+
 void GaitManager::imu_state_cb(const sensor_msgs::msg::Imu::SharedPtr msg) {
   const auto dt =
       static_cast<double>(msg->header.stamp.nanosec - imu->timestamp) / 1e9;
@@ -296,6 +268,21 @@ void GaitManager::imu_state_cb(const sensor_msgs::msg::Imu::SharedPtr msg) {
   imu->projected_gravity =
       quat_to_proj_gravity(msg->orientation.w, msg->orientation.x,
                            msg->orientation.y, msg->orientation.z);
+}
+
+void GaitManager::odrive_ready_cb(std_msgs::msg::Bool::SharedPtr msg) {
+  odrive_ready = msg->data;
+
+  if (!odrive_ready) {
+    Logger::WARN("GM", "Odrive not ready");
+    return;
+  }
+
+  set_joint_positions(standing_positions);
+  std::this_thread::sleep_for(3s);
+
+  update_timer = this->create_wall_timer(CONTROLLER_PERIOD,
+                                         std::bind(&GaitManager::update, this));
 }
 
 result<void> GaitManager::shutdown() {

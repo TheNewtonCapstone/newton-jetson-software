@@ -8,6 +8,7 @@
 #include "rclcpp/rclcpp.hpp"
 #include "result.h"
 #include "std_msgs/msg/empty.hpp"
+#include "std_msgs/msg/string.hpp"
 
 namespace newton {
 enum Actions {
@@ -25,7 +26,7 @@ class GamepadNode : public rclcpp::Node {
 
  private:
   rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr m_twist_pub;
-  rclcpp::Publisher<std_msgs::msg::Empty>::SharedPtr m_jump_pub;
+  rclcpp::Publisher<std_msgs::msg::String>::SharedPtr m_switch_gait_pub;
   rclcpp::Publisher<std_msgs::msg::Empty>::SharedPtr m_switch_cmd_mode_pub;
   rclcpp::TimerBase::SharedPtr m_timer;
 

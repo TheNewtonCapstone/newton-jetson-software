@@ -25,12 +25,10 @@ HarmonicGait::HarmonicGait(const rclcpp::NodeOptions &options)
       "tor_fl_hfe,tor_fl_kfe,tor_fr_hfe,tor_fr_kfe,tor_hl_hfe,tor_hl_kfe,tor_"
       "hr_hfe,tor_hr_kfe,";
   Logger::INFO("harmonic_gait", log_title.c_str());
-
-  BaseGait::init();
 };
 
 std::array<float, NUM_JOINTS> HarmonicGait::update(
-    const std::array<float, GaitManager::NUM_OBSERVATIONS> &observations) {
+    const std::array<float, NUM_OBSERVATIONS> &observations) {
   std::string log_line = "";
 
   // every 5s, the amplitude will change and after 5 amplitude changes, the
@@ -99,13 +97,14 @@ std::array<float, NUM_JOINTS> HarmonicGait::update(
   std::array<float, NUM_JOINTS> positions{};
 
   // Calculate target positions for all joints
-  for (auto &leg : leg_ids) {
-    std::string leg_name = leg.first;
-    std::array<int, 2> ids = leg.second;
-
-    // Set the target positions
-    positions[ids[0]] = leg_standing_positions[leg_name][0] + hfe_offset;
-    positions[ids[1]] = leg_standing_positions[leg_name][1] + kfe_offset;
+  for (int i = 0; i < NUM_JOINTS; i++) {
+    if (i % 2 == 0) {
+      // HFE joint
+      positions[i] = standing_positions[i] + hfe_offset;
+    } else {
+      // KFE joint
+      positions[i] = standing_positions[i] + kfe_offset;
+    }
   }
 
   // Check if test should end
@@ -124,9 +123,4 @@ std::array<float, NUM_JOINTS> HarmonicGait::update(
   }
   // Send target positions to motors
   return positions;
-
-  // Write to log file
-  Logger::INFO("harmonic_gait", log_line.c_str());
-
-  return result<void>::success();
 }

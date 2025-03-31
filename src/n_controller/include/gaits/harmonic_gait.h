@@ -10,6 +10,7 @@ class HarmonicGait : public BaseGait {
   ~HarmonicGait() = default;
 
  protected:
-  result<void> move() override;
+  std::array<float, NUM_JOINTS> update(
+      const std::array<float, NUM_OBSERVATIONS> &observations) override;
 };
 }  // namespace newton

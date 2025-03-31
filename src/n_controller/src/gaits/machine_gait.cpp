@@ -76,8 +76,8 @@ std::array<float, 8> parseCsvLine(const std::string &line) {
   return values;
 }
 
-std::array<float, NUM_JOINTS> update(
-    const std::array<float, NUM_OBSERVATION> &observations) {
+std::array<float, NUM_JOINTS> MachineGait::update(
+    const std::array<float, NUM_OBSERVATIONS> &observations) {
   // Try to read the next line from CSV if file is open
   if (csv_file.is_open() && !csv_file.eof()) {
     std::string line;
@@ -122,7 +122,7 @@ std::array<float, NUM_JOINTS> update(
   // joint velocities
   for (int i = 0; i < NUM_JOINTS; i++) {
     input_buffer[VELOCITY_IDX + i] =
-        observations[VELOCITY_IDX + i] * JOINT_VEL_SCALER;
+        observations[VELOCITY_IDX + i] * VELOCITY_SCALER;
   }
 
   // previous actions

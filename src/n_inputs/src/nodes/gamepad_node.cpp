@@ -16,9 +16,10 @@ GamepadNode::GamepadNode() : Node("gamepad_node") {
                         gainput::PadButtonX);  // X = Square on a PS controller
 
   m_twist_pub = create_publisher<geometry_msgs::msg::Twist>("/cmd_vel", 10);
-  m_jump_pub = create_publisher<std_msgs::msg::String>("/change_gait", 10);
-  m_switch_mode_pub =
-      create_publisher<geometry_msgs::msg::Twist>("/preempt_teleop", 10);
+  m_switch_gait_pub =
+      create_publisher<std_msgs::msg::String>("/change_gait", 10);
+  m_switch_cmd_mode_pub =
+      create_publisher<std_msgs::msg::Empty>("/preempt_teleop", 10);
   m_timer = create_wall_timer(std::chrono::milliseconds(10),
                               [this]() { read_gamepad(); });
 }
@@ -54,15 +55,16 @@ void newton::GamepadNode::publish_twist(const Vector3 &linear,
   twist_msg.angular.y = angular.y;
   twist_msg.angular.z = angular.z;
 
-  m_twist_publisher->publish(twist_msg);
+  m_twist_pub->publish(twist_msg);
 }
 
 void newton::GamepadNode::publish_jump() {
-  std_msgs::msg::Empty msg;
+  std_msgs::msg::String msg;
   // gait is jumping
-  msg.data = "jump";
+  msg.data = "machine";
+  Logger
 
-  m_jump_pub->publish(msg);
+      m_switch_gait_pub->publish(msg);
 
   RCLCPP_INFO(get_logger(), "Jump command published");
 }
@@ -70,7 +72,7 @@ void newton::GamepadNode::publish_jump() {
 void newton::GamepadNode::publish_switch_cmd_mode() {
   std_msgs::msg::Empty empty_msg;
 
-  m_teleop_publisher->publish(empty_msg);
+  m_switch_cmd_mode_pub->publish(empty_msg);
 
   RCLCPP_INFO(get_logger(), "Switch command mode published");
 }

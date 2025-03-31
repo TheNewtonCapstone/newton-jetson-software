@@ -1,10 +1,11 @@
 #pragma once
+
 #include <string>
 
 namespace newton {
 enum class GaitType { STANDING, WALKING, SLIDING, HARMONIC, MACHINE_LEARNING };
 
-GaitType string_to_gait_type(const std::string &gait_name) {
+inline GaitType string_to_gait_type(const std::string &gait_name) {
   if (gait_name == "walking") return GaitType::WALKING;
   if (gait_name == "sliding") return GaitType::SLIDING;
   if (gait_name == "harmonic") return GaitType::HARMONIC;
@@ -12,7 +13,8 @@ GaitType string_to_gait_type(const std::string &gait_name) {
     return GaitType::MACHINE_LEARNING;
   return GaitType::STANDING;  // Default
 }
-std::string to_str(GaitType type) {
+
+inline std::string gait_type_to_string(GaitType type) {
   switch (type) {
     case GaitType::WALKING:
       return "walking";

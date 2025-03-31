@@ -1,34 +1,35 @@
 #pragma once
-#include "unit.h"
+
 #include <array>
 #include <cstdint>
 #include <string>
 #include <unordered_map>
 
+#include "unit.h"
+
 namespace newton {
 struct Joint {
-  int id; // node id, used by can
+  int id;  // node id, used by can
   std::string name;
   float min_pos;
   float max_pos;
 
-  float curr_pos;           // in radians
-  float curr_vel;           // in rad/s
-  float curr_torque;        // in Nm
-  float curr_torque_target; // in Nm
+  float curr_pos;            // in radians
+  float curr_vel;            // in rad/s
+  float curr_torque;         // in Nm
+  float curr_torque_target;  // in Nm
 
   float offset;
-  float direction; // 1 or -1 to have uniformity in the direction of every joint
+  float
+      direction;  // 1 or -1 to have uniformity in the direction of every joint
   float watchdog_timeout;
 };
 
 // normalize the angle to be between -PI and PI
 inline float normalize_angle(float angle) {
   angle = std::fmod(angle, TWO_PI);
-  if (angle > PI)
-    angle -= TWO_PI;
-  if (angle < -PI)
-    angle += TWO_PI;
+  if (angle > PI) angle -= TWO_PI;
+  if (angle < -PI) angle += TWO_PI;
 
   return angle;
 }
@@ -67,5 +68,4 @@ inline bool is_within_limits(float pos, const Joint &j) {
 inline float clamp_to_limits(float pos, const Joint &j) {
   return std::min(std::max(pos, j.min_pos), j.max_pos);
 }
-
-}; // namespace newton
+}  // namespace newton

@@ -1,6 +1,10 @@
-#include "data/vectors.h"
-#include <cmath>
+#pragma once
+
 #include <sys/types.h>
+
+#include <cmath>
+
+#include "data/vectors.h"
 
 namespace newton {
 struct ImuReading {
@@ -36,4 +40,4 @@ inline Vector3 quat_to_proj_gravity(const double q, const double x,
 
   return proj_gravity;
 }
-} // namespace newton
+}  // namespace newton
