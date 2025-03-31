@@ -12,7 +12,8 @@ namespace newton {
 class MachineGait : public BaseGait {
  public:
   explicit MachineGait(
-      const rclcpp::NodeOptions &options = rclcpp::NodeOptions());
+        const std::string &model_path = "model.onnx"
+  );
   ~MachineGait() = default;
 
  protected:

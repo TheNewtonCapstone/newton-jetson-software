@@ -116,11 +116,7 @@ if ! shopt -oq posix; then
 fi
 
 
-export ROS_DOMAIN_ID=25
-
 # set fzf config
 [ -f ~/.fzf.bash ] && source ~/.fzf.bash
 
-# set oh-my-posh as default prompt
-eval "$(oh-my-posh init bash --config "https://raw.githubusercontent.com/JanDeDobbeleer/oh-my-posh/main/themes/negligible.omp.json")"
-
+source /home/newton/workspace/source_all.sh

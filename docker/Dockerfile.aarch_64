@@ -64,6 +64,7 @@ RUN sudo add-apt-repository universe \
     ros-humble-ros-base \
     ros-humble-ament-* \
     ros-dev-tools \
+    ros-humble-joy \
     && rm -rf /var/lib/apt/lists/*
 
 RUN rosdep init || echo "rosdep already initialized"

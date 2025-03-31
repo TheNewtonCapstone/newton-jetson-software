@@ -21,6 +21,7 @@ class PkgName(str, Enum):
     n_inputs = "n_inputs"
     n_odrive = "n_odrive"
     newton = "newton"
+    gaininputs = "gaininputs"
     utils = "utils"
     all = "all"
 
@@ -452,6 +453,8 @@ def run_container(
             "--runtime=nvidia",
             "-it",
             "--net=host",
+            "--gpus=all",
+            "--user=root",
             "-v",
             "/dev:/dev",
             "--device-cgroup-rule=c *:* rmw",
@@ -460,6 +463,11 @@ def run_container(
             "--group-add=sudo",
             "--group-add=root",
             "--device=/dev",
+            # nvidiamounts
+            "--device=/dev/nvgpu",
+            "--device=/dev/nvmap",
+            "--volume=/usr/lib/aarch64-linux-gnu:/usr/lib/aarch64-linux-gnu",
+            "--runtime=nvidia",
             "-e",
             "WORKSPACE_ROOT=/home/newton/workspace",
             "-v",

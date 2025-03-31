@@ -78,7 +78,11 @@
     "shared_mutex": "cpp",
     "cfenv": "cpp",
     "typeindex": "cpp",
-    "*.txx": "cpp"
+    "*.txx": "cpp",
+    "any": "cpp",
+    "coroutine": "cpp",
+    "regex": "cpp",
+    "source_location": "cpp"
   },
   "cmake.sourceDirectory": "/home/newton/projects/newton-jetson-software",
   "python.autoComplete.extraPaths": [

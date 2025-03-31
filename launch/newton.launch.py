@@ -42,7 +42,14 @@ def generate_launch_description():
         name="keyboard_node",
         output="screen",
         emulate_tty=True,
-        remappings=[("/vel_cmds/keyboard", "/vel_cmds")],
+        remappings=[("/cmd_vel/keyboard", "/cmd_vel")],
+    )
+    
+    joy_node = Node(
+        package="joy",
+        executable="joy_node",
+        name="joy_node",
+        output="screen",
     )
 
     gamepad_input_node = Node(
@@ -51,7 +58,7 @@ def generate_launch_description():
         name="gamepad_node",
         output="screen",
         emulate_tty=True,
-        remappings=[("/vel_cmds/gamepad", "/vel_cmds")],
+        remappings=[("/cmd_vel/gamepad", "/cmd_vel")],
     )
 
     return LaunchDescription(
@@ -60,6 +67,7 @@ def generate_launch_description():
             controller_launch,
             imu_launch,
             # keyboard_input_node,
+            joy_node,
             gamepad_input_node,
         ]
     )

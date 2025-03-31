@@ -1,7 +1,6 @@
 #include "gaits/machine_gait.h"
 
 #include <fstream>
-#include <rclcpp/rclcpp.hpp>
 #include <sstream>
 #include <vector>
 
@@ -9,33 +8,19 @@
 
 using namespace newton;
 
-MachineGait::MachineGait(const rclcpp::NodeOptions &options)
-    : BaseGait("machine_gait", true, options) {
-  // Declare node's parameters default value
-  this->declare_parameter("model_path", "model_300.onnx");
-  this->declare_parameter("num_inputs", 33);
-  this->declare_parameter("num_outputs", 8);
-  this->declare_parameter(
-      "csv_path", "joint_positions.csv");  // New parameter for CSV file path
-
-  // Get the parameters
-  const auto model_path = this->get_parameter("model_path").as_string();
-  const auto num_inputs = this->get_parameter("num_inputs").as_int();
-  const auto num_outputs = this->get_parameter("num_outputs").as_int();
-  const auto csv_path =
-      this->get_parameter("csv_path").as_string();  // Get CSV path
-
+MachineGait::MachineGait(const std::string& model_path) : BaseGait() {
   onnx_handler =
-      std::make_unique<OnnxHandler>(model_path, num_inputs, num_outputs);
+      std::make_unique<OnnxHandler>(model_path, 33, 8);
 
   // Open CSV file
+  const std::string csv_path = "joint_positions.csv";
   csv_file.open(csv_path);
   if (!csv_file.is_open()) {
-    RCLCPP_ERROR(this->get_logger(), "Failed to open CSV file: %s",
-                 csv_path.c_str());
+    Logger::ERROR("machine_gait",
+                 "Failed to open CSV file: %s", csv_path.c_str());
   } else {
-    RCLCPP_INFO(this->get_logger(), "Successfully opened CSV file: %s",
-                csv_path.c_str());
+    Logger::INFO("machine_gait",
+                "Successfully opened CSV file: %s", csv_path.c_str());
 
     // Read and skip header line if it exists
     std::string header;
@@ -92,8 +77,10 @@ std::array<float, NUM_JOINTS> MachineGait::update(
   }
 
   std::string log_line = "";
-  auto now = this->get_clock()->now();
-  log_line += std::to_string(now.seconds()) + ",";
+  auto now = std::chrono::system_clock::now();
+  auto now_in_seconds =
+      std::chrono::duration<double>(now.time_since_epoch()).count();
+  log_line += std::to_string(now_in_seconds) + ",";
 
   auto &input_buffer = onnx_handler->get_input_buffer();
 
@@ -108,9 +95,8 @@ std::array<float, NUM_JOINTS> MachineGait::update(
   input_buffer[5] = observations[5];
 
   // commands
-
-  input_buffer[6] = observations[6];  // the commands use y as the forward
-  input_buffer[7] = observations[7];  // and x as the sideways
+  input_buffer[6] = observations[7];  // the commands use y as the forward
+  input_buffer[7] = observations[6];  // and x as the sideways
   input_buffer[8] = observations[8];
 
   // joint positions
@@ -127,8 +113,8 @@ std::array<float, NUM_JOINTS> MachineGait::update(
 
   // previous actions
   for (int i = 0; i < NUM_JOINTS; i++) {
-    input_buffer[PREV_ACTION_IDX + i] =
-        observations[PREV_ACTION_IDX + i] * PREV_ACTION_SCALER;
+    input_buffer[PREV_ACTION_IDX + i] = previous_actions[i] *
+                                        PREV_ACTION_SCALER;
   }
 
   for (int i = 0; i < NUM_OBSERVATIONS; i++) {
@@ -142,6 +128,8 @@ std::array<float, NUM_JOINTS> MachineGait::update(
   std::array<float, NUM_JOINTS> positions{};
 
   for (int i = 0; i < NUM_JOINTS; i++) {
+    previous_actions[i] = output_buffer[i];
+
     const auto delta = output_buffer[i] * ACTION_SCALER;
     positions[i] = standing_positions[i] + delta;
 

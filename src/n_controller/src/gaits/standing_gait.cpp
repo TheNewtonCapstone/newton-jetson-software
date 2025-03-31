@@ -1,16 +1,18 @@
 #include "gaits/standing_gait.h"
 
-#include <rclcpp/rclcpp.hpp>
+#include <cmath>
 
 #include "logger.h"
+#include "unit.h"
 
 using namespace newton;
 
-StandingGait::StandingGait(const rclcpp::NodeOptions &options)
-    : BaseGait("standing_gait", true, options) {
+StandingGait::StandingGait() : BaseGait() {
   Logger::get_instance().set_logfile("standing.csv");
 
-  std::string log_title = "time,";
+  std::string log_title = "standing_gait,";
+
+  log_title += "time,";
   log_title += "hfe_offset,kfe_offset,";
   log_title +=
       "target_fl_hfe,target_fl_kfe,target_fr_hfe,target_fr_kfe,target_hl_hfe,"
@@ -34,49 +36,17 @@ std::array<float, NUM_JOINTS> StandingGait::update(
   // every 5s, the amplitude will change and after 5 amplitude changes, the
   // frequency will change (up to 5 changes)
   const float INITIAL_AMPLITUDE = 0.1;
-  const float INITIAL_FREQUENCY = 0.4;
+  const float INITIAL_FREQUENCY = 0;
 
   // every 5s, the amplitude will change and after 5 amplitude changes, the
   // frequency will change (up to 5 changes)
   static float base_amplitude = INITIAL_AMPLITUDE;
   static float base_frequency = INITIAL_FREQUENCY;
-  static int amplitude_changes = 0;
-  static int frequency_changes = 0;
   static double last_change_time = 0.0;
 
-  auto now = this->get_clock()->now();
-  log_line += std::to_string(now.nanoseconds()) + ",";
-  auto current_time = now.seconds();
-
-  // Check if 5 seconds have passed since the last change
-  if (current_time - last_change_time >= 60.0) {
-    // Update the last change time
-    last_change_time = current_time;
-
-    // Change amplitude
-    amplitude_changes++;
-    base_amplitude += 0.1;
-
-    RCLCPP_INFO(this->get_logger(), "Amplitude changed to %f", base_amplitude);
-
-    // If we've changed amplitude 5 times, change frequency
-    if (amplitude_changes >= 5) {
-      amplitude_changes = 0;
-      base_amplitude = INITIAL_AMPLITUDE;
-      frequency_changes++;
-
-      // RCLCPP_INFO(this->get_logger(), "Frequency changed to %f",
-      // base_frequency);
-
-      // Increase frequency (up to 5 changes)
-      if (frequency_changes < 5) {
-        base_frequency += 0.1;
-      } else {
-        frequency_changes = 0;
-        base_frequency = INITIAL_FREQUENCY;
-      }
-    }
-  }
+  auto now = std::chrono::system_clock::now();
+  auto now_in_seconds= std::chrono::duration<double>(now.time_since_epoch()).count();
+  log_line += std::to_string(now_in_seconds) + ",";
 
   // Use the updated amplitude and frequency
   float amplitude = base_amplitude;
@@ -88,7 +58,7 @@ std::array<float, NUM_JOINTS> StandingGait::update(
       std::min(1.0f, max_amplitude / amplitude);  // Scale down if needed
 
   float base_position =
-      INITIAL_AMPLITUDE * sin(TWO_PI * INITIAL_FREQUENCY * now.seconds());
+      INITIAL_AMPLITUDE * sin(TWO_PI * INITIAL_FREQUENCY * now_in_seconds);
   float hfe_offset = INITIAL_AMPLITUDE * hfe_scaling * base_position;
   float kfe_offset = INITIAL_AMPLITUDE * -2.0 * base_position;
 
@@ -99,6 +69,12 @@ std::array<float, NUM_JOINTS> StandingGait::update(
 
   // Calculate target positions for all joints
   for (int i = 0; i < NUM_JOINTS; i++) {
+    if (i > NUM_JOINTS / 2) {
+      positions[i] = standing_positions[i] + kfe_offset +
+                     sin(TWO_PI * INITIAL_FREQUENCY * now_in_seconds) *
+                         base_amplitude;  // Add sine wave to the offset
+      continue;
+    }
     if (i % 2 == 0) {
       // HFE joint
       positions[i] = standing_positions[i] + hfe_offset;
@@ -118,5 +94,6 @@ std::array<float, NUM_JOINTS> StandingGait::update(
     log_line += std::to_string(positions[i]) + ",";
   }
 
+  Logger::INFO("standing_gait", log_line.c_str());
   return positions;
 }

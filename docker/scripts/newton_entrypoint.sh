@@ -4,6 +4,7 @@
 echo "Hello Docker!"
 
 ROS_DISTRO=humble
+
 # setup ros2 environment
 source /opt/ros/"$ROS_DISTRO"/setup.bash --
 source /opt/ros/humble/setup.bash

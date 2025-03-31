@@ -5,6 +5,7 @@
 #include <string>
 
 #include "data/cmd.h"
+#include "globals.h" 
 #include "data/gait_type.h"
 #include "data/imu.h"
 #include "data/joint.h"
@@ -43,7 +44,7 @@ class GaitManager : public rclcpp::Node {
   void set_joint_positions(const std::array<float, NUM_JOINTS>& positions);
 
   // select gait based on velocity
-  result<GaitType> select_gait_by_velocity(float linear_magnitude);
+  GaitType select_gait_by_velocity(float linear_magnitude);
 
   // callbacks
   void cmd_vel_cb(const geometry_msgs::msg::Twist::SharedPtr msg);
@@ -93,7 +94,6 @@ class GaitManager : public rclcpp::Node {
 
   // ROS interfaces
   rclcpp::Publisher<std_msgs::msg::Float32MultiArray>::SharedPtr joint_cmd_pub;
-  rclcpp::Publisher<std_msgs::msg::String>::SharedPtr current_gait_pub;
   rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr cmd_vel_sub;
   rclcpp::Subscription<std_msgs::msg::String>::SharedPtr gait_change_sub;
   rclcpp::Subscription<std_msgs::msg::Float32MultiArray>::SharedPtr

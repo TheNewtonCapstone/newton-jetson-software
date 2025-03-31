@@ -1,5 +1,7 @@
 #pragma once
 
+#include <array>
+
 namespace newton {
 static constexpr int NUM_JOINTS = 8;
 

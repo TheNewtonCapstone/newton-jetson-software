@@ -10,12 +10,11 @@ find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
+find_package(sensor_msgs REQUIRED)
+find_package(joy REQUIRED)
 # uncomment the following section in order to fill in
 # further dependencies manually.
 # find_package(<dependency> REQUIRED)
-
-# add lib subdirectories
-add_subdirectory(lib/gainput)
 
 # create an executable
 add_executable(keyboard_node 
@@ -38,7 +37,9 @@ ament_target_dependencies(
   gamepad_node 
   rclcpp 
   std_msgs 
+  sensor_msgs
   geometry_msgs
+  joy
 )
 
 # get the utils directory
@@ -62,7 +63,6 @@ target_include_directories(
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>
   ${UTILS_DIR}/include
-  ${PROJECT_DIR}/lib/gainput/include
 )
 
 # link against libraries
@@ -74,9 +74,6 @@ target_link_libraries(
 target_link_libraries(
   gamepad_node
   ${UTILS_DIR}/build/libutils.so
-  gainputstatic
-  ${PROJECT_DIR}/lib/gainput/build/lib/libgainput.so
-  X11
 )
 
 # install lib

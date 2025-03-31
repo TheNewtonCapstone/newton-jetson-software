@@ -17,6 +17,7 @@ using std::placeholders::_1;
 
 GaitManager::GaitManager() : Node("gait_manager") {
   // Declare parameters
+  declare_parameter("model_path", "model.onnx");
   declare_parameter("transition_duration", 1.0);
   declare_parameter("initial_gait", "standing");
   declare_parameter("enable_automatic_transitions", true);
@@ -25,14 +26,10 @@ GaitManager::GaitManager() : Node("gait_manager") {
   declare_parameter("velocity_threshold_machine", 0.8);
 
   transition_duration = get_parameter("transition_duration").as_double();
-  std::string initial_gait = get_parameter("initial_gait").as_string();
   enable_automatic = get_parameter("enable_automatic_transitions").as_bool();
 
-  // Velocity thresholds for automatic transitions
-  // velocity_thresholds = {
-  //     {"walking", get_parameter("velocity_threshold_walking").as_double()},
-  //     {"sliding", get_parameter("velocity_threshold_sliding").as_double()},
-  //     {"machine", get_parameter("velocity_threshold_machine").as_double()}};
+  const std::string initial_gait = get_parameter("initial_gait").as_string();
+  const auto model_path = get_parameter("model_path").as_string();
 
   init_publishers();
   init_subscribers();
@@ -43,17 +40,29 @@ GaitManager::GaitManager() : Node("gait_manager") {
   // Initialize gaits
   gaits[GaitType::STANDING] = std::make_shared<StandingGait>();
   gaits[GaitType::HARMONIC] = std::make_shared<HarmonicGait>();
-  gaits[GaitType::MACHINE_GAIT] = std::make_shared<MachineGait>();
+  gaits[GaitType::MACHINE_GAIT] = std::make_shared<MachineGait>(model_path);
+
+  Logger::get_instance().set_logfile("gait_manager.csv");
+  std::string log_title = "gait_manager,";
+  log_title += "time,";
+  log_title += "ang_vel_x, ang_vel_y, ang_vel_z,";
+  log_title += "proj_grav_x, proj_grav_y, proj_grav_z,";
+  log_title += "cmd_lin_vel_x, cmd_lin_vel_y, cmd_ang_vel_z,";
+  log_title +=
+      "fl_hfe, fl_kfe, fr_hfe, fr_kfe, hl_hfe, hl_kfe, hr_hfe, hr_kfe,";
+  log_title +=
+      "vel_fl_hfe, vel_fl_kfe, vel_fr_hfe, vel_fr_kfe, vel_hl_hfe, vel_hl_kfe, "
+      "vel_hr_hfe, vel_hr_kfe,";
+  log_title +=
+      "act_fl_hfe, act_fl_kfe, act_fr_hfe, act_fr_kfe, act_hl_hfe, act_hl_kfe, "
+      "act_hr_hfe, act_hr_kfe,";
+  Logger::INFO("gait_manager", log_title.c_str());
 }
 
 result<void> GaitManager::init_publishers() {
   joint_cmd_pub = this->create_publisher<std_msgs::msg::Float32MultiArray>(
       "joint_cmd_positions", 10);
 
-  current_gait_pub =
-      this->create_publisher<std_msgs::msg::String>("current_gait", 10);
-
-  return result<void>::success();
 }
 
 result<void> GaitManager::init_subscribers() {
@@ -92,13 +101,13 @@ result<std::shared_ptr<BaseGait>> GaitManager::get_gait(GaitType type) {
   rclcpp::NodeOptions options;
   switch (type) {
     case GaitType::HARMONIC:
-      gaits[type] = std::make_shared<HarmonicGait>(options);
+      gaits[type] = std::make_shared<HarmonicGait>();
       break;
     case GaitType::MACHINE_GAIT:
-      gaits[type] = std::make_shared<MachineGait>(options);
+      gaits[type] = std::make_shared<MachineGait>();
       break;
     default:
-      gaits[type] = std::make_shared<StandingGait>(options);
+      gaits[type] = std::make_shared<StandingGait>();
       break;
   }
   Logger::WARN("GM", "Gait not found, creating new gait");
@@ -111,6 +120,8 @@ void GaitManager::update() {
     return;
   }
 
+  // Logger::WARN("GM", "Update 1 ");
+  // check if we are in transition
   if (transition_progress < 1.0) {
     transition_progress += 0.02 / transition_duration;  // 20ms update
     if (transition_progress >= 1.0) {
@@ -121,7 +132,6 @@ void GaitManager::update() {
     }
   }
 
-  // check if we are in transition
   // update the observations array
   observations[0] = imu->angular_velocity.x;
   observations[1] = imu->angular_velocity.y;
@@ -133,25 +143,53 @@ void GaitManager::update() {
   observations[5] = imu->projected_gravity.z;
   // commands
   observations[6] =
-      cmd->linear_velocity.y;  // the commands use y as the forward
-  observations[7] = cmd->linear_velocity.x;  // and x as the sideways
-  observations[8] = cmd->angular_velocity.z;
+      cmd->linear_velocity.x;  // the commands use y as the forward
+  observations[7] = cmd->linear_velocity.y;  // and x as the sideways
+  observations[8] = cmd->angular_velocity.z; 
 
-  // update the joint positions
-  for (int i = 0; i < NUM_JOINTS; i++) {
-    // if current_gait is machine gait then pass in the delta
-    observations[POSITION_IDX + i] = current_positions[i];
-  }
+  observations[9] = current_positions[0];
+  observations[10] = current_positions[1];
+  observations[11] = current_positions[2];
+  observations[12] = current_positions[3];
+  observations[13] = current_positions[4];
+  observations[14] = current_positions[5];
+  observations[15] = current_positions[6];
+  observations[16] = current_positions[7];
+  observations[17] = current_positions[8];
 
-  // joint velocities
-  for (int i = 0; i < NUM_JOINTS; i++) {
-    observations[VELOCITY_IDX + i] = current_velocities[i];
-  }
 
-  // previous actions
-  for (int i = 0; i < NUM_JOINTS; i++) {
-    observations[PREV_ACTION_IDX + i] = previous_actions[i];
-  }
+  // velocity 
+  observations[18] = current_velocities[0];
+  observations[19] = current_velocities[1];
+  observations[20] = current_velocities[2];
+  observations[21] = current_velocities[3];
+  observations[22] = current_velocities[4];
+  observations[23] = current_velocities[5];
+  observations[24] = current_velocities[6];
+  observations[25] = current_velocities[7];
+  observations[26] = current_velocities[8];
+
+  // previous actions 
+
+  observations[18] = previous_actions[0];
+  observations[19] = previous_actions[1];
+  observations[20] = previous_actions[2];
+  observations[21] = previous_actions[3];
+  observations[22] = previous_actions[4];
+  observations[23] = previous_actions[5];
+  observations[24] = previous_actions[6];
+  observations[25] = previous_actions[7];
+  observations[26] = previous_actions[8];
+  // // update the joint positions
+  // for (int i = 0; i < NUM_JOINTS; i++) {
+  //   // if current_gait is machine gait then pass in the delta
+  //   observations[POSITION_IDX + i] = current_positions[i];
+  // }
+
+  // // previous actions
+  // for (int i = 0; i < NUM_JOINTS; i++) {
+  //   observations[PREV_ACTION_IDX + i] = previous_actions[i];
+  // }
 
   auto current_gait = get_gait(current_gait_type).get_value();
   std::array<float, NUM_JOINTS> actions;
@@ -174,13 +212,28 @@ void GaitManager::update() {
     actions = current_gait->update(observations);
   }
 
-  // publish the joint positions
-  set_joint_positions(actions);
-
   // update the previous actions
   for (int i = 0; i < NUM_JOINTS; i++) {
     previous_actions[i] = actions[i];
   }
+  // log the data
+  std::string log_line = "";
+  auto now = this->get_clock()->now();
+  log_line += std::to_string(now.nanoseconds()) + ",";
+
+  for (int i = 0; i < NUM_OBSERVATIONS; i++) {
+    log_line += std::to_string(observations[i]) + ",";
+  }
+
+  for (int i = 0; i < NUM_JOINTS; i++) {
+    log_line += std::to_string(actions[i]) + ((i < NUM_JOINTS - 1) ? "," : "");
+  }
+
+  Logger::INFO("gait_manager", log_line.c_str());
+  // publish the joint positions
+
+  set_joint_positions(actions);
+
 }
 
 void GaitManager::start_transition(GaitType target_gait) {
@@ -192,11 +245,6 @@ void GaitManager::start_transition(GaitType target_gait) {
   // Start the transition
   target_gait_type = target_gait;
   transition_progress = 0.0;
-
-  // Publish the change
-  auto msg = std_msgs::msg::String();
-  msg.data = "Transitioning to " + gait_type_to_string(target_gait);
-  current_gait_pub->publish(msg);
 }
 
 // setters
@@ -267,8 +315,11 @@ void GaitManager::imu_state_cb(const sensor_msgs::msg::Imu::SharedPtr msg) {
   imu->projected_gravity =
       quat_to_proj_gravity(msg->orientation.w, msg->orientation.x,
                            msg->orientation.y, msg->orientation.z);
-}
 
+  // Logger::WARN("GM", "%f %f %f %f %f %f ", 
+  // imu->projected_gravity.x, imu->projected_gravity.y, imu->projected_gravity.z,
+  // imu->linear_acceleration.x,imu->linear_acceleration.y, imu->linear_acceleration.z);
+}
 void GaitManager::odrive_ready_cb(std_msgs::msg::Bool::SharedPtr msg) {
   odrive_ready = msg->data;
 
@@ -283,7 +334,7 @@ void GaitManager::odrive_ready_cb(std_msgs::msg::Bool::SharedPtr msg) {
   update_timer = this->create_wall_timer(CONTROLLER_PERIOD,
                                          std::bind(&GaitManager::update, this));
 
-  start_transition(GaitType::MACHINE_GAIT);
+  // start_transition(GaitType::MACHINE_GAIT);
 }
 
 result<void> GaitManager::shutdown() {

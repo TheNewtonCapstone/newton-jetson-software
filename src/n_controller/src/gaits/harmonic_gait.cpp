@@ -1,13 +1,13 @@
 #include "gaits/harmonic_gait.h"
 
-#include <rclcpp/rclcpp.hpp>
+#include <cmath>
+#include "unit.h"
 
 #include "logger.h"
 
 using namespace newton;
 
-HarmonicGait::HarmonicGait(const rclcpp::NodeOptions &options)
-    : BaseGait("harmonic_gait", true, options) {
+HarmonicGait::HarmonicGait() : BaseGait() {
   Logger::get_instance().set_logfile("harmonic_gait.csv");
 
   std::string log_title = "time,";
@@ -44,20 +44,19 @@ std::array<float, NUM_JOINTS> HarmonicGait::update(
   static int frequency_changes = 0;
   static double last_change_time = 0.0;
 
-  auto now = this->get_clock()->now();
-  log_line += std::to_string(now.nanoseconds()) + ",";
-  auto current_time = now.seconds();
+  // get c++ std time
+  auto now = std::chrono::system_clock::now();
+  auto now_in_seconds = std::chrono::duration<double>(now.time_since_epoch()).count();
+  log_line += std::to_string(now_in_seconds) + ",";
 
   // Check if 5 seconds have passed since the last change
-  if (current_time - last_change_time >= 60.0) {
+  if (now_in_seconds - last_change_time >= 60.0) {
     // Update the last change time
-    last_change_time = current_time;
+    last_change_time = now_in_seconds;
 
     // Change amplitude
     amplitude_changes++;
     base_amplitude += 0.1;
-
-    RCLCPP_INFO(this->get_logger(), "Amplitude changed to %f", base_amplitude);
 
     // If we've changed amplitude 5 times, change frequency
     if (amplitude_changes >= 5) {
@@ -65,7 +64,6 @@ std::array<float, NUM_JOINTS> HarmonicGait::update(
       base_amplitude = INITIAL_AMPLITUDE;
       frequency_changes++;
 
-      // RCLCPP_INFO(this->get_logger(), "Frequency changed to %f",
       // base_frequency);
 
       // Increase frequency (up to 5 changes)
@@ -87,7 +85,7 @@ std::array<float, NUM_JOINTS> HarmonicGait::update(
   float hfe_scaling =
       std::min(1.0f, max_amplitude / amplitude);  // Scale down if needed
 
-  float base_position = amplitude * sin(TWO_PI * frequency * now.seconds());
+  float base_position = amplitude * sin(TWO_PI * frequency * now_in_seconds);
   float hfe_offset = amplitude * hfe_scaling * base_position;
   float kfe_offset = amplitude * -2.0 * base_position;
 
@@ -109,7 +107,8 @@ std::array<float, NUM_JOINTS> HarmonicGait::update(
 
   // Check if test should end
   if (amplitude_changes == 5 && frequency_changes == 5) {
-    rclcpp::shutdown();
+    Logger::INFO("harmonic_gait", "Test completed.");
+
   }
 
   // logger
