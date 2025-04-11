@@ -64,6 +64,7 @@ RUN sudo add-apt-repository universe \
     ros-humble-ros-base \
     ros-humble-ament-* \
     ros-dev-tools \
+    ros-humble-joy \
     && rm -rf /var/lib/apt/lists/*
 
 RUN rosdep init || echo "rosdep already initialized"
@@ -88,13 +89,11 @@ COPY scripts/bashrc /home/$USERNAME/.bashrc
 COPY scripts/vimrc /home/$USERNAME/.vimrc
 COPY scripts/newton_entrypoint.sh /newton_entrypoint.sh
 
-
 RUN chown -R $USERNAME:$USERNAME /home/$USERNAME
 RUN chmod +x /newton_entrypoint.sh
 
-
 # Enforce root user to be the default user
-USER root
+USER $USERNAME
 WORKDIR /home/${USERNAME}
 
 ENTRYPOINT [ "/newton_entrypoint.sh" ]

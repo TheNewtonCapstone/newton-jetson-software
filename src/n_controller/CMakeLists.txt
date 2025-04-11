@@ -34,14 +34,12 @@ include_directories(${UTILS_DIR}/build)
 # Define executable target
 add_executable(controller_node
   src/main.cpp
+  src/gaits/gait_manager.cpp
   src/gaits/base_gait.cpp
   src/gaits/harmonic_gait.cpp
   src/gaits/machine_gait.cpp
-  src/gaits/sliding_gait.cpp
-  src/gaits/walking_gait.cpp
-  src/gaits/ik_gait.cpp
+  src/gaits/standing_gait.cpp
   src/handlers/onnx_handler.cpp
-  src/handlers/ik_handler.cpp
 )
 
 message("Grandparent Dir: ${PARENT_DIR}")

@@ -52,5 +52,10 @@ cmake-build-debug/
 .donet/
 .env
 
+*.egg-info
+lib/
+install/
+
+
 *.csv
 *.log
